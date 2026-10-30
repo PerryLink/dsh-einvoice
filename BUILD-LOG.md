@@ -75,3 +75,8 @@
 - Storage: optional `redlink` and `source_name` on the existing `fin_invoice` domain; archives/restores are files under `DSH_EINVOICE_HOME`, not a DB table.
 - `pnpm test` → 15/15 pass; `pnpm gate:sku04` → 6 rows (A01/A03/A04/A05/A06/A07), public/synthetic, `partial`.
 - `npm publish --tag next` submitted alpha.2; shasum `aceb20e5843e2b5f692d9a05981977328e89e6d6`; pending propagation.
+
+### alpha.2 verified (2026-10-31 01:19 +08)
+
+- `dist-tags`: latest `0.1.0-alpha.0`, next `0.1.0-alpha.2`; alpha.2 version query succeeds.
+- Registry install smoke passed; layer removed.

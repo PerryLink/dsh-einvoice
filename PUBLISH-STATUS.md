@@ -40,3 +40,8 @@
 - `npm publish --access public --tag next --registry=https://registry.npmjs.org/` → exit 0; server accepted; tarball shasum `aceb20e5843e2b5f692d9a05981977328e89e6d6`.
 - At 01:17 UTC+8 the registry still showed `next: 0.1.0-alpha.1`; alpha.2 was processing. Re-check before announcing.
 - No unpublish/deprecate; `latest` remains `0.1.0-alpha.0` (not GA).
+
+### Update 2026-10-31T01:19+08:00
+
+- `dist-tags` now `{ latest: "0.1.0-alpha.0", next: "0.1.0-alpha.2" }`; `npm view @perrylink/dsh-einvoice@0.1.0-alpha.2 version` returns `0.1.0-alpha.2`.
+- Registry install smoke (`dsh plugin add ...@0.1.0-alpha.2`) passed; layer removed after.
