@@ -36,3 +36,14 @@
 - `npm publish --access public --tag next --registry=https://registry.npmjs.org/` → exit 0; server `PUT` **202**; npm printed `+ @perrylink/dsh-einvoice@0.1.0-alpha.0`; tarball shasum `81912733aa84c7144cd5b12c0b18c694339b88d7`.
 - Registry still returns 404 for the package root; `dist-tags` returns `{"latest":"0.0.0-stage"}`; owner is `perrylink`. This is npm's staged-publish placeholder; the real `0.1.0-alpha.0` needs maintainer **2FA approval**.
 - See `PUBLISH-BLOCKED.md`; no unpublish/deprecate/approve was attempted. **Not installable from npm yet.**
+
+### npm publish verified (2026-10-31 01:02 +08)
+
+- `npm view @perrylink/dsh-einvoice dist-tags version` → `latest: 0.1.0-alpha.0`, `next: 0.1.0-alpha.0`, `version: 0.1.0-alpha.0`; tarball shasum `81912733aa84c7144cd5b12c0b18c694339b88d7`.
+- `0.0.0-stage` was a temporary first-publish placeholder; it resolved after propagation. `latest` points to alpha because it is the only version; GA later moves it.
+- See `PUBLISH-STATUS.md`.
+
+### Registry install smoke (2026-10-31 01:05 +08)
+
+- Temp `DSH_HOME`, `dsh plugin add @perrylink/dsh-einvoice@0.1.0-alpha.0` → installed `0.1.0-alpha.0`; `--dump-config` shows `# == @perrylink/dsh-einvoice`; remove clears the layer.
+- Peer warnings only (`@deepseek-ai/*` peers); the published package resolves its runtime dependencies and the host provides the DSH services.

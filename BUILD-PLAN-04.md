@@ -53,7 +53,7 @@ sources: REQ-EINVOICE §1/§4/§6–§10；DESIGN §1–§10；DECISIONS 04；TO
 
 ## 4. 数据
 
-- storage domain：`defineDomain({name:'fin-invoice', version:1, tables:{invoices: domainTable(InvoiceSchema)}})` → `ctx.storageDomain.open`。
+- storage domain：`defineDomain({name:'fin_invoice', version:1, tables:{invoices: domainTable(InvoiceSchema)}})` → `ctx.storageDomain.open`。
 - S1 单表 `invoices`；`lines[]` 嵌套在 Invoice 文档内（KV 文档，≤64KB/条；超限拆行/压缩）。
 - 主键 `doc_id`（ULID）；业务唯一 `(entity_id, invoice_no)` 由应用层校验；`sha256` 唯一用于幂等。
 - 关键字段：`doc_id`、`entity_id`、`invoice_no`、`invoice_code?`、`issue_date`、`buyer{name,tax_id}`、`seller{name,tax_id}`、`amount_cents`、`tax_cents`、`total_cents`、`currency:'CNY'`、`lines[]`、`confidence`、`field_evidence`、`unknown_fields`、`parser_version`、`source{kind,path,sha256,size}`、`lifecycle`、`created_at`、`updated_at`、`run_id`、`actor`、`evidence_sha256`。
@@ -115,7 +115,7 @@ S1 **无**：只读本地文件/目录，无 IMAP/SMB/税局/网络。S2 的 IMA
 
 | 片 | 范围 | 交付 | 验收数 |
 |---|---|---|---|---|
-| **S1 W1–2** | ingest + parse + query；1 domain/table；1 registry + 1 adapter；6 源码 + 4 配置 | 投递 4 个公开票样（1 数电 + 3 旧票；单文件 ingest 调用 4 次）→ 票池可看八字段 + 原件路径 + unknown_fields | 公开/合成：八字段 100%（4/4 已知票样）、负样本 0 误收；**not counted** |
+| **S1 W1–2** | ingest + parse + query；1 domain/table；1 registry + 1 adapter；6 源码 + 4 配置 | 投递 4 个公开票样（1 数电 + 3 旧票；单文件 ingest 调用 4 次）→ 票池可看八字段 + 原件路径 + unknown_fields | 合成：八字段 100%（3/3 已知票样）、负样本 0 误收；公开 4 票样可选；**not counted** |
 | S2 W3–4 | dedup + 抬头校验 + 异常分类 + 导出 | 重复组、异常清单、pool.xlsx | 重复 100%、0 静默 |
 | S3 W5–6 | 查验队列 + 回执哈希 + 红冲勾稽 | 回执链、10/10 勾稽 | 回执完整 100% / 勾稽 10/10 |
 | S4 W7–8 | 档案包 + manifest + 复原 + 审计导出 | `archive-check.json` | 复原 100%、三项 0 |
@@ -193,7 +193,7 @@ REQ-EINVOICE §8 七行 → `SKU-04-A01..A07`；S1 只跑 **A01（八字段，pu
 1. SKU-04 走 **B2 public demo**；客户门仍 PARK，public/synthetic 全部 `not counted`。
 2. 安装包 `@perrylink/dsh-einvoice`；引擎 `dsh-fin-invoice-core` S2 再拆。
 3. S1 = `invoice.ingest` + `invoice.parse` + `invoice.query`，3 工具。
-4. 1 个 storage 实体 `fin-invoice.invoices`；无 migration/事务。
+4. 1 个 storage 实体 `fin_invoice.invoices`；无 migration/事务。
 5. 1 个 registry + 1 个 adapter：`ofd-zip-xml`（fflate + fast-xml-parser）。
 6. 旧式 `original_invoice.xml` 与数电 `CustomTag` 两条解析路径。
 7. 八字段 + lines + field_evidence + unknown_fields；金额整数分。
