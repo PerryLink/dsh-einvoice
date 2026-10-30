@@ -1,0 +1,61 @@
+# @perrylink/dsh-einvoice
+
+File-level Chinese e-invoice ingest, parse and pool for DeepSeek Harness (SKU-04 S1).
+
+> **Status: S1 / public demo.** The customer evidence gate (2 enterprises + 1 bookkeeping firm + 100 real invoices) is still PARKED. S1 uses public/open-source and synthetic fixtures; its acceptance rows are `not counted` toward GA. Do not describe this package as GA-ready.
+
+## Install
+
+```sh
+dsh plugin --profile <profile> add @perrylink/dsh-einvoice
+dsh --profile <profile> --dump-config | grep dsh-einvoice
+```
+
+The bundle inserts one Host row. It requires the base profile's `tools` and `storageDomain` services and a configured storage backend (the shipped base profile uses `storage-json`).
+
+## Tools (S1)
+
+| Tool | What it does | Risk |
+|---|---|---|
+| `invoice.ingest` | Ingest one local OFD/XML file, compute SHA-256, store the original locally, idempotent by bytes | R1 local write |
+| `invoice.parse` | Parse old OFD `Attachs/original_invoice.xml` or 数电票 `Tags/CustomTag.xml` + ObjectRef; return eight fields, lines, evidence and unknown fields | R0 |
+| `invoice.query` | Query the invoice pool by entity, period, lifecycle or text | R0 |
+
+S2/S3 add dedup, verification/receipt, red/blue matching, archive packages and archive checks; S1 does not register them.
+
+## Configuration
+
+| Env | Default | Meaning |
+|---|---|---|
+| `DSH_EINVOICE_HOME` | `$DSH_HOME/storages/dsh-einvoice` | originals directory and local pool base |
+| `DSH_EINVOICE_INPUT_ROOTS` | current working directory | `path.delimiter`-separated allowlist for `invoice.ingest` |
+
+No credentials, no network, no IMAP/OCR in S1.
+
+## Limitations
+
+- No IMAP/email fetching, OCR engine, tax-bureau verification, ERP posting, e-signature legal opinion, or Client UI.
+- S1 accepts one local file per `invoice.ingest` call; directory batches are S2.
+- `unknown_fields`/`field_evidence` are stored locally and may contain the same sensitive fields as the invoice; keep the pool local and do not paste raw output into logs or public issues.
+- Public samples with PII are kept in `.tmp` only; they are not shipped in the tarball.
+
+## Failure paths
+
+Errors are thrown as `E_INV_*` (`E_INV_FILE_UNREADABLE`, `E_INV_PATH_NOT_ALLOWED`, `E_INV_OFD_UNSUPPORTED`, `E_INV_XML_SCHEMA_DRIFT`, `E_INV_FIELD_MISSING`, `E_INV_DOC_NOT_FOUND`, `E_INV_DUP_CONFLICT`, `E_INV_STORAGE_FAILED`, `E_INV_UNKNOWN_IMPL`). DSH renders thrown errors as tool errors; they are not returned as successful `{ok:false}` values.
+
+## Development
+
+```sh
+pnpm install --frozen-lockfile
+pnpm build
+pnpm lint
+pnpm typecheck
+pnpm test
+pnpm gate:sku04
+```
+
+See `docs/architecture.md`, `docs/plugin-development.md`, `docs/configuration.md`, `FIXTURES.md`, `BUILD-PLAN-04.md`.
+
+## License
+
+Apache-2.0. Third-party notices in `NOTICE` and `THIRD-PARTY-NOTICES`.

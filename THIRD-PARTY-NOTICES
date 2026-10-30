@@ -1,0 +1,9 @@
+Third-party notices for @perrylink/dsh-einvoice
+
+- fflate (MIT)
+- fast-xml-parser (MIT)
+- zod (MIT)
+
+Test fixtures derived from ofdrw (MIT, Copyright (c) 2020 Quan guanyu):
+see OPEN-SOURCE-SAMPLES.md and oss-samples-manifest.json. Public samples are
+kept in .tmp only and are not part of the published tarball.

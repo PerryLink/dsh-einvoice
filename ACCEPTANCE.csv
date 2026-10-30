@@ -1,0 +1,4 @@
+req_id,metric,threshold,actual,script,evidence_sha256,pass
+SKU-04-A01,八字段完整率（S1 合成样本）,>=0.98,1,scripts/acceptance.mjs,2366986d6b6e04434c452055f6d6af66abd4ab50cf8a6d9f64910779c67beda3,true
+SKU-04-A06,单票解析 P95（S1）,<20s,0.003110944000000018,scripts/acceptance.mjs,2366986d6b6e04434c452055f6d6af66abd4ab50cf8a6d9f64910779c67beda3,true
+SKU-04-A07,负样本处理率 + 字段证据覆盖（S1）,100%,1,scripts/acceptance.mjs,2366986d6b6e04434c452055f6d6af66abd4ab50cf8a6d9f64910779c67beda3,true
