@@ -63,3 +63,8 @@
 - Storage: optional `verification`/`receipts` fields on the existing `fin_invoice` domain (backward-compatible; no version bump needed).
 - `pnpm test` → 13/13 pass; `pnpm gate:sku04` → 4 rows (A01/A05/A06/A07), all public/synthetic, `partial`.
 - `npm publish --tag next` submitted `0.1.0-alpha.1`; tarball shasum `f16de997ead1ed64c2de7ff255553f597f37023a`. Registry `next` tag propagation pending; see `PUBLISH-STATUS.md`.
+
+### alpha.1 verified (2026-10-31 01:12 +08)
+
+- `dist-tags`: latest `0.1.0-alpha.0`, next `0.1.0-alpha.1`; alpha.1 version query succeeds.
+- Registry install smoke with `dsh plugin add @perrylink/dsh-einvoice@0.1.0-alpha.1` passed; layer removed after.
