@@ -5,9 +5,11 @@ core/        invoice.ts       pure eight-field normalization, money, dates, tax-
 adapters/    ofd-zip-xml.ts   OFD ZIP + XML reader (old attachment / 数电 CustomTag + ObjectRef / standalone XML)
 registry/    parsers.ts       frozen parser table: "ofd-zip-xml@1"
 plugin/      index.ts         DSH Host entry: tools + storageDomain
-             tools.ts         invoice.ingest / invoice.parse / invoice.query
+             tools.ts         invoice.ingest / invoice.parse / invoice.query / invoice.dedup / invoice.verify / invoice.receipt
              storage.ts       fin_invoice domain (JSON KV), originals store, ULID, hashes
 ```
+
+S2 adds duplicate grouping (invoice number, or seller+date+total), a local manual verification queue, and receipt hashing. `receipts[]`/`verification` are optional fields on the existing `fin_invoice` domain, so old records stay valid.
 
 Data flow:
 

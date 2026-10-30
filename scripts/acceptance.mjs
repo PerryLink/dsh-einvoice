@@ -2,11 +2,14 @@
 
 import { createHash } from 'node:crypto'
 import { mkdirSync, writeFileSync } from 'node:fs'
+import { mkdtemp, rm, writeFile } from 'node:fs/promises'
+import os from 'node:os'
 import path from 'node:path'
 import { performance } from 'node:perf_hooks'
 import { strToU8, zipSync } from 'fflate'
 import { ofdZipXmlParser } from '../lib/adapters/ofd-zip-xml.js'
 import { InvoiceError } from '../lib/core/invoice.js'
+import { createTools } from '../lib/plugin/tools.js'
 
 const root = process.cwd()
 const runId = `s1-${new Date().toISOString().replace(/[:.]/g, '-')}`
@@ -90,13 +93,54 @@ const metrics = [
   { req_id: 'SKU-04-A07', metric: '负样本处理率 + 字段证据覆盖（S1）', threshold: '100%', actual: negativeHandled === 2 ? 1 : 0, pass: negativeHandled === 2, counted: false },
 ]
 
+// S2: a synthetic invoice -> ingest -> parse -> receipt; hash + idempotency + lifecycle.
+class FakeTable {
+  map = new Map()
+  get(key) { return this.map.get(key) }
+  entries() { return this.map.entries() }
+  keys() { return this.map.keys() }
+  get size() { return this.map.size }
+  async put(key, value) { this.map.set(key, value) }
+  async delete(key) { return this.map.delete(key) }
+  async update(key, fn) { const next = fn(this.map.get(key)); this.map.set(key, next); return next }
+}
+
+let receiptOk = false
+const receiptDir = await mkdtemp(path.join(os.tmpdir(), 'dsh-einvoice-accept-'))
+try {
+  const invoicePath = path.join(receiptDir, 'invoice.xml')
+  const receiptPath = path.join(receiptDir, 'receipt.txt')
+  await writeFile(invoicePath, genericXml)
+  await writeFile(receiptPath, '平台结果码=100; 验真\n')
+  const table = new FakeTable()
+  const tools = createTools({ table, baseDir: path.join(receiptDir, 'store'), inputRoots: [receiptDir] })
+  const byName = Object.fromEntries(tools.map((tool) => [tool.name, tool]))
+  const exec = { callId: 'acceptance-s2', agent: { id: 'acceptance' } }
+  const ing = await byName['invoice.ingest'].execute({ source: { kind: 'file', path: invoicePath }, entity_id: 'ENT-A' }, exec)
+  await byName['invoice.parse'].execute({ doc_id: ing.doc_id }, exec)
+  const receipt = await byName['invoice.receipt'].execute({
+    invoice_id: ing.doc_id, receipt_file: receiptPath, result_code: '100', result: 'pass',
+    verified_at: '2026-08-02T10:00:00+08:00', operator: 'acceptance',
+  }, exec)
+  const duplicate = await byName['invoice.receipt'].execute({
+    invoice_id: ing.doc_id, receipt_file: receiptPath, result_code: '100', result: 'pass',
+    verified_at: '2026-08-02T10:00:00+08:00', operator: 'acceptance',
+  }, exec)
+  receiptOk = receipt.duplicate === false && receipt.lifecycle === 'verified' && /^[0-9a-f]{64}$/.test(receipt.receipt_sha256) && duplicate.duplicate === true
+} catch {
+  receiptOk = false
+} finally {
+  await rm(receiptDir, { recursive: true, force: true })
+}
+metrics.push({ req_id: 'SKU-04-A05', metric: '回执完整率（S2 单票）', threshold: '100%', actual: receiptOk ? 1 : 0, pass: receiptOk, counted: false })
+
 const result = {
   run_id: runId,
   timestamp: new Date().toISOString(),
-  scope: 'SKU-04-S1',
+  scope: 'SKU-04-S1/S2',
   status: 'partial',
   counted: false,
-  note: 'public/synthetic only; customer evidence gate remains PARK',
+  note: 'public/synthetic only; S2 dedup/verify/receipt; customer evidence gate remains PARK',
   samples: parsedSamples,
   metrics,
   pass: metrics.every((metric) => metric.pass),

@@ -1,4 +1,5 @@
 req_id,metric,threshold,actual,script,evidence_sha256,pass
-SKU-04-A01,八字段完整率（S1 合成样本）,>=0.98,1,scripts/acceptance.mjs,e407e9f332ac2a335194f443dc84bb3bd3cd93fe4926b3bf0985bdd580b9ac5c,true
-SKU-04-A06,单票解析 P95（S1）,<20s,0.006466666000000032,scripts/acceptance.mjs,e407e9f332ac2a335194f443dc84bb3bd3cd93fe4926b3bf0985bdd580b9ac5c,true
-SKU-04-A07,负样本处理率 + 字段证据覆盖（S1）,100%,1,scripts/acceptance.mjs,e407e9f332ac2a335194f443dc84bb3bd3cd93fe4926b3bf0985bdd580b9ac5c,true
+SKU-04-A01,八字段完整率（S1 合成样本）,>=0.98,1,scripts/acceptance.mjs,44acb2ea2eb333c105d1cd18d1c6e0422c2ca2446fe1bfe428657c19e2db0d74,true
+SKU-04-A06,单票解析 P95（S1）,<20s,0.0029629460000001016,scripts/acceptance.mjs,44acb2ea2eb333c105d1cd18d1c6e0422c2ca2446fe1bfe428657c19e2db0d74,true
+SKU-04-A07,负样本处理率 + 字段证据覆盖（S1）,100%,1,scripts/acceptance.mjs,44acb2ea2eb333c105d1cd18d1c6e0422c2ca2446fe1bfe428657c19e2db0d74,true
+SKU-04-A05,回执完整率（S2 单票）,100%,1,scripts/acceptance.mjs,44acb2ea2eb333c105d1cd18d1c6e0422c2ca2446fe1bfe428657c19e2db0d74,true

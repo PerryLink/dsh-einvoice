@@ -24,6 +24,26 @@ export const lineSchema = z.object({
   tax_cents: z.number().int().optional(),
 })
 
+export const verificationSchema = z.object({
+  state: z.enum(['pending', 'verified', 'failed', 'manual']),
+  queued_at: z.string().optional(),
+  updated_at: z.string().optional(),
+  attempts: z.number().int().nonnegative().default(0),
+  last_result: z.string().optional(),
+  manual_reason: z.string().optional(),
+})
+
+export const receiptSchema = z.object({
+  receipt_id: z.string(),
+  result_code: z.string(),
+  result: z.enum(['pass', 'fail', 'unknown']),
+  verified_at: z.string(),
+  operator: z.string(),
+  receipt_sha256: z.string(),
+  receipt_path: z.string(),
+  recorded_at: z.string(),
+})
+
 export const invoiceSchema = z.object({
   doc_id: z.string().min(1),
   entity_id: z.string(),
@@ -42,6 +62,8 @@ export const invoiceSchema = z.object({
   unknown_fields: z.record(z.string(), z.unknown()),
   parser_version: z.string(),
   lifecycle: z.enum(['received', 'parsed', 'verified', 'archived', 'quarantined']),
+  verification: verificationSchema.optional(),
+  receipts: z.array(receiptSchema).optional(),
   source_path: z.string(),
   source_sha256: z.string(),
   source_size: z.number().int().nonnegative(),

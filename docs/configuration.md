@@ -20,7 +20,9 @@ The bundle passes no config; the defaults are intentionally local-only. S2 may a
 | `E_INV_XML_SCHEMA_DRIFT` | needs_review | yes | review unknown fields; do not silently drop |
 | `E_INV_FIELD_MISSING` | needs_review | yes | complete the invoice or re-export |
 | `E_INV_DUP_CONFLICT` | needs_review | no | review the existing `doc_id`; do not overwrite |
+| `E_INV_RECEIPT_INCOMPLETE` | needs_review | yes | provide result_code/verified_at/operator/receipt file |
+| `E_INV_RECEIPT_HASH_MISMATCH` | fatal | no | re-export the receipt; do not edit bytes |
 | `E_INV_STORAGE_FAILED` | retryable | yes (3×) | check disk/permissions |
 | `E_INV_UNKNOWN_IMPL` | fatal | no | use `ofd-zip-xml` |
 
-S1 registers no R2/R3 tool and no MCP exposure.
+S1/S2 register no R2/R3 tool and no MCP exposure; `invoice.verify` is a local manual queue, not a tax-bureau call.

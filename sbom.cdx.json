@@ -1,14 +1,14 @@
 {
   "bomFormat": "CycloneDX",
   "specVersion": "1.6",
-  "serialNumber": "urn:uuid:6e97ab3a-0e2b-485b-b10f-d6146b4da7dd",
+  "serialNumber": "urn:uuid:294d111c-1f87-4add-bcb3-fe038660ee5a",
   "version": 1,
   "metadata": {
-    "timestamp": "2026-10-30T17:04:01.158Z",
+    "timestamp": "2026-10-30T17:08:07.216Z",
     "component": {
       "type": "application",
       "name": "@perrylink/dsh-einvoice",
-      "version": "0.1.0-alpha.0"
+      "version": "0.1.0-alpha.1"
     }
   },
   "components": [

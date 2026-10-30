@@ -2,7 +2,7 @@
 
 File-level Chinese e-invoice ingest, parse and pool for DeepSeek Harness (SKU-04 S1).
 
-> **Status: S1 / public demo.** The customer evidence gate (2 enterprises + 1 bookkeeping firm + 100 real invoices) is still PARKED. S1 uses public/open-source and synthetic fixtures; its acceptance rows are `not counted` toward GA. Do not describe this package as GA-ready.
+> **Status: S1+S2 / public demo (0.1.0-alpha.1).** The customer evidence gate (2 enterprises + 1 bookkeeping firm + 100 real invoices) is still PARKED. S1 uses public/open-source and synthetic fixtures; its acceptance rows are `not counted` toward GA. Do not describe this package as GA-ready.
 
 ## Install
 
@@ -20,8 +20,11 @@ The bundle inserts one Host row. It requires the base profile's `tools` and `sto
 | `invoice.ingest` | Ingest one local OFD/XML file, compute SHA-256, store the original locally, idempotent by bytes | R1 local write |
 | `invoice.parse` | Parse old OFD `Attachs/original_invoice.xml` or 数电票 `Tags/CustomTag.xml` + ObjectRef; return eight fields, lines, evidence and unknown fields | R0 |
 | `invoice.query` | Query the invoice pool by entity, period, lifecycle or text | R0 |
+| `invoice.dedup` | Group duplicates by invoice number or seller+date+total | R0 |
+| `invoice.verify` | Queue parsed invoices for manual verification; optional buyer-tax-id mismatch flags | R1 local write |
+| `invoice.receipt` | Hash a local receipt, append it, move lifecycle to verified/quarantined; idempotent by receipt bytes | R1 local write |
 
-S2/S3 add dedup, verification/receipt, red/blue matching, archive packages and archive checks; S1 does not register them.
+S3 adds red/blue matching, archive packages and archive checks; S2 verification is manual/local (no tax-bureau network call).
 
 ## Configuration
 

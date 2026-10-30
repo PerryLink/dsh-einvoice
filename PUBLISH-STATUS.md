@@ -23,3 +23,9 @@
 - 因为这是包的**第一个也是唯一一个版本**，npm 把 `latest` 也指向了 `0.1.0-alpha.0`；这不是 GA。下一版 GA `0.1.x` 发布时再用 `latest` 覆盖，README/市场文案不得把 alpha 说成 GA。
 - `0.0.0-stage` 是 npm 首次发布/处理期间出现的临时占位符，真实版本可见后已不再作为安装目标；不要手动删除它。
 - 下一步：用 registry 安装做一次 profile 冒烟；S2 再做 dedup/verify/receipt。
+
+## 0.1.0-alpha.1 — submitted 2026-10-31T01:08+08:00
+
+- `npm publish --access public --tag next --registry=https://registry.npmjs.org/` → exit 0; server accepted; tarball shasum `f16de997ead1ed64c2de7ff255553f597f37023a`.
+- At 01:10 the registry still showed `next: 0.1.0-alpha.0`; the new version was processing. Re-check `npm view @perrylink/dsh-einvoice dist-tags` before announcing it.
+- No unpublish/deprecate; `latest` remains `0.1.0-alpha.0` (still alpha, not GA).
