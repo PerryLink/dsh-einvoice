@@ -1,9 +1,10 @@
 /** Three S1 model-facing tools: ingest, parse, query. */
 
 import { createHash } from 'node:crypto'
-import { readFile, realpath, stat } from 'node:fs/promises'
+import { mkdir, readFile, realpath, stat, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import { defineTool } from '@deepseek-ai/dsh-tools'
+import { unzipSync, zipSync } from 'fflate'
 import type { JsonValue } from '@deepseek-ai/dsh-util-values'
 import {
   InvoiceError,
@@ -113,6 +114,101 @@ function parsedToRecord(record: InvoiceRecord, parsed: ParsedInvoice): InvoiceRe
   }
 }
 
+
+interface ArchiveFile {
+  path: string
+  sha256: string
+  size: number
+}
+
+interface ArchiveMember {
+  doc_id: string
+  invoice_no: string
+  lifecycle: string
+  source_sha256: string
+  files: ArchiveFile[]
+}
+
+interface ArchiveManifest {
+  schema_version: 1
+  pkg_id: string
+  entity_id: string
+  period: string
+  template_id: string
+  created_at: string
+  created_by: string
+  members: ArchiveMember[]
+}
+
+function safeZipPath(name: string): boolean {
+  return !name.startsWith('/') && !name.split('/').includes('..') && !name.includes('\\0')
+}
+
+function archivePkgId(manifest: Omit<ArchiveManifest, 'pkg_id'> | ArchiveManifest): string {
+  const base = { ...manifest, pkg_id: undefined }
+  return `pkg_${createHash('sha256').update(canonicalJson(base)).digest('hex').slice(0, 16)}`
+}
+
+function parseArchive(buffer: Buffer): { files: Record<string, Uint8Array>; manifest: ArchiveManifest } {
+  let files: Record<string, Uint8Array>
+  try {
+    files = unzipSync(buffer)
+  } catch {
+    throw new InvoiceError('E_INV_ARCHIVE_INVALID', 'archive is not a readable ZIP')
+  }
+  const raw = files['manifest.json']
+  if (!raw) throw new InvoiceError('E_INV_ARCHIVE_INVALID', 'archive has no manifest.json')
+  try {
+    const manifest = JSON.parse(Buffer.from(raw).toString('utf8')) as ArchiveManifest
+    if (!manifest || manifest.schema_version !== 1 || !Array.isArray(manifest.members)) {
+      throw new Error('bad manifest')
+    }
+    return { files, manifest }
+  } catch {
+    throw new InvoiceError('E_INV_ARCHIVE_INVALID', 'archive manifest is not valid v1 JSON')
+  }
+}
+
+function verifyArchive(buffer: Buffer): {
+  manifest: ArchiveManifest
+  pkg_id: string
+  missing: string[]
+  hash_mismatch: string[]
+  dir_violation: string[]
+  file_count: number
+  signable: boolean
+} {
+  const { files, manifest } = parseArchive(buffer)
+  const expectedPkgId = archivePkgId(manifest)
+  const missing: string[] = []
+  const hashMismatch: string[] = []
+  const dirViolation: string[] = []
+  if (manifest.pkg_id !== expectedPkgId) hashMismatch.push('manifest:pkg_id')
+  for (const member of manifest.members) {
+    for (const file of member.files ?? []) {
+      if (!safeZipPath(file.path)) {
+        dirViolation.push(file.path)
+        continue
+      }
+      const data = files[file.path]
+      if (!data) {
+        missing.push(file.path)
+        continue
+      }
+      if (sha256Buffer(Buffer.from(data)) !== file.sha256) hashMismatch.push(file.path)
+    }
+  }
+  return {
+    manifest,
+    pkg_id: manifest.pkg_id,
+    missing,
+    hash_mismatch: hashMismatch,
+    dir_violation: dirViolation,
+    file_count: Object.keys(files).length,
+    signable: missing.length === 0 && hashMismatch.length === 0 && dirViolation.length === 0,
+  }
+}
+
 export function createTools(deps: ToolDeps) {
   const ingest = defineTool({
     name: 'invoice.ingest',
@@ -165,6 +261,7 @@ export function createTools(deps: ToolDeps) {
         docId,
         entityId,
         sourcePath: storedPath,
+        sourceName: path.basename(resolved),
         sha256,
         size: info.size,
         runId: runIdOf(exec),
@@ -216,7 +313,7 @@ export function createTools(deps: ToolDeps) {
       if (!record) throw new InvoiceError('E_INV_DOC_NOT_FOUND', `unknown doc_id: ${args.doc_id}`)
       const buffer = await readFile(record.source_path)
       const parser = getParser(args.profile)
-      const parsed = parser.parse({ buffer, fileName: path.basename(record.source_path) })
+      const parsed = parser.parse({ buffer, fileName: record.source_name ?? path.basename(record.source_path) })
       assertEightFields(parsed)
       assertUniqueInvoice(deps.table, record.entity_id, parsed.invoice_no, record.doc_id)
       const updated = parsedToRecord(record, parsed)
@@ -565,6 +662,287 @@ export function createTools(deps: ToolDeps) {
     },
   })
 
-  return [ingest, parse, query, dedup, verify, receipt]
+
+  const archiveDir = path.join(deps.baseDir, 'archives')
+  const restoreRoot = path.join(deps.baseDir, 'restore')
+
+  async function resolveArchiveFile(args: { pkg_id?: string; path?: string }): Promise<string> {
+    if (args.path) {
+      let resolved: string
+      try {
+        resolved = await realpath(path.resolve(args.path))
+      } catch {
+        throw new InvoiceError('E_INV_ARCHIVE_NOT_FOUND', `archive not found: ${args.path}`)
+      }
+      const rel = path.relative(archiveDir, resolved)
+      if (rel.startsWith('..') || path.isAbsolute(rel)) {
+        throw new InvoiceError('E_INV_PATH_NOT_ALLOWED', `archive is outside the archive directory: ${args.path}`)
+      }
+      return resolved
+    }
+    if (!args.pkg_id || !/^pkg_[0-9a-f]{16}$/.test(args.pkg_id)) {
+      throw new InvoiceError('E_INV_ARCHIVE_INVALID', 'pkg_id or path is required')
+    }
+    const candidate = path.join(archiveDir, `${args.pkg_id}.zip`)
+    try {
+      await stat(candidate)
+    } catch {
+      throw new InvoiceError('E_INV_ARCHIVE_NOT_FOUND', `archive not found: ${args.pkg_id}`)
+    }
+    return candidate
+  }
+
+  const redlink = defineTool({
+    name: 'invoice.redlink',
+    description: 'Bind a negative red invoice to a positive blue invoice by seller and total, store the binding and deltas. Local R1 write; no tax-bureau call.',
+    parameters: {
+      red_id: { type: 'string', required: true },
+      blue_id: { type: 'string' },
+      mode: { type: 'string', enum: ['auto', 'manual'] },
+      allocation_cents: { type: 'number', description: 'Positive allocation; default is the absolute red total' },
+      bound_by: { type: 'string' },
+    },
+    output: {
+      schema: {
+        type: 'object',
+        additionalProperties: false,
+        properties: {
+          red_id: { type: 'string', required: true },
+          blue_id: { type: 'string', required: true },
+          mode: { type: 'string', required: true },
+          amount_delta_cents: { type: 'number', required: true },
+          tax_delta_cents: { type: 'number', required: true },
+        },
+      },
+      render: (_args, value) => text(`redlink ${value.red_id} -> ${value.blue_id}, delta=${value.amount_delta_cents}`),
+    },
+    async execute(args) {
+      const red = deps.table.get(args.red_id)
+      if (!red) throw new InvoiceError('E_INV_DOC_NOT_FOUND', `unknown red invoice: ${args.red_id}`)
+      if (red.total_cents >= 0) throw new InvoiceError('E_INV_REDLINK_UNBOUND', 'red invoice must have a negative total')
+      const mode = args.mode ?? 'auto'
+      const blueId = args.blue_id ?? [...deps.table.entries()]
+        .map(([, record]) => record)
+        .find((record) => record.doc_id !== red.doc_id && record.seller.tax_id === red.seller.tax_id && record.total_cents === -red.total_cents)?.doc_id
+      if (!blueId) throw new InvoiceError('E_INV_REDLINK_UNBOUND', 'no matching blue invoice found')
+      if (red.redlink && red.redlink.blue_id !== blueId) {
+        throw new InvoiceError('E_INV_REDLINK_BOUND', `red invoice is already bound to ${red.redlink.blue_id}`)
+      }
+      const blue = deps.table.get(blueId)
+      if (!blue) throw new InvoiceError('E_INV_DOC_NOT_FOUND', `unknown blue invoice: ${blueId}`)
+      const allocation = args.allocation_cents ?? -red.total_cents
+      if (!Number.isInteger(allocation) || allocation <= 0) throw new InvoiceError('E_INV_REDLINK_UNBOUND', 'allocation must be a positive integer')
+      if (allocation > blue.total_cents) throw new InvoiceError('E_INV_REDLINK_OVER', 'red allocation exceeds the blue invoice total')
+      const amountDelta = blue.total_cents + red.total_cents
+      const taxDelta = blue.tax_cents + red.tax_cents
+      const now = new Date().toISOString()
+      const updated: InvoiceRecord = {
+        ...red,
+        redlink: {
+          blue_id: blueId,
+          mode,
+          amount_delta_cents: amountDelta,
+          tax_delta_cents: taxDelta,
+          allocation_cents: allocation,
+          bound_at: now,
+          bound_by: args.bound_by?.trim() || 'invoice.redlink',
+        },
+        updated_at: now,
+      }
+      await deps.table.put(red.doc_id, updated)
+      return { red_id: red.doc_id, blue_id: blueId, mode, amount_delta_cents: amountDelta, tax_delta_cents: taxDelta }
+    },
+  })
+
+  const archive = defineTool({
+    name: 'invoice.archive',
+    description: 'Build a local deterministic invoice archive ZIP with manifest.json, original files and receipts; hash the manifest and verify the result. Local R1 write; no signing.',
+    parameters: {
+      entity_id: { type: 'string' },
+      period: { type: 'string', description: 'YYYY-MM from issue_date' },
+      template_id: { type: 'string', description: 'default-v1' },
+      include_receipts: { type: 'boolean' },
+    },
+    output: {
+      schema: {
+        type: 'object',
+        additionalProperties: false,
+        properties: {
+          pkg_id: { type: 'string', required: true },
+          manifest_sha256: { type: 'string', required: true },
+          zip_path: { type: 'string', required: true },
+          file_count: { type: 'number', required: true },
+          check_state: { type: 'string', required: true },
+        },
+      },
+      render: (_args, value) => text(`archive ${value.pkg_id}: ${value.file_count} files (${value.check_state})`),
+    },
+    async execute(args) {
+      const selected = [...deps.table.entries()]
+        .map(([, record]) => record)
+        .filter((record) => record.lifecycle !== 'quarantined')
+        .filter((record) => !args.entity_id || record.entity_id === args.entity_id)
+        .filter((record) => !args.period || invoicePeriod(record.issue_date) === args.period)
+      if (selected.length === 0) throw new InvoiceError('E_INV_ARCHIVE_EMPTY', 'no invoices matched the archive filter')
+      const entries: Record<string, Uint8Array> = {}
+      const members: ArchiveMember[] = []
+      for (const record of selected) {
+        let sourceBytes: Buffer
+        try {
+          sourceBytes = await readFile(record.source_path)
+        } catch {
+          throw new InvoiceError('E_INV_ARCHIVE_MISSING_PART', `original missing for ${record.doc_id}`)
+        }
+        const sourceName = record.source_name ?? path.basename(record.source_path)
+        const sourcePath = `members/${record.doc_id}/${sourceName}`
+        entries[sourcePath] = sourceBytes
+        const files: ArchiveFile[] = [{ path: sourcePath, sha256: sha256Buffer(sourceBytes), size: sourceBytes.length }]
+        if (args.include_receipts !== false) {
+          for (const item of record.receipts ?? []) {
+            let receiptBytes: Buffer
+            try {
+              receiptBytes = await readFile(item.receipt_path)
+            } catch {
+              throw new InvoiceError('E_INV_ARCHIVE_MISSING_PART', `receipt missing for ${record.doc_id}/${item.receipt_id}`)
+            }
+            const receiptPath = `members/${record.doc_id}/receipts/${item.receipt_id}${path.extname(item.receipt_path) || '.bin'}`
+            entries[receiptPath] = receiptBytes
+            files.push({ path: receiptPath, sha256: sha256Buffer(receiptBytes), size: receiptBytes.length })
+          }
+        }
+        members.push({
+          doc_id: record.doc_id,
+          invoice_no: record.invoice_no,
+          lifecycle: record.lifecycle,
+          source_sha256: record.source_sha256,
+          files,
+        })
+      }
+      const base: Omit<ArchiveManifest, 'pkg_id'> = {
+        schema_version: 1,
+        entity_id: args.entity_id ?? 'ALL',
+        period: args.period ?? 'ALL',
+        template_id: args.template_id ?? 'default-v1',
+        created_at: new Date().toISOString(),
+        created_by: 'invoice.archive',
+        members,
+      }
+      const pkgId = archivePkgId(base)
+      const manifest: ArchiveManifest = { ...base, pkg_id: pkgId }
+      const manifestText = JSON.stringify(manifest, null, 2)
+      entries['manifest.json'] = new TextEncoder().encode(manifestText)
+      const zipBuffer = Buffer.from(zipSync(entries))
+      await mkdir(archiveDir, { recursive: true })
+      const zipPath = path.join(archiveDir, `${pkgId}.zip`)
+      await writeFile(zipPath, zipBuffer)
+      await writeFile(path.join(archiveDir, `${pkgId}.manifest.json`), manifestText)
+      const check = verifyArchive(zipBuffer)
+      return {
+        pkg_id: pkgId,
+        manifest_sha256: sha256Buffer(Buffer.from(manifestText)),
+        zip_path: zipPath,
+        file_count: Object.keys(entries).length,
+        check_state: check.signable ? 'ok' : 'failed',
+      }
+    },
+  })
+
+  const check = defineTool({
+    name: 'invoice.check',
+    description: 'Verify an archive package: manifest hash, member hashes, missing files and directory traversal. Read-only; does not restore.',
+    parameters: {
+      pkg_id: { type: 'string' },
+      path: { type: 'string', description: 'Optional archive path under the local archive directory' },
+    },
+    output: {
+      schema: {
+        type: 'object',
+        additionalProperties: false,
+        properties: {
+          pkg_id: { type: 'string', required: true },
+          missing: { type: 'array', items: { type: 'string' }, required: true },
+          hash_mismatch: { type: 'array', items: { type: 'string' }, required: true },
+          dir_violation: { type: 'array', items: { type: 'string' }, required: true },
+          signable: { type: 'boolean', required: true },
+          file_count: { type: 'number', required: true },
+        },
+      },
+      render: (_args, value) => text(`check ${value.pkg_id}: ${value.signable ? 'ok' : 'failed'} (${value.file_count} files)`),
+    },
+    async execute(args) {
+      const zipPath = await resolveArchiveFile(args)
+      const buffer = await readFile(zipPath)
+      const report = verifyArchive(buffer)
+      return {
+        pkg_id: report.pkg_id,
+        missing: report.missing,
+        hash_mismatch: report.hash_mismatch,
+        dir_violation: report.dir_violation,
+        signable: report.signable,
+        file_count: report.file_count,
+      }
+    },
+  })
+
+  const restore = defineTool({
+    name: 'invoice.restore',
+    description: 'Restore a verified local archive ZIP into a directory under the local restore root, verifying each member hash before writing. Local R1 write.',
+    parameters: {
+      pkg_id: { type: 'string', required: true },
+      target_dir: { type: 'string', description: 'Optional directory under the local restore root' },
+    },
+    output: {
+      schema: {
+        type: 'object',
+        additionalProperties: false,
+        properties: {
+          pkg_id: { type: 'string', required: true },
+          restore_dir: { type: 'string', required: true },
+          restored: { type: 'number', required: true },
+          mismatches: { type: 'array', items: { type: 'string' }, required: true },
+        },
+      },
+      render: (_args, value) => text(`restore ${value.pkg_id}: ${value.restored} files`),
+    },
+    async execute(args) {
+      const zipPath = await resolveArchiveFile({ pkg_id: args.pkg_id })
+      const buffer = await readFile(zipPath)
+      const { files, manifest } = parseArchive(buffer)
+      const report = verifyArchive(buffer)
+      let target = path.join(restoreRoot, report.pkg_id)
+      if (args.target_dir) {
+        target = path.resolve(args.target_dir)
+        const rel = path.relative(restoreRoot, target)
+        if (rel.startsWith('..') || path.isAbsolute(rel)) {
+          throw new InvoiceError('E_INV_PATH_NOT_ALLOWED', 'target_dir must be under the local restore root')
+        }
+      }
+      await mkdir(target, { recursive: true })
+      let restored = 0
+      for (const member of manifest.members) {
+        for (const file of member.files ?? []) {
+          if (!safeZipPath(file.path)) continue
+          const data = files[file.path]
+          if (!data) continue
+          if (sha256Buffer(Buffer.from(data)) !== file.sha256) continue
+          const destination = path.join(target, file.path)
+          const rel = path.relative(target, destination)
+          if (rel.startsWith('..') || path.isAbsolute(rel)) continue
+          await mkdir(path.dirname(destination), { recursive: true })
+          await writeFile(destination, data)
+          restored += 1
+        }
+      }
+      return {
+        pkg_id: report.pkg_id,
+        restore_dir: target,
+        restored,
+        mismatches: [...report.missing, ...report.hash_mismatch, ...report.dir_violation],
+      }
+    },
+  })
+
+  return [ingest, parse, query, dedup, verify, receipt, redlink, archive, check, restore]
+
 
 }

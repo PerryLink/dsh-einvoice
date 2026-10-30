@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.0-alpha.2 — 2026-10-31
+
+- S3: `invoice.redlink`, `invoice.archive` (manifest + originals + receipts), `invoice.check`, `invoice.restore`.
+- Optional `redlink` field and `source_name` on the existing `fin_invoice` domain; archive/restore live under `DSH_EINVOICE_HOME`.
+- Acceptance adds SKU-04-A03/A04; still public/synthetic and `partial`.
+
 ## 0.1.0-alpha.1 — 2026-10-31
 
 - S2: `invoice.dedup`, `invoice.verify` (local manual queue), `invoice.receipt` (hash/idempotent local receipt).

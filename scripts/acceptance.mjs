@@ -134,13 +134,45 @@ try {
 }
 metrics.push({ req_id: 'SKU-04-A05', metric: '回执完整率（S2 单票）', threshold: '100%', actual: receiptOk ? 1 : 0, pass: receiptOk, counted: false })
 
+let redlinkOk = false
+let restoreOk = false
+const s3Dir = await mkdtemp(path.join(os.tmpdir(), 'dsh-einvoice-accept-s3-'))
+try {
+  const bluePath = path.join(s3Dir, 'blue.xml')
+  const redPath = path.join(s3Dir, 'red.xml')
+  const redXml = `<?xml version="1.0" encoding="UTF-8"?><Invoice><InvoiceNo>25512345000000000092</InvoiceNo><InvoiceIssueDate>2026-08-01</InvoiceIssueDate><Seller><Name>测试卖方有限公司</Name><TaxID>91330106MA2B4C5D6X</TaxID></Seller><Buyer><Name>测试买方有限公司</Name><TaxID>91310115MA1K2L3M4N</TaxID></Buyer><Items><Item><Description>红字技术服务费</Description><Quantity>1</Quantity><UnitPrice>-1000.00</UnitPrice><Amount>-1000.00</Amount><TaxRate>6</TaxRate><TaxAmount>-60.00</TaxAmount></Item></Items><Amount>-1000.00</Amount><TaxAmount>-60.00</TaxAmount><TotalAmount>-1060.00</TotalAmount></Invoice>`
+  await writeFile(bluePath, genericXml)
+  await writeFile(redPath, redXml)
+  const table = new FakeTable()
+  const tools = createTools({ table, baseDir: path.join(s3Dir, 'store'), inputRoots: [s3Dir] })
+  const byName = Object.fromEntries(tools.map((tool) => [tool.name, tool]))
+  const exec = { callId: 'acceptance-s3', agent: { id: 'acceptance' } }
+  const blue = await byName['invoice.ingest'].execute({ source: { kind: 'file', path: bluePath }, entity_id: 'ENT-A' }, exec)
+  const red = await byName['invoice.ingest'].execute({ source: { kind: 'file', path: redPath }, entity_id: 'ENT-A' }, exec)
+  await byName['invoice.parse'].execute({ doc_id: blue.doc_id }, exec)
+  await byName['invoice.parse'].execute({ doc_id: red.doc_id }, exec)
+  const linked = await byName['invoice.redlink'].execute({ red_id: red.doc_id }, exec)
+  redlinkOk = linked.blue_id === blue.doc_id && linked.amount_delta_cents === 0
+  const pkg = await byName['invoice.archive'].execute({ entity_id: 'ENT-A', period: '2026-08' }, exec)
+  const checked = await byName['invoice.check'].execute({ pkg_id: pkg.pkg_id }, exec)
+  const restored = await byName['invoice.restore'].execute({ pkg_id: pkg.pkg_id }, exec)
+  restoreOk = checked.signable && pkg.check_state === 'ok' && restored.restored >= 2 && restored.mismatches.length === 0
+} catch {
+  redlinkOk = false
+  restoreOk = false
+} finally {
+  await rm(s3Dir, { recursive: true, force: true })
+}
+metrics.push({ req_id: 'SKU-04-A03', metric: '红蓝勾稽（S3 单对）', threshold: '100%', actual: redlinkOk ? 1 : 0, pass: redlinkOk, counted: false })
+metrics.push({ req_id: 'SKU-04-A04', metric: '归档复原（S3 单包）', threshold: '100%', actual: restoreOk ? 1 : 0, pass: restoreOk, counted: false })
+
 const result = {
   run_id: runId,
   timestamp: new Date().toISOString(),
-  scope: 'SKU-04-S1/S2',
+  scope: 'SKU-04-S1/S2/S3',
   status: 'partial',
   counted: false,
-  note: 'public/synthetic only; S2 dedup/verify/receipt; customer evidence gate remains PARK',
+  note: 'public/synthetic only; S2 dedup/verify/receipt + S3 redlink/archive/check/restore; customer evidence gate remains PARK',
   samples: parsedSamples,
   metrics,
   pass: metrics.every((metric) => metric.pass),

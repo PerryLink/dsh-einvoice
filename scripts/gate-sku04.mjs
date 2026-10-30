@@ -21,4 +21,4 @@ for (const row of rows) {
     process.exit(1)
   }
 }
-console.log(`gate ok: ${rows.length} rows (S1/S2 public/synthetic, not counted toward GA)`)
+console.log(`gate ok: ${rows.length} rows (S1/S2/S3 public/synthetic, not counted toward GA)`)

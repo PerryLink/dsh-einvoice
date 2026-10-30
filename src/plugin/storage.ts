@@ -44,6 +44,16 @@ export const receiptSchema = z.object({
   recorded_at: z.string(),
 })
 
+export const redlinkSchema = z.object({
+  blue_id: z.string(),
+  mode: z.enum(['auto', 'manual']),
+  amount_delta_cents: z.number().int(),
+  tax_delta_cents: z.number().int(),
+  allocation_cents: z.number().int().optional(),
+  bound_at: z.string(),
+  bound_by: z.string(),
+})
+
 export const invoiceSchema = z.object({
   doc_id: z.string().min(1),
   entity_id: z.string(),
@@ -64,7 +74,9 @@ export const invoiceSchema = z.object({
   lifecycle: z.enum(['received', 'parsed', 'verified', 'archived', 'quarantined']),
   verification: verificationSchema.optional(),
   receipts: z.array(receiptSchema).optional(),
+  redlink: redlinkSchema.optional(),
   source_path: z.string(),
+  source_name: z.string().optional(),
   source_sha256: z.string(),
   source_size: z.number().int().nonnegative(),
   created_at: z.string(),
@@ -182,6 +194,7 @@ export function emptyInvoiceRecord(input: {
   docId: string
   entityId: string
   sourcePath: string
+  sourceName: string
   sha256: string
   size: number
   runId: string
@@ -206,6 +219,7 @@ export function emptyInvoiceRecord(input: {
     parser_version: '',
     lifecycle: 'received' satisfies InvoiceLifecycle,
     source_path: input.sourcePath,
+    source_name: input.sourceName,
     source_sha256: input.sha256,
     source_size: input.size,
     created_at: now,

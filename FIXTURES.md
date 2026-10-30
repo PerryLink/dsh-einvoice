@@ -17,6 +17,7 @@
 | negative: empty | 0 bytes | synthetic | fail closed |
 | negative: bad zip | ZIP without `OFD.xml` | synthetic | fail closed |
 | s2 receipt | `result_code=100; 验真` text file | synthetic | receipt hash/idempotency |
+| s3 blue/red | positive + negative XML pair | synthetic | redlink/archive/check/restore |
 
 ## Public candidates (not counted; `.tmp` only)
 

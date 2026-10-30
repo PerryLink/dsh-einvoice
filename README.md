@@ -2,7 +2,7 @@
 
 File-level Chinese e-invoice ingest, parse and pool for DeepSeek Harness (SKU-04 S1).
 
-> **Status: S1+S2 / public demo (0.1.0-alpha.1).** The customer evidence gate (2 enterprises + 1 bookkeeping firm + 100 real invoices) is still PARKED. S1 uses public/open-source and synthetic fixtures; its acceptance rows are `not counted` toward GA. Do not describe this package as GA-ready.
+> **Status: S1+S2+S3 / public demo (0.1.0-alpha.2).** The customer evidence gate (2 enterprises + 1 bookkeeping firm + 100 real invoices) is still PARKED. S1 uses public/open-source and synthetic fixtures; its acceptance rows are `not counted` toward GA. Do not describe this package as GA-ready.
 
 ## Install
 
@@ -23,8 +23,12 @@ The bundle inserts one Host row. It requires the base profile's `tools` and `sto
 | `invoice.dedup` | Group duplicates by invoice number or seller+date+total | R0 |
 | `invoice.verify` | Queue parsed invoices for manual verification; optional buyer-tax-id mismatch flags | R1 local write |
 | `invoice.receipt` | Hash a local receipt, append it, move lifecycle to verified/quarantined; idempotent by receipt bytes | R1 local write |
+| `invoice.redlink` | Bind a negative red invoice to its blue invoice; store deltas | R1 local write |
+| `invoice.archive` | Build a manifest + originals + receipts ZIP under the local archive directory | R1 local write |
+| `invoice.check` | Verify manifest/member hashes, missing files and traversal | R0 |
+| `invoice.restore` | Restore a verified archive into the local restore root | R1 local write |
 
-S3 adds red/blue matching, archive packages and archive checks; S2 verification is manual/local (no tax-bureau network call).
+S3 adds red/blue matching, deterministic archive packages, check and restore. S2 verification is manual/local (no tax-bureau network call).
 
 ## Configuration
 

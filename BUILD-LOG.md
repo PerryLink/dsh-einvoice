@@ -68,3 +68,10 @@
 
 - `dist-tags`: latest `0.1.0-alpha.0`, next `0.1.0-alpha.1`; alpha.1 version query succeeds.
 - Registry install smoke with `dsh plugin add @perrylink/dsh-einvoice@0.1.0-alpha.1` passed; layer removed after.
+
+### S3 — 0.1.0-alpha.2 (2026-10-31 01:16 +08)
+
+- Added `invoice.redlink`, `invoice.archive` (manifest + originals + receipts ZIP), `invoice.check`, `invoice.restore`.
+- Storage: optional `redlink` and `source_name` on the existing `fin_invoice` domain; archives/restores are files under `DSH_EINVOICE_HOME`, not a DB table.
+- `pnpm test` → 15/15 pass; `pnpm gate:sku04` → 6 rows (A01/A03/A04/A05/A06/A07), public/synthetic, `partial`.
+- `npm publish --tag next` submitted alpha.2; shasum `aceb20e5843e2b5f692d9a05981977328e89e6d6`; pending propagation.
