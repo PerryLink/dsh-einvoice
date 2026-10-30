@@ -80,3 +80,14 @@
 
 - `dist-tags`: latest `0.1.0-alpha.0`, next `0.1.0-alpha.2`; alpha.2 version query succeeds.
 - Registry install smoke passed; layer removed.
+
+### Public-sample compatibility — 0.1.0-alpha.3 (2026-10-31 01:24 +08)
+
+- Fixed unit-price precision: `priceToCents` rounds up to 12 decimals; totals remain strict 2-decimal `amountToCents`.
+- 4 public/synthetic OFD samples now parse (old `1.ofd`, digital `20240531.ofd`, old `invoice-sample.ofd`, invoice-github XML-in-OFD); `999.ofd` remains a known missing-buyer-tax-id case; non-invoice/stamp/scan samples fail closed.
+- `pnpm test` → 22/22 pass (including 6 public-sample tests); customer gate still PARK.
+
+### alpha.3 verified (2026-10-31 01:25 +08)
+
+- `dist-tags`: latest `0.1.0-alpha.0`, next `0.1.0-alpha.3`; tarball shasum `acd25e090329b9a0d2ca1bcddbb28e0546347204`.
+- Registry install alpha.3 + layer check passed (retry after pnpm metadata cache caught up).

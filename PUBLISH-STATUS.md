@@ -45,3 +45,9 @@
 
 - `dist-tags` now `{ latest: "0.1.0-alpha.0", next: "0.1.0-alpha.2" }`; `npm view @perrylink/dsh-einvoice@0.1.0-alpha.2 version` returns `0.1.0-alpha.2`.
 - Registry install smoke (`dsh plugin add ...@0.1.0-alpha.2`) passed; layer removed after.
+
+## 0.1.0-alpha.3 — verified 2026-10-31T01:25+08:00
+
+- Registry `dist-tags`: `{ latest: "0.1.0-alpha.0", next: "0.1.0-alpha.3" }`; exact `alpha.3` view succeeds.
+- Tarball shasum `acd25e090329b9a0d2ca1bcddbb28e0546347204`.
+- Registry install smoke `dsh plugin add @perrylink/dsh-einvoice@0.1.0-alpha.3` succeeded; first attempt hit stale pnpm metadata for `next`, immediate retry after the tag propagated succeeded. Layer removed.

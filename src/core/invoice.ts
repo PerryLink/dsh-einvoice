@@ -82,6 +82,19 @@ export function amountToCents(raw: unknown): number {
 }
 
 /** Normalize the common Chinese date spellings to YYYY-MM-DD. */
+/** Unit prices may carry tax-calculation precision; round half-up to integer cents. */
+export function priceToCents(raw: unknown): number {
+  if (typeof raw !== 'string' && typeof raw !== 'number') throw new InvoiceError('E_INV_FIELD_MISSING', 'price is not a value')
+  const normalized = String(raw).trim().replace(/[¥￥,，\s]/g, '')
+  const match = /^(-?)(\d+)(?:\.(\d{1,12}))?$/.exec(normalized)
+  if (!match) throw new InvoiceError('E_INV_FIELD_MISSING', `price is not a decimal: ${String(raw).slice(0, 80)}`)
+  const sign = match[1] === '-' ? -1n : 1n
+  const whole = BigInt(match[2])
+  const fraction = BigInt((match[3] ?? '').padEnd(12, '0'))
+  const cents = (whole * 100n + (fraction + 5_000_000_000n) / 10_000_000_000n)
+  return Number(sign * cents)
+}
+
 export function normalizeDate(raw: unknown): string {
   if (typeof raw !== 'string' || raw.trim() === '') {
     throw new InvoiceError('E_INV_FIELD_MISSING', 'issue date is empty')

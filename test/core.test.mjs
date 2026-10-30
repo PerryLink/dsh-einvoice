@@ -8,6 +8,7 @@ import {
   invoicePeriod,
   normalizeDate,
   normalizeTaxId,
+  priceToCents,
 } from '../lib/core/invoice.js'
 
 test('amountToCents keeps decimal money exact', () => {
@@ -16,6 +17,13 @@ test('amountToCents keeps decimal money exact', () => {
   assert.equal(amountToCents('-100.00'), -10000)
   assert.equal(amountToCents('0'), 0)
   assert.throws(() => amountToCents('12.345'), InvoiceError)
+})
+
+test('priceToCents rounds tax-calculation precision', () => {
+  assert.equal(priceToCents('510.679612'), 51068)
+  assert.equal(priceToCents('4197.16981132075'), 419717)
+  assert.equal(priceToCents('75.00'), 7500)
+  assert.equal(priceToCents('-100.005'), -10001)
 })
 
 test('normalizeDate accepts Chinese, dashed and compact dates', () => {

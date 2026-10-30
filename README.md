@@ -2,7 +2,7 @@
 
 File-level Chinese e-invoice ingest, parse and pool for DeepSeek Harness (SKU-04 S1).
 
-> **Status: S1+S2+S3 / public demo (0.1.0-alpha.2).** The customer evidence gate (2 enterprises + 1 bookkeeping firm + 100 real invoices) is still PARKED. S1 uses public/open-source and synthetic fixtures; its acceptance rows are `not counted` toward GA. Do not describe this package as GA-ready.
+> **Status: S1+S2+S3 / public demo (0.1.0-alpha.3).** The customer evidence gate (2 enterprises + 1 bookkeeping firm + 100 real invoices) is still PARKED. S1 uses public/open-source and synthetic fixtures; its acceptance rows are `not counted` toward GA. Do not describe this package as GA-ready.
 
 ## Install
 

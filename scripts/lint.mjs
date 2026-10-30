@@ -30,7 +30,7 @@ for (const file of filesUnder('src/registry')) {
 
 const pkg = JSON.parse(readFileSync(path.join(root, 'package.json'), 'utf8'))
 if (pkg.name !== '@perrylink/dsh-einvoice') failures.push('package.json: unexpected name')
-if (pkg.version !== '0.1.0-alpha.2') failures.push('package.json: version must be 0.1.0-alpha.0')
+if (pkg.version !== '0.1.0-alpha.3') failures.push('package.json: version must be 0.1.0-alpha.0')
 if (!pkg.dsh?.bundle?.patch) failures.push('package.json: missing dsh.bundle.patch')
 if (!pkg.engines?.dsh) failures.push('package.json: missing engines.dsh')
 if (pkg.dsh?.client) failures.push('package.json: S1 must not declare a Client')

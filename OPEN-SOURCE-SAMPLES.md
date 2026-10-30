@@ -76,3 +76,20 @@ ofdrw 的 1/2/3 号票含购/销方名称、18 位税号、地址电话、开户
 2. **public demo 路径**：`BUILD-PLAN` 的 `source` 写 `public/open-source + synthetic`，`ACCEPTANCE` 标 `public/synthetic (not counted)`，`STATUS: partial`；GA 仍需真实客户样本。
 3. **真实票**：仍只能走 `PARK.md` 的客户/伙伴通道；公开样本不改变 `EVIDENCE.md` 的 FAIL。
 4. Gitee 搜索如后续拿到有效 token/接口，再补 `发票`/`数电票`/`ofd`；本轮不声称已穷尽。
+
+## 9. Parser compatibility run (2026-10-31, local `.tmp` only)
+
+These runs use the MIT public samples in `04-build/.tmp/oss-samples/`; no raw file or PII is committed. They are **parser/public-demo evidence only** and do not count toward the customer gate.
+
+| Sample | Result | Note |
+|---|---|---|
+| `ofdrw-tests/1.ofd` | **OK** old OFD, total 526.00, 1 line | its `Price` is `510.679612`; unit price now rounds to cents (`priceToCents`), totals stay strict |
+| `ofdrw-20240531.ofd` | **OK** 数电 OFD, total 4449.00, 2 lines | 20-digit number; values resolved through `CustomTag` + ObjectRef text |
+| `ofdrw-invoice-sample.ofd` | **OK** old OFD, total 318.00 | old XML + stamp |
+| `invoice-github/样例/样例发票.ofd` | **OK** standalone XML, total 1060.00 | synthetic XML in a placeholder OFD |
+| `ofdrw-tests/999.ofd` | `E_INV_FIELD_MISSING` | buyer tax id is empty in the sample (personal invoice); known limitation, needs review |
+| `ofdrw-tests/signout.ofd`, `y.ofd` | `E_INV_FIELD_MISSING` | `CustomTag.xml` is `LogicalStructure`, not an invoice; classify as unsupported |
+| `2.ofd`, `h.ofd`, `n.ofd`, stamp/scan OFDs | `E_INV_OFD_UNSUPPORTED` | no invoice XML / no invoice text; expected |
+| `no_page_container.ofd` | `E_INV_FIELD_MISSING` | malformed Pages; amount sentinel `***`; expected fail-closed |
+
+**Action**: public sample test is `test/public-samples.test.mjs`; it skips when `.tmp` is absent. The customer gate remains **PARK**.

@@ -1,6 +1,6 @@
 {
   "name": "@perrylink/dsh-einvoice",
-  "version": "0.1.0-alpha.2",
+  "version": "0.1.0-alpha.3",
   "description": "File-level Chinese e-invoice (OFD/XML) ingest, parse and pool for DeepSeek Harness (SKU-04 S1).",
   "type": "module",
   "main": "./lib/plugin/index.js",
