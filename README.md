@@ -28,6 +28,8 @@ The bundle inserts one Host row. It requires the base profile's `tools` and `sto
 | `invoice.check` | Verify manifest/member hashes, missing files and traversal | R0 |
 | `invoice.restore` | Restore a verified archive into the local restore root | R1 local write |
 
+Client: deferred; see `CLIENT-DECISION.md`. GA: blocked by the customer evidence gate; see `GA-CHECKLIST.md`.
+
 S3 adds red/blue matching, deterministic archive packages, check and restore. S2 verification is manual/local (no tax-bureau network call).
 
 ## Configuration

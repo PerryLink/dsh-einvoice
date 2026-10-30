@@ -63,7 +63,7 @@ sources: REQ-EINVOICE §1/§4/§6–§10；DESIGN §1–§10；DECISIONS 04；TO
 
 ## 5. Client
 
-**无**。S1 不注册 `dsh.client`，不做票据池 UI；S2/S3 才评估 `sidebar.right.pane.tab` 等 slot；若做，必须空/错/加载三态。
+**无**。S1 不注册 `dsh.client`，不做票据池 UI；S2/S3 评估后仍 defer（见 `CLIENT-DECISION.md`）；若未来做，必须空/错/加载三态。
 
 ## 6. 外部系统
 
