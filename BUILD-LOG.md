@@ -47,3 +47,12 @@
 
 - Temp `DSH_HOME`, `dsh plugin add @perrylink/dsh-einvoice@0.1.0-alpha.0` → installed `0.1.0-alpha.0`; `--dump-config` shows `# == @perrylink/dsh-einvoice`; remove clears the layer.
 - Peer warnings only (`@deepseek-ai/*` peers); the published package resolves its runtime dependencies and the host provides the DSH services.
+
+### Final S1 re-run (2026-10-31 01:04 +08)
+
+- `pnpm install --frozen-lockfile` / `build` / `lint` / `typecheck` → 0.
+- `pnpm test` → 11/11 pass.
+- `pnpm gate:sku04` → exit 0; `ACCEPTANCE.csv` 3 S1 rows; new evidence run.
+- `scripts/sbom.mjs` → 10 production components.
+- `scripts/check-pack.mjs` → 18 files, no fixtures/evidence/source/secrets.
+- `scripts/check-npm-name.mjs` now checks the exact version (current 0.1.0-alpha.0 is already published, so it correctly refuses a second publish).
