@@ -79,7 +79,7 @@
     "@deepseek-ai/dsh-user-approval": "0.2.1-rc.3",
     "@deepseek-ai/dsh-util-values": "0.2.1-rc.3",
     "@deepseek-ai/schemastery": "3.18.5",
-    "@types/node": "^24.0.0",
+    "@types/node": "^26.6.5",
     "typescript": "7.0.2"
   },
   "homepage": "https://perrylink.github.io/dsh-plugins/packages/dsh-einvoice.html",
