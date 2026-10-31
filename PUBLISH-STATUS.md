@@ -51,3 +51,7 @@
 - Registry `dist-tags`: `{ latest: "0.1.0-alpha.0", next: "0.1.0-alpha.3" }`; exact `alpha.3` view succeeds.
 - Tarball shasum `acd25e090329b9a0d2ca1bcddbb28e0546347204`.
 - Registry install smoke `dsh plugin add @perrylink/dsh-einvoice@0.1.0-alpha.3` succeeded; first attempt hit stale pnpm metadata for `next`, immediate retry after the tag propagated succeeded. Layer removed.
+
+### latest moved 2026-10-31T12:05+08:00
+
+- `latest` moved from `0.1.0-alpha.0` to `0.1.0-alpha.3`; `next` remains alpha.3. This makes the default install include S2/S3. Still alpha, not GA.
