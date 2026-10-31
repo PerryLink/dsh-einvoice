@@ -1,6 +1,8 @@
-# GA checklist — SKU-04
+# GA checklist — SKU-04 (CANCELLED / historical)
 
-Status: **NOT GA** (`0.1.0-alpha.3` on `next`; `latest` is still `0.1.0-alpha.0`).
+> **CANCELLED 2026-10-31:** no GA/customer-evidence path is planned. This checklist is retained only as history; do not use it as a roadmap.
+
+Status: **NO GA PATH — public-only package.**
 
 | Gate | Required | Current | Result |
 |---|---|---:|---|

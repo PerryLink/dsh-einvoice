@@ -1,3 +1,5 @@
+> **HISTORICAL — customer-evidence work was permanently removed from scope on 2026-10-31. This is not an active plan or reopen condition. See [PUBLIC-ONLY-BOUNDARY.md](../PUBLIC-ONLY-BOUNDARY.md).**
+
 # OPEN-SOURCE-SAMPLES — SKU-04 公开样本候选（不计入客户门）
 
 盘点时间：**2026-10-30T23:47–2026-10-31T00:25+08:00**（Asia/Shanghai）

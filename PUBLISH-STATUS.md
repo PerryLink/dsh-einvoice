@@ -62,3 +62,7 @@
 - `invoice.review_queue` / `invoice.record_receipt` added; old `invoice.verify` / `invoice.receipt` kept as deprecated aliases.
 - Local receipts expose `verification_source=local_receipt`, `tax_verified=false`; lifecycle remains local.
 - A02 scan/OCR recorded as `not_run`; 7 gate rows, all public/synthetic/not counted.
+
+## 0.2.0-alpha.1 — public-only boundary (2026-10-31)
+
+- Customer evidence is permanently out of scope; A02 is `out_of_scope`; no GA path.

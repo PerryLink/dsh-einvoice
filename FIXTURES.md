@@ -2,7 +2,7 @@
 
 ## Policy
 
-- **Customer gate remains PARK**: the public/synthetic fixtures below are S1 parser/demo data only and are `not counted` toward the 2 enterprises + 1 bookkeeping + 100 real invoices gate.
+- **Customer evidence is permanently out of scope**: public/synthetic fixtures are parser/demo data only and are `not counted`; there is no customer/GA gate to satisfy.
 - **No raw PII in the repository.** Public OFD samples from `ofdrw` contain real or realistic company names, tax ids, addresses, bank accounts and operator names. They stay in `04-build/.tmp/oss-samples/` (gitignored) and are never copied into `fixtures/input/` or a tarball.
 - `fixtures/input/` is gitignored. Only redacted public samples may be placed there for a local run.
 - Synthetic fixtures contain only fictional names and tax ids; they are created in tests/acceptance and need no external file.

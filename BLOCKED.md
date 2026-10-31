@@ -1,3 +1,5 @@
+> **HISTORICAL — customer-evidence work was permanently removed from scope on 2026-10-31. This is not an active plan or reopen condition. See [PUBLIC-ONLY-BOUNDARY.md](../PUBLIC-ONLY-BOUNDARY.md).**
+
 # BLOCKED — SKU-04 计划轮（证据门）
 
 > 2026-10-31：B2 public demo 获用户批准，`BUILD-PLAN-04` 已写；本 BLOCKED 仅保留“客户门仍 PARK”的记录，不再阻塞计划轮。

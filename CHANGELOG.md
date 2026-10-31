@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.0-alpha.1 — 2026-10-31
+
+- Boundary correction: customer evidence is permanently out of scope; A02 is `out_of_scope`, not a pending gate.
+
 ## 0.2.0-alpha.0 — 2026-10-31
 
 - Scope: file-level public demo; removed OCR/tax-bureau/real-invoice claims.

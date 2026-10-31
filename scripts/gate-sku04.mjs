@@ -16,7 +16,7 @@ if (rows.length === 0) {
 }
 for (const row of rows) {
   const [reqId, metric, threshold, actual, script, sha, pass] = row
-  if (actual === 'not_run') continue
+  if (actual === 'not_run' || actual === 'out_of_scope') continue
   if (!reqId || !metric || !threshold || !actual || !script || !sha || pass !== 'true') {
     console.error(`gate: incomplete or failing row: ${row.join(',')}`)
     process.exit(1)

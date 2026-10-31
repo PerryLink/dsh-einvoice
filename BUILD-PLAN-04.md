@@ -1,3 +1,5 @@
+> **HISTORICAL — customer-evidence work was permanently removed from scope on 2026-10-31. This is not an active plan or reopen condition. See [PUBLIC-ONLY-BOUNDARY.md](../PUBLIC-ONLY-BOUNDARY.md).**
+
 # BUILD-PLAN-04 — SKU-04 全电发票（文件级）
 
 ```yaml

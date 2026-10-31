@@ -2,8 +2,8 @@
 
 File-level Chinese e-invoice ingest, parse and pool for DeepSeek Harness (SKU-04 S1).
 
-> **Status: file-level public demo (0.2.0-alpha.0) — PARTIAL, NOT COUNTED, NOT GA.**
-> This package does **not** implement OCR/scanning, tax-bureau verification/receipt, tax filing, 30-year archive compliance, or real-invoice accuracy claims. `invoice.review_queue` / `invoice.record_receipt` are local-only; the legacy names are deprecated aliases. The customer evidence gate (2 enterprises + 1 bookkeeping firm + 100 real invoices) is still PARKED. S1 uses public/open-source and synthetic fixtures; its acceptance rows are `not counted` toward GA. Do not describe this package as GA-ready.
+> **Status: file-level public demo (0.2.0-alpha.1) — PARTIAL, NOT COUNTED, NOT GA.**
+> This package does **not** implement OCR/scanning, tax-bureau verification/receipt, tax filing, 30-year archive compliance, or real-invoice accuracy claims. `invoice.review_queue` / `invoice.record_receipt` are local-only; the legacy names are deprecated aliases. Customer-evidence work (2 enterprises + 1 bookkeeping firm + 100 real invoices) is **permanently out of scope**. This package is public-only; its acceptance rows are `not counted`. Do not describe it as GA-ready.
 
 ## Install
 

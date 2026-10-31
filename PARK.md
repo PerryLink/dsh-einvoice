@@ -1,3 +1,5 @@
+> **HISTORICAL — customer-evidence work was permanently removed from scope on 2026-10-31. This is not an active plan or reopen condition. See [PUBLIC-ONLY-BOUNDARY.md](../PUBLIC-ONLY-BOUNDARY.md).**
+
 # PARK — SKU-04 证据门未过（pre-plan）
 
 状态：**parked（客户门）+ B2 public demo 已获准** · 时间：2026-10-31T00:31+08:00
