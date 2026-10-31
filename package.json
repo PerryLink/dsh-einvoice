@@ -1,7 +1,7 @@
 {
   "name": "@perrylink/dsh-einvoice",
-  "version": "0.2.0-alpha.1",
-  "description": "File-level Chinese e-invoice (OFD/XML) ingest, parse and pool for DeepSeek Harness (SKU-04 S1).",
+  "version": "0.2.0-alpha.2",
+  "description": "File-level Chinese e-invoice (OFD/XML) ingest, parse, dedup and local archive.",
   "type": "module",
   "main": "./lib/plugin/index.js",
   "types": "./lib/plugin/index.d.ts",
@@ -45,7 +45,8 @@
     "einvoice",
     "invoice",
     "ofd",
-    "perrylink"
+    "perrylink",
+    "finance"
   ],
   "repository": {
     "type": "git",
@@ -80,5 +81,9 @@
     "@deepseek-ai/schemastery": "3.18.5",
     "@types/node": "^24.0.0",
     "typescript": "7.0.2"
+  },
+  "homepage": "https://github.com/PerryLink/dsh-einvoice#readme",
+  "bugs": {
+    "url": "https://github.com/PerryLink/dsh-einvoice/issues"
   }
 }
