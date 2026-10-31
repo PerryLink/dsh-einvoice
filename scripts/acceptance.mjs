@@ -89,6 +89,7 @@ for (const bad of [Buffer.alloc(0), zip({ 'not-ofd.txt': 'nope' })]) {
 const p95 = durations.sort((a, b) => a - b)[Math.max(0, Math.ceil(durations.length * 0.95) - 1)]
 const metrics = [
   { req_id: 'SKU-04-A01', metric: '八字段完整率（S1 合成样本）', threshold: '>=0.98', actual: 1, pass: true, counted: false },
+  { req_id: 'SKU-04-A02', metric: '扫描/OCR（未实现）', threshold: 'not_run', actual: 'not_run', pass: false, skipped: true, counted: false },
   { req_id: 'SKU-04-A06', metric: '单票解析 P95（S1）', threshold: '<20s', actual: p95 / 1000, pass: p95 < 20000, counted: false },
   { req_id: 'SKU-04-A07', metric: '负样本处理率 + 字段证据覆盖（S1）', threshold: '100%', actual: negativeHandled === 2 ? 1 : 0, pass: negativeHandled === 2, counted: false },
 ]
@@ -175,14 +176,14 @@ const result = {
   note: 'public/synthetic only; S2 dedup/verify/receipt + S3 redlink/archive/check/restore; customer evidence gate remains PARK',
   samples: parsedSamples,
   metrics,
-  pass: metrics.every((metric) => metric.pass),
+  pass: metrics.every((metric) => metric.pass || metric.skipped),
 }
 const resultText = `${JSON.stringify(result, null, 2)}\n`
 writeFileSync(path.join(evidenceDir, 'result.json'), resultText)
 const evidenceSha = sha256(resultText)
 const csv = [
-  'req_id,metric,threshold,actual,script,evidence_sha256,pass',
-  ...metrics.map((metric) => `${metric.req_id},${metric.metric},${metric.threshold},${metric.actual},scripts/acceptance.mjs,${evidenceSha},${metric.pass}`),
+  'req_id,metric,threshold,actual,script,evidence_sha256,pass,source,counted',
+  ...metrics.map((metric) => `${metric.req_id},${metric.metric},${metric.threshold},${metric.actual},scripts/acceptance.mjs,${evidenceSha},${metric.pass},public/synthetic,${metric.counted}`),
 ].join('\n') + '\n'
 writeFileSync(path.join(root, 'ACCEPTANCE.csv'), csv)
 if (!result.pass) {

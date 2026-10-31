@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.0-alpha.0 — 2026-10-31
+
+- Scope: file-level public demo; removed OCR/tax-bureau/real-invoice claims.
+- Renamed `invoice.verify` → `invoice.review_queue`, `invoice.receipt` → `invoice.record_receipt`; old names retained as deprecated aliases.
+- Receipts are local-only (`verification_source=local_receipt`, `tax_verified=false`).
+
 ## 0.1.0-alpha.3 — 2026-10-31
 
 - Public-sample compatibility: old ofdrw `1.ofd`, digital `20240531.ofd`, old `invoice-sample.ofd` and invoice-github XML-in-OFD parse; unit prices round from tax-calc precision; malformed/non-invoice samples fail closed.

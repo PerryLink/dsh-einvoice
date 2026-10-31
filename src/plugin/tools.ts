@@ -514,7 +514,7 @@ export function createTools(deps: ToolDeps) {
   })
 
   const verify = defineTool({
-    name: 'invoice.verify',
+    name: 'invoice.review_queue',
     description: 'Queue parsed invoices for manual/semi-automatic verification. S2 has no tax-bureau network call: it records a pending local queue and optional entity-tax-id mismatch flags.',
     parameters: {
       invoice_ids: { type: 'array', items: { type: 'string' }, description: 'Optional subset; defaults to parsed invoices' },
@@ -593,7 +593,7 @@ export function createTools(deps: ToolDeps) {
   })
 
   const receipt = defineTool({
-    name: 'invoice.receipt',
+    name: 'invoice.record_receipt',
     description: 'Record a local verification receipt for one parsed invoice: hash the receipt file, append an immutable receipt record, and move the invoice to verified/quarantined. Local R1 write; no tax-bureau write.',
     parameters: {
       invoice_id: { type: 'string', required: true },
@@ -612,6 +612,8 @@ export function createTools(deps: ToolDeps) {
           receipt_sha256: { type: 'string', required: true },
           duplicate: { type: 'boolean', required: true },
           lifecycle: { type: 'string', required: true },
+          verification_source: { type: 'string', required: true },
+          tax_verified: { type: 'boolean', required: true },
         },
       },
       render: (_args, value) => text(`receipt ${value.receipt_id} (${value.duplicate ? 'duplicate' : 'recorded'}), invoice=${value.lifecycle}`),
@@ -629,7 +631,7 @@ export function createTools(deps: ToolDeps) {
       const receiptSha = sha256Buffer(buffer)
       const existing = (record.receipts ?? []).find((item) => item.receipt_sha256 === receiptSha)
       if (existing) {
-        return { receipt_id: existing.receipt_id, receipt_sha256: receiptSha, duplicate: true, lifecycle: record.lifecycle }
+        return { receipt_id: existing.receipt_id, receipt_sha256: receiptSha, duplicate: true, lifecycle: record.lifecycle, verification_source: 'local_receipt', tax_verified: false }
       }
       const now = new Date().toISOString()
       const receiptRecord = {
@@ -658,7 +660,7 @@ export function createTools(deps: ToolDeps) {
         updated_at: now,
       }
       await deps.table.put(record.doc_id, updated)
-      return { receipt_id: receiptRecord.receipt_id, receipt_sha256: receiptSha, duplicate: false, lifecycle }
+      return { receipt_id: receiptRecord.receipt_id, receipt_sha256: receiptSha, duplicate: false, lifecycle, verification_source: 'local_receipt', tax_verified: false }
     },
   })
 
@@ -942,7 +944,10 @@ export function createTools(deps: ToolDeps) {
     },
   })
 
-  return [ingest, parse, query, dedup, verify, receipt, redlink, archive, check, restore]
+  const legacyVerify = { ...verify, name: 'invoice.verify', description: 'Deprecated alias for invoice.review_queue; local review queue only, no tax-bureau verification.' }
+  const legacyReceipt = { ...receipt, name: 'invoice.receipt', description: 'Deprecated alias for invoice.record_receipt; local receipt only, no tax-bureau verification.' }
+
+  return [ingest, parse, query, dedup, verify, legacyVerify, receipt, legacyReceipt, redlink, archive, check, restore]
 
 
 }

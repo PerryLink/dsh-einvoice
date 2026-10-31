@@ -1,0 +1,88 @@
+{
+  "run_id": "s1-2026-10-31T06-29-43-424Z",
+  "timestamp": "2026-10-31T06:29:43.463Z",
+  "scope": "SKU-04-S1/S2/S3",
+  "status": "partial",
+  "counted": false,
+  "note": "public/synthetic only; S2 dedup/verify/receipt + S3 redlink/archive/check/restore; customer evidence gate remains PARK",
+  "samples": [
+    {
+      "name": "old-ofd",
+      "sha256": "fdbd16555025df101dc7ea89a008419457c0b7d5d2c82673c9d6cb454a7c0935",
+      "kind": "ofd-old",
+      "fields": 8
+    },
+    {
+      "name": "digital-ofd",
+      "sha256": "5b7dd5788ac2855aa1f0ec98258939ec8926f076de278554f85bfb615021f469",
+      "kind": "ofd-digital",
+      "fields": 8
+    },
+    {
+      "name": "generic-xml",
+      "sha256": "49154bb42ec48953ee7674ef205324c49c45e63a546d0455ff46f9c6ca48befb",
+      "kind": "xml",
+      "fields": 8
+    }
+  ],
+  "metrics": [
+    {
+      "req_id": "SKU-04-A01",
+      "metric": "八字段完整率（S1 合成样本）",
+      "threshold": ">=0.98",
+      "actual": 1,
+      "pass": true,
+      "counted": false
+    },
+    {
+      "req_id": "SKU-04-A02",
+      "metric": "扫描/OCR（未实现）",
+      "threshold": "not_run",
+      "actual": "not_run",
+      "pass": false,
+      "skipped": true,
+      "counted": false
+    },
+    {
+      "req_id": "SKU-04-A06",
+      "metric": "单票解析 P95（S1）",
+      "threshold": "<20s",
+      "actual": 0.002962522999999692,
+      "pass": true,
+      "counted": false
+    },
+    {
+      "req_id": "SKU-04-A07",
+      "metric": "负样本处理率 + 字段证据覆盖（S1）",
+      "threshold": "100%",
+      "actual": 1,
+      "pass": true,
+      "counted": false
+    },
+    {
+      "req_id": "SKU-04-A05",
+      "metric": "回执完整率（S2 单票）",
+      "threshold": "100%",
+      "actual": 1,
+      "pass": true,
+      "counted": false
+    },
+    {
+      "req_id": "SKU-04-A03",
+      "metric": "红蓝勾稽（S3 单对）",
+      "threshold": "100%",
+      "actual": 1,
+      "pass": true,
+      "counted": false
+    },
+    {
+      "req_id": "SKU-04-A04",
+      "metric": "归档复原（S3 单包）",
+      "threshold": "100%",
+      "actual": 1,
+      "pass": true,
+      "counted": false
+    }
+  ],
+  "pass": true
+}

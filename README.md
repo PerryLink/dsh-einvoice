@@ -2,7 +2,8 @@
 
 File-level Chinese e-invoice ingest, parse and pool for DeepSeek Harness (SKU-04 S1).
 
-> **Status: S1+S2+S3 / public demo (0.1.0-alpha.3).** The customer evidence gate (2 enterprises + 1 bookkeeping firm + 100 real invoices) is still PARKED. S1 uses public/open-source and synthetic fixtures; its acceptance rows are `not counted` toward GA. Do not describe this package as GA-ready.
+> **Status: file-level public demo (0.2.0-alpha.0) — PARTIAL, NOT COUNTED, NOT GA.**
+> This package does **not** implement OCR/scanning, tax-bureau verification/receipt, tax filing, 30-year archive compliance, or real-invoice accuracy claims. `invoice.review_queue` / `invoice.record_receipt` are local-only; the legacy names are deprecated aliases. The customer evidence gate (2 enterprises + 1 bookkeeping firm + 100 real invoices) is still PARKED. S1 uses public/open-source and synthetic fixtures; its acceptance rows are `not counted` toward GA. Do not describe this package as GA-ready.
 
 ## Install
 
@@ -21,8 +22,8 @@ The bundle inserts one Host row. It requires the base profile's `tools` and `sto
 | `invoice.parse` | Parse old OFD `Attachs/original_invoice.xml` or 数电票 `Tags/CustomTag.xml` + ObjectRef; return eight fields, lines, evidence and unknown fields | R0 |
 | `invoice.query` | Query the invoice pool by entity, period, lifecycle or text | R0 |
 | `invoice.dedup` | Group duplicates by invoice number or seller+date+total | R0 |
-| `invoice.verify` | Queue parsed invoices for manual verification; optional buyer-tax-id mismatch flags | R1 local write |
-| `invoice.receipt` | Hash a local receipt, append it, move lifecycle to verified/quarantined; idempotent by receipt bytes | R1 local write |
+| `invoice.review_queue` | Queue parsed invoices for manual local review; optional buyer-tax-id mismatch flags. Old `invoice.verify` is a deprecated alias. | R1 local write |
+| `invoice.record_receipt` | Hash a local receipt, append it, move lifecycle to receipt-recorded/quarantined; `verification_source=local_receipt`, `tax_verified=false`; old `invoice.receipt` is a deprecated alias. | R1 local write |
 | `invoice.redlink` | Bind a negative red invoice to its blue invoice; store deltas | R1 local write |
 | `invoice.archive` | Build a manifest + originals + receipts ZIP under the local archive directory | R1 local write |
 | `invoice.check` | Verify manifest/member hashes, missing files and traversal | R0 |
