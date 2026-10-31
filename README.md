@@ -59,6 +59,44 @@ Requires DSH `>=0.2.1-rc.3 <0.3.0` and Node `>=24.9 <25`.
 
 Synthetic invoice XML/OFD fixtures; `ACCEPTANCE.csv` lists 7 public checks (one is `out_of_scope`). No real invoice is included.
 
+## 中文说明
+
+文件级中国电子发票（OFD/XML）入库、解析、去重与本地归档。**公开/合成、alpha、非 GA**；没有客户发票，也没有税局查验/申报能力。
+
+### 安装
+
+```sh
+dsh plugin --profile <profile> add dsh-einvoice
+```
+
+### 工具
+
+| 工具 | 作用 |
+|---|---|
+| `invoice.ingest` | 一个本地 OFD/XML 入库，算 SHA-256，原样存本地，按字节幂等 |
+| `invoice.parse` | 解析旧 OFD 或数电票 XML，返回八个字段、明细行、证据与未知字段 |
+| `invoice.query` | 按主体、期间、生命周期或文本查本地票池 |
+| `invoice.dedup` | 按发票号或“销售方 + 日期 + 金额”归并重复 |
+| `invoice.review_queue` | 手工复核队列，可标 buyer-tax-id 不一致 |
+| `invoice.record_receipt` | 记录本地回执，`verification_source=local_receipt`、`tax_verified=false` |
+| `invoice.redlink` | 红票绑定蓝票，保存差额 |
+| `invoice.archive` | 生成 manifest + 原件 + 回执 ZIP |
+| `invoice.check` / `invoice.restore` | 校验归档 / 恢复到本地目录 |
+
+### 输入 / 输出
+
+一次 `invoice.ingest` 处理一个本地 OFD/XML；输出本地票池、复核/回执状态、红蓝绑定和归档 ZIP。
+
+### 边界
+
+- 不做 OCR/扫描件、税局查验/回执/申报、30 年合规、真实发票准确率。
+- 回执只是本地记录，不是税局回执。
+- 不连 IMAP、不写 ERP、不做电子签章法律意见，无 Client UI。
+
+### 配置
+
+`DSH_EINVOICE_HOME`（本地票池与归档目录）、`DSH_EINVOICE_INPUT_ROOTS`（输入白名单）。
+
 ## Development
 
 ```sh
