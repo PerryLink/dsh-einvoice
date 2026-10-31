@@ -41,9 +41,13 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
-          npm publish --provenance --access public --tag next
           pkg="$(node -p "require('./package.json').name")"
           ver="$(node -p "require('./package.json').version")"
+          if npm view "$pkg@$ver" version >/dev/null 2>&1; then
+            echo "$pkg@$ver is already public; skipping publish"
+          else
+            npm publish --provenance --access public --tag next
+          fi
           npm dist-tag add "$pkg@$ver" alpha
           npm dist-tag add "$pkg@$ver" latest
       - name: Prepare release assets
@@ -51,7 +55,7 @@ jobs:
         run: |
           mkdir -p dist
           npm pack --pack-destination dist
-          npx --yes @cyclonedx/cyclonedx-npm --output-file dist/sbom.cdx.json
+          npx --yes @cyclonedx/cyclonedx-npm --ignore-npm-errors --output-file dist/sbom.cdx.json
           cp ACCEPTANCE.csv EVIDENCE.md dist/ 2>/dev/null || true
           (cd dist && sha256sum * > SHA256SUMS)
       - uses: softprops/action-gh-release@v3
