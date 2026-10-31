@@ -2,11 +2,18 @@
 
 # dsh-einvoice
 
+> **Repositorio oficial.** El único repositorio oficial de este paquete, mantenido por PerryLink. Los repositorios con el mismo nombre en otras cuentas no están afiliados. Apache-2.0.
+
 [![npm](https://img.shields.io/npm/v/dsh-einvoice)](https://www.npmjs.com/package/dsh-einvoice)
 [![CI](https://github.com/PerryLink/dsh-einvoice/actions/workflows/ci.yml/badge.svg)](https://github.com/PerryLink/dsh-einvoice/actions)
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue)](LICENSE)
 [![dsh-plugin](https://img.shields.io/badge/dsh--plugin-%E2%9C%93-green)](https://github.com/topics/dsh-plugin)
 [![docs](https://img.shields.io/badge/docs-domain%20index-0b5fff)](https://perrylink.github.io/dsh-plugins/)
+[![Gitee](https://img.shields.io/badge/Gitee-aggregate-c71d23?logo=gitee)](https://gitee.com/perrylink/dsh-plugins)
+[![dshfind](https://dshfind.com/api/badge/PerryLink/dsh-einvoice?metric=downloads)](https://dshfind.com/plugins/PerryLink/dsh-einvoice?ref=badge)
+[![DSH Market](https://raw.githubusercontent.com/2BingLing/dsh-market/master/assets/readme/badge-listed-en.svg)](https://dsh.market/)
+[![Node](https://img.shields.io/badge/node-24.9%2B-brightgreen)](#)
+[![npm downloads](https://img.shields.io/npm/dm/dsh-einvoice)](https://www.npmjs.com/package/dsh-einvoice)
 
 **Ingesta, análisis, deduplicación y archivo local de facturas electrónicas chinas (OFD/XML).**
 
@@ -19,6 +26,8 @@ dsh plugin --profile <profile> add dsh-einvoice
 ```
 
 </div>
+
+> ⭐ Si te resulta útil, una estrella ayuda a que la siguiente persona lo encuentre. Nada está bloqueado tras ella.
 
 ![Workflow diagram for dsh-einvoice: local input, plugin, local output.](docs/assets/dsh-einvoice-flow.svg)
 
@@ -86,6 +95,31 @@ Las fixtures públicas/sintéticas están en `test/fixtures/`; `ACCEPTANCE.csv` 
 pnpm install --frozen-lockfile
 pnpm build && pnpm lint && pnpm typecheck && pnpm test
 ```
+
+## Compatibilidad
+
+| Superficie | Estado |
+|---|---|
+| Harness | `dsh >=0.2.1-rc.3 <0.3.0` |
+| Node | `>=24.9.0 <25` |
+| Platforms | All; local files only |
+| Datos | No network, no model call, no upload |
+
+## Permisos y datos
+
+- Se ejecuta localmente; sin red, sin modelo, sin subida.
+- Solo fixtures públicas/sintéticas; sin datos ni evidencia de clientes.
+- Alpha/parcial; no contabilizado, sin GA ni promesa de producción.
+- Los paquetes congelados siguen instalables; sin nuevas funciones, solo fallos reales.
+
+## Trabajo relacionado
+
+Paquetes hermanos e índices de familia: [dsh-bankrec](https://github.com/PerryLink/dsh-bankrec) · [dsh-ap-three-way](https://github.com/PerryLink/dsh-ap-three-way) · [dsh-travel-recon](https://github.com/PerryLink/dsh-travel-recon) · [dsh-finops-suite](https://github.com/PerryLink/dsh-finops-suite)
+
+- [Índice de dominio](https://perrylink.github.io/dsh-plugins/)
+- [Familia de checkers](https://perrylink.github.io/zh/checkers/)
+- [Familia principal](https://github.com/PerryLink/dsh-kit)
+- [Scenario article](https://perrylink.github.io/dsh-plugins/articles/finops-suite.html)
 
 ## Familia
 
