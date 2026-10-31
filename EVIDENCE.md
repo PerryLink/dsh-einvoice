@@ -3,7 +3,7 @@
 # EVIDENCE — SKU-04 客户/样本门（§4.0）
 
 审计时间：**2026-10-30T13:02:57+08:00**（Asia/Shanghai）
-审计对象：SKU-04 全电发票 `@perrylink/dsh-fin-invoice-core`
+审计对象：SKU-04 全电发票 `dsh-fin-invoice-core`
 结论：**证据门 FAIL → PARK**；本轮**未写 BUILD-PLAN、未写代码**。
 
 ## 1. 门槛（取最严口径）

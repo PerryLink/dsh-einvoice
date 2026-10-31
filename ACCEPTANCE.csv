@@ -1,8 +1,8 @@
 req_id,metric,threshold,actual,script,evidence_sha256,pass,source,counted
-SKU-04-A01,八字段完整率（S1 合成样本）,>=0.98,1,scripts/acceptance.mjs,3dba225f0c76a9b99ab676dea4432a757b3904097840f6ee9db6f06f48f3c557,true,public/synthetic,false
-SKU-04-A02,扫描/OCR（未实现）,out_of_scope,out_of_scope,scripts/acceptance.mjs,3dba225f0c76a9b99ab676dea4432a757b3904097840f6ee9db6f06f48f3c557,false,public/synthetic,false
-SKU-04-A06,单票解析 P95（S1）,<20s,0.0028246630000001004,scripts/acceptance.mjs,3dba225f0c76a9b99ab676dea4432a757b3904097840f6ee9db6f06f48f3c557,true,public/synthetic,false
-SKU-04-A07,负样本处理率 + 字段证据覆盖（S1）,100%,1,scripts/acceptance.mjs,3dba225f0c76a9b99ab676dea4432a757b3904097840f6ee9db6f06f48f3c557,true,public/synthetic,false
-SKU-04-A05,回执完整率（S2 单票）,100%,1,scripts/acceptance.mjs,3dba225f0c76a9b99ab676dea4432a757b3904097840f6ee9db6f06f48f3c557,true,public/synthetic,false
-SKU-04-A03,红蓝勾稽（S3 单对）,100%,1,scripts/acceptance.mjs,3dba225f0c76a9b99ab676dea4432a757b3904097840f6ee9db6f06f48f3c557,true,public/synthetic,false
-SKU-04-A04,归档复原（S3 单包）,100%,1,scripts/acceptance.mjs,3dba225f0c76a9b99ab676dea4432a757b3904097840f6ee9db6f06f48f3c557,true,public/synthetic,false
+SKU-04-A01,八字段完整率（S1 合成样本）,>=0.98,1,scripts/acceptance.mjs,f20fb5e7ac6dbd49ef68b960a9f1dfe635aa8c0dad930f74eef39c3e1dd78abb,true,public/synthetic,false
+SKU-04-A02,扫描/OCR（未实现）,out_of_scope,out_of_scope,scripts/acceptance.mjs,f20fb5e7ac6dbd49ef68b960a9f1dfe635aa8c0dad930f74eef39c3e1dd78abb,false,public/synthetic,false
+SKU-04-A06,单票解析 P95（S1）,<20s,0.0029168760000002295,scripts/acceptance.mjs,f20fb5e7ac6dbd49ef68b960a9f1dfe635aa8c0dad930f74eef39c3e1dd78abb,true,public/synthetic,false
+SKU-04-A07,负样本处理率 + 字段证据覆盖（S1）,100%,1,scripts/acceptance.mjs,f20fb5e7ac6dbd49ef68b960a9f1dfe635aa8c0dad930f74eef39c3e1dd78abb,true,public/synthetic,false
+SKU-04-A05,回执完整率（S2 单票）,100%,1,scripts/acceptance.mjs,f20fb5e7ac6dbd49ef68b960a9f1dfe635aa8c0dad930f74eef39c3e1dd78abb,true,public/synthetic,false
+SKU-04-A03,红蓝勾稽（S3 单对）,100%,1,scripts/acceptance.mjs,f20fb5e7ac6dbd49ef68b960a9f1dfe635aa8c0dad930f74eef39c3e1dd78abb,true,public/synthetic,false
+SKU-04-A04,归档复原（S3 单包）,100%,1,scripts/acceptance.mjs,f20fb5e7ac6dbd49ef68b960a9f1dfe635aa8c0dad930f74eef39c3e1dd78abb,true,public/synthetic,false

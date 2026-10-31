@@ -9,4 +9,4 @@ Reasons:
 - A real Client needs a projection/RPC contract and empty/error/loading states; adding it without a user request would expand the attack surface and the npm/name matrix for no acceptance gain.
 - Re-evaluate when: the user requests a UI, GA has a customer-facing requirement, or a projection is needed for review queues.
 
-Not started: `@perrylink/dsh-einvoice-client`, `sidebar.right.pane.tab`, any Client slot registration.
+Not started: `dsh-einvoice-client`, `sidebar.right.pane.tab`, any Client slot registration.

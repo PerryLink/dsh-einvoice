@@ -1,10 +1,10 @@
-# BUILD-LOG — @perrylink/dsh-einvoice
+# BUILD-LOG — dsh-einvoice
 
 ## 2026-10-31 — S1 / 0.1.0-alpha.0
 
 - Target: `0.2.1-rc.3 @ 22ddee3792`; `engines.dsh >=0.2.1-rc.3 <0.3.0`.
 - Evidence: customer gate still PARK; B2 public demo approved by user. S1 acceptance is `partial` / `not counted`.
-- Package: `@perrylink/dsh-einvoice@0.1.0-alpha.0`; `dsh.bundle.patch: ./cordis.patch.yml`; no Client; no R2/R3; MCP none.
+- Package: `dsh-einvoice@0.1.0-alpha.0`; `dsh.bundle.patch: ./cordis.patch.yml`; no Client; no R2/R3; MCP none.
 
 ### Commands
 
@@ -33,19 +33,19 @@
 
 ### npm publish attempt (2026-10-31 00:57 +08)
 
-- `npm publish --access public --tag next --registry=https://registry.npmjs.org/` → exit 0; server `PUT` **202**; npm printed `+ @perrylink/dsh-einvoice@0.1.0-alpha.0`; tarball shasum `81912733aa84c7144cd5b12c0b18c694339b88d7`.
+- `npm publish --access public --tag next --registry=https://registry.npmjs.org/` → exit 0; server `PUT` **202**; npm printed `+ dsh-einvoice@0.1.0-alpha.0`; tarball shasum `81912733aa84c7144cd5b12c0b18c694339b88d7`.
 - Registry still returns 404 for the package root; `dist-tags` returns `{"latest":"0.0.0-stage"}`; owner is `perrylink`. This is npm's staged-publish placeholder; the real `0.1.0-alpha.0` needs maintainer **2FA approval**.
 - See `PUBLISH-BLOCKED.md`; no unpublish/deprecate/approve was attempted. **Not installable from npm yet.**
 
 ### npm publish verified (2026-10-31 01:02 +08)
 
-- `npm view @perrylink/dsh-einvoice dist-tags version` → `latest: 0.1.0-alpha.0`, `next: 0.1.0-alpha.0`, `version: 0.1.0-alpha.0`; tarball shasum `81912733aa84c7144cd5b12c0b18c694339b88d7`.
+- `npm view dsh-einvoice dist-tags version` → `latest: 0.1.0-alpha.0`, `next: 0.1.0-alpha.0`, `version: 0.1.0-alpha.0`; tarball shasum `81912733aa84c7144cd5b12c0b18c694339b88d7`.
 - `0.0.0-stage` was a temporary first-publish placeholder; it resolved after propagation. `latest` points to alpha because it is the only version; GA later moves it.
 - See `PUBLISH-STATUS.md`.
 
 ### Registry install smoke (2026-10-31 01:05 +08)
 
-- Temp `DSH_HOME`, `dsh plugin add @perrylink/dsh-einvoice@0.1.0-alpha.0` → installed `0.1.0-alpha.0`; `--dump-config` shows `# == @perrylink/dsh-einvoice`; remove clears the layer.
+- Temp `DSH_HOME`, `dsh plugin add dsh-einvoice@0.1.0-alpha.0` → installed `0.1.0-alpha.0`; `--dump-config` shows `# == dsh-einvoice`; remove clears the layer.
 - Peer warnings only (`@deepseek-ai/*` peers); the published package resolves its runtime dependencies and the host provides the DSH services.
 
 ### Final S1 re-run (2026-10-31 01:04 +08)
@@ -67,7 +67,7 @@
 ### alpha.1 verified (2026-10-31 01:12 +08)
 
 - `dist-tags`: latest `0.1.0-alpha.0`, next `0.1.0-alpha.1`; alpha.1 version query succeeds.
-- Registry install smoke with `dsh plugin add @perrylink/dsh-einvoice@0.1.0-alpha.1` passed; layer removed after.
+- Registry install smoke with `dsh plugin add dsh-einvoice@0.1.0-alpha.1` passed; layer removed after.
 
 ### S3 — 0.1.0-alpha.2 (2026-10-31 01:16 +08)
 

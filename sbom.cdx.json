@@ -7,7 +7,7 @@
     "timestamp": "2026-10-30T17:23:48.023Z",
     "component": {
       "type": "application",
-      "name": "@perrylink/dsh-einvoice",
+      "name": "dsh-einvoice",
       "version": "0.1.0-alpha.3"
     }
   },

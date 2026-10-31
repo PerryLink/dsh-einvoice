@@ -4,8 +4,8 @@
 
 ```yaml
 sku: SKU-04
-install_package: "@perrylink/dsh-einvoice"
-engine_package: "@perrylink/dsh-fin-invoice-core"   # S1 先内嵌，S2 拆包
+install_package: "dsh-einvoice"
+engine_package: "dsh-fin-invoice-core"   # S1 先内嵌，S2 拆包
 workdir: 04-build/dsh-fin-invoice-core/
 owner: P04 财务线 Tech Lead / 财务组
 status: plan / public-demo (B2)
@@ -186,14 +186,14 @@ REQ-EINVOICE §8 七行 → `SKU-04-A01..A07`；S1 只跑 **A01（八字段，pu
 | plugin | `src/plugin/storage.ts` | domain spec/打开/关闭、InvoiceSchema、应用层唯一校验 | `ctx.storageDomain`、zod | SQL/事务假设 |
 
 - S1 源文件 6 + 配置 4（`package.json`、`cordis.patch.yml`、`tsconfig.json`、`tsdown.config.ts`）= 10；测试另计。
-- `package.json#dsh.bundle.patch` → `cordis.patch.yml`；`insert` 用裸包名 `@perrylink/dsh-einvoice`；无 `dsh.client`。
+- `package.json#dsh.bundle.patch` → `cordis.patch.yml`；`insert` 用裸包名 `dsh-einvoice`；无 `dsh.client`。
 - `registry` 启动时冻结；S1 只有 1 个 registry + 1 个 adapter + 1 个 core 模块。
 - `core/` 出现 `ctx.`/`@deepseek-ai/*`/`dsh` 即 CI 红。
 
 ## 10 行摘要（给计划门）
 
 1. SKU-04 走 **B2 public demo**；客户门仍 PARK，public/synthetic 全部 `not counted`。
-2. 安装包 `@perrylink/dsh-einvoice`；引擎 `dsh-fin-invoice-core` S2 再拆。
+2. 安装包 `dsh-einvoice`；引擎 `dsh-fin-invoice-core` S2 再拆。
 3. S1 = `invoice.ingest` + `invoice.parse` + `invoice.query`，3 工具。
 4. 1 个 storage 实体 `fin_invoice.invoices`；无 migration/事务。
 5. 1 个 registry + 1 个 adapter：`ofd-zip-xml`（fflate + fast-xml-parser）。

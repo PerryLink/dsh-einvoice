@@ -1,4 +1,4 @@
-# @perrylink/dsh-einvoice
+# dsh-einvoice
 
 File-level Chinese e-invoice (OFD/XML) ingest, parse, dedup and local archive for DeepSeek Harness.
 
@@ -7,7 +7,7 @@ File-level Chinese e-invoice (OFD/XML) ingest, parse, dedup and local archive fo
 ## Install
 
 ```sh
-dsh plugin --profile <profile> add @perrylink/dsh-einvoice
+dsh plugin --profile <profile> add dsh-einvoice
 dsh --profile <profile> --dump-config | grep dsh-einvoice
 ```
 
@@ -16,7 +16,7 @@ Requires DSH `>=0.2.1-rc.3 <0.3.0` and Node `>=24.9 <25`.
 <details>
 <summary>中文摘要</summary>
 
-文件级中国电子发票（OFD/XML）入库、解析、去重与本地归档。 安装：`dsh plugin --profile <profile> add @perrylink/dsh-einvoice`。公开/合成、alpha、非 GA。
+文件级中国电子发票（OFD/XML）入库、解析、去重与本地归档。 安装：`dsh plugin --profile <profile> add dsh-einvoice`。公开/合成、alpha、非 GA。
 
 </details>
 

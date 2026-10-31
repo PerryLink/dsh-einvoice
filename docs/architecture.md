@@ -1,4 +1,4 @@
-# Architecture — @perrylink/dsh-einvoice S1
+# Architecture — dsh-einvoice S1
 
 ```text
 core/        invoice.ts       pure eight-field normalization, money, dates, tax-id shape, errors
