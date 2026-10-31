@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="240" viewBox="0 0 960 240" role="img" aria-label="dsh-einvoice workflow">
+<rect width="960" height="240" rx="18" fill="#0b1020"/>
+<rect x="24" y="24" width="912" height="192" rx="14" fill="#111a2e" stroke="#27314a"/>
+<g><rect x="40" y="56" width="44" height="52" rx="5" fill="none" stroke="#6ea8fe" stroke-width="2"/><path d="M50 68h24M50 76h24M50 84h16" stroke="#6ea8fe" stroke-width="2"/></g>
+<path d="M220 120h100" stroke="#6ea8fe" stroke-width="2" marker-end="url(#a)"/>
+<rect x="330" y="76" width="300" height="88" rx="12" fill="#0b1020" stroke="#6ea8fe"/>
+<text x="480" y="124" text-anchor="middle" fill="#e8edf7" font-family="ui-monospace,monospace" font-size="20" font-weight="700">dsh-einvoice</text>
+<path d="M640 120h100" stroke="#6ea8fe" stroke-width="2" marker-end="url(#a)"/>
+<g transform="translate(810,0)"><rect x="46" y="58" width="40" height="46" rx="4" fill="none" stroke="#6ea8fe" stroke-width="2"/><path d="M54 68h24M54 76h24M54 84h18M54 92h12" stroke="#6ea8fe" stroke-width="2"/></g>
+<defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10z" fill="#6ea8fe"/></marker></defs>
+</svg>

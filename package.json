@@ -1,6 +1,6 @@
 {
   "name": "dsh-einvoice",
-  "version": "0.2.0-alpha.3",
+  "version": "0.2.0-alpha.4",
   "description": "File-level Chinese e-invoice (OFD/XML) ingest, parse, dedup and local archive.",
   "type": "module",
   "main": "./lib/plugin/index.js",
@@ -17,7 +17,12 @@
     "README.md",
     "LICENSE",
     "NOTICE",
-    "THIRD-PARTY-NOTICES"
+    "THIRD-PARTY-NOTICES",
+    "README-zh.md",
+    "README-es.md",
+    "README-pt.md",
+    "README-hi.md",
+    "docs/assets"
   ],
   "dsh": {
     "bundle": {

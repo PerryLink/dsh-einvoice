@@ -1,28 +1,55 @@
+<div align="center">
+
 # dsh-einvoice
 
-File-level Chinese e-invoice (OFD/XML) ingest, parse, dedup and local archive for DeepSeek Harness.
+[![npm](https://img.shields.io/npm/v/dsh-einvoice)](https://www.npmjs.com/package/dsh-einvoice)
+[![CI](https://github.com/PerryLink/dsh-einvoice/actions/workflows/ci.yml/badge.svg)](https://github.com/PerryLink/dsh-einvoice/actions)
+[![License](https://img.shields.io/badge/license-Apache--2.0-blue)](LICENSE)
+[![dsh-plugin](https://img.shields.io/badge/dsh--plugin-%E2%9C%93-green)](https://github.com/topics/dsh-plugin)
+[![docs](https://img.shields.io/badge/docs-domain%20index-0b5fff)](https://perrylink.github.io/dsh-plugins/)
 
-> **Status: alpha / public-synthetic / partial / not counted / not GA.** No customer evidence, customer data, or production-readiness claim. All acceptance rows are `counted=false`.
+**File-level Chinese e-invoice (OFD/XML) ingest, parse, dedup and local archive.**
+
+> **Status: alpha / public-synthetic / partial / not counted / not GA.** No customer evidence, customer data, or production-readiness claim.
+
+[English](README.md) · [简体中文](README-zh.md) · [Español](README-es.md) · [Português](README-pt.md) · [हिन्दी](README-hi.md)
+
+```sh
+dsh plugin --profile <profile> add dsh-einvoice
+```
+
+</div>
+
+![Workflow diagram for dsh-einvoice: local input, plugin, local output.](docs/assets/dsh-einvoice-flow.svg)
+
+*Workflow: local input → plugin → local output. No model call is required.*
 
 ## Install
+
+Install and verify:
 
 ```sh
 dsh plugin --profile <profile> add dsh-einvoice
 dsh --profile <profile> --dump-config | grep dsh-einvoice
 ```
 
-Requires DSH `>=0.2.1-rc.3 <0.3.0` and Node `>=24.9 <25`.
+Uninstall:
 
-<details>
-<summary>中文摘要</summary>
+```sh
+dsh plugin --profile <profile> remove dsh-einvoice
+```
 
-文件级中国电子发票（OFD/XML）入库、解析、去重与本地归档。 安装：`dsh plugin --profile <profile> add dsh-einvoice`。公开/合成、alpha、非 GA。
+## What it does
 
-</details>
+File-level Chinese e-invoice (OFD/XML) ingest, parse, dedup and local archive. Runs locally on DeepSeek Harness. The table below is the exact tool surface; the examples use the real command surface.
+
+Input and output stay local; nothing is uploaded.
 
 ## Tools
 
-| Tool | What it does | Risk |
+Tool names and descriptions are kept in English to match the runtime output.
+
+| Tool | Purpose | Risk |
 |---|---|---|
 | `invoice.ingest` | Ingest one local OFD/XML, compute SHA-256, store the original, idempotent by bytes | R1 local write |
 | `invoice.parse` | Parse old OFD `Attachs/original_invoice.xml` or 数电票 `Tags/CustomTag.xml`; return eight fields, lines, evidence and unknown fields | R0 |
@@ -35,74 +62,57 @@ Requires DSH `>=0.2.1-rc.3 <0.3.0` and Node `>=24.9 <25`.
 | `invoice.check` | Verify manifest/member hashes, missing files and traversal | R0 |
 | `invoice.restore` | Restore a verified archive into the local restore root | R1 local write |
 
-## Input / output
-
-**Input:** one local OFD/XML invoice per `invoice.ingest` call. **Output:** a local invoice pool, review/receipt state, red/blue links, and a deterministic archive ZIP. `invoice.check` verifies the archive; `invoice.restore` restores it locally.
-
-## Configuration
-
-| Env | Default | Meaning |
-|---|---|---|
-| `DSH_EINVOICE_HOME` | `$DSH_HOME/storages/dsh-einvoice` | originals directory and local pool base |
-| `DSH_EINVOICE_INPUT_ROOTS` | `current working directory` | `path.delimiter`-separated allowlist for `invoice.ingest` |
-
-## Limits / non-claims
-
-- No OCR/scanning, tax-bureau verification/receipt, tax filing, 30-year archive compliance, or real-invoice accuracy claim.
-- `invoice.record_receipt` is local-only: `verification_source=local_receipt`, `tax_verified=false`.
-- No IMAP/email fetching, ERP posting, e-signature legal opinion, or Client UI.
-- S1 accepts one local file per `invoice.ingest`; directory batches are not part of this package.
-- Public samples with PII are kept outside the tarball; do not paste raw invoice output into logs or public issues.
-- No customer evidence, customer data, or production-readiness claim; all fixtures are public/synthetic.
-
-## Public sample
-
-Synthetic invoice XML/OFD fixtures; `ACCEPTANCE.csv` lists 7 public checks (one is `out_of_scope`). No real invoice is included.
-
-## 中文说明
-
-文件级中国电子发票（OFD/XML）入库、解析、去重与本地归档。**公开/合成、alpha、非 GA**；没有客户发票，也没有税局查验/申报能力。
-
-### 安装
+## Quick start
 
 ```sh
 dsh plugin --profile <profile> add dsh-einvoice
+dsh --profile <profile> --dump-config | grep dsh-einvoice
 ```
 
-### 工具
+## Limits
 
-| 工具 | 作用 |
-|---|---|
-| `invoice.ingest` | 一个本地 OFD/XML 入库，算 SHA-256，原样存本地，按字节幂等 |
-| `invoice.parse` | 解析旧 OFD 或数电票 XML，返回八个字段、明细行、证据与未知字段 |
-| `invoice.query` | 按主体、期间、生命周期或文本查本地票池 |
-| `invoice.dedup` | 按发票号或“销售方 + 日期 + 金额”归并重复 |
-| `invoice.review_queue` | 手工复核队列，可标 buyer-tax-id 不一致 |
-| `invoice.record_receipt` | 记录本地回执，`verification_source=local_receipt`、`tax_verified=false` |
-| `invoice.redlink` | 红票绑定蓝票，保存差额 |
-| `invoice.archive` | 生成 manifest + 原件 + 回执 ZIP |
-| `invoice.check` / `invoice.restore` | 校验归档 / 恢复到本地目录 |
+- Public/synthetic only; no customer data or customer evidence.
+- Alpha/partial, not counted, no GA or production-readiness claim.
+- No model or network call unless a tool explicitly says so.
+- The exact per-tool boundaries are in the table and `ACCEPTANCE.csv`.
 
-### 输入 / 输出
+## Public sample
 
-一次 `invoice.ingest` 处理一个本地 OFD/XML；输出本地票池、复核/回执状态、红蓝绑定和归档 ZIP。
-
-### 边界
-
-- 不做 OCR/扫描件、税局查验/回执/申报、30 年合规、真实发票准确率。
-- 回执只是本地记录，不是税局回执。
-- 不连 IMAP、不写 ERP、不做电子签章法律意见，无 Client UI。
-
-### 配置
-
-`DSH_EINVOICE_HOME`（本地票池与归档目录）、`DSH_EINVOICE_INPUT_ROOTS`（输入白名单）。
+Public/synthetic fixtures live in `test/fixtures/`; `ACCEPTANCE.csv` records the public checks with `counted=false`.
 
 ## Development
 
 ```sh
 pnpm install --frozen-lockfile
-pnpm build && pnpm lint && pnpm typecheck && pnpm test && pnpm gate:sku04
+pnpm build && pnpm lint && pnpm typecheck && pnpm test
 ```
+
+## Family
+
+<details>
+<summary>DSH domain plugin family (15 packages + 2 suites)</summary>
+
+| Package | npm |
+|---|---|
+| **[dsh-einvoice](https://github.com/PerryLink/dsh-einvoice)** | [npm](https://www.npmjs.com/package/dsh-einvoice) |
+| **[dsh-docx-redline](https://github.com/PerryLink/dsh-docx-redline)** | [npm](https://www.npmjs.com/package/dsh-docx-redline) |
+| **[dsh-policy-ledger](https://github.com/PerryLink/dsh-policy-ledger)** | [npm](https://www.npmjs.com/package/dsh-policy-ledger) |
+| **[dsh-ghg](https://github.com/PerryLink/dsh-ghg)** | [npm](https://www.npmjs.com/package/dsh-ghg) |
+| **[dsh-bankrec](https://github.com/PerryLink/dsh-bankrec)** | [npm](https://www.npmjs.com/package/dsh-bankrec) |
+| **[dsh-ap-three-way](https://github.com/PerryLink/dsh-ap-three-way)** | [npm](https://www.npmjs.com/package/dsh-ap-three-way) |
+| **[dsh-ifc-qto](https://github.com/PerryLink/dsh-ifc-qto)** | [npm](https://www.npmjs.com/package/dsh-ifc-qto) |
+| **[dsh-qms-capa](https://github.com/PerryLink/dsh-qms-capa)** | [npm](https://www.npmjs.com/package/dsh-qms-capa) |
+| **[dsh-legal-intake](https://github.com/PerryLink/dsh-legal-intake)** | [npm](https://www.npmjs.com/package/dsh-legal-intake) |
+| **[dsh-legal-clause](https://github.com/PerryLink/dsh-legal-clause)** | [npm](https://www.npmjs.com/package/dsh-legal-clause) |
+| **[dsh-freight-audit](https://github.com/PerryLink/dsh-freight-audit)** | [npm](https://www.npmjs.com/package/dsh-freight-audit) |
+| **[dsh-hs-candidate](https://github.com/PerryLink/dsh-hs-candidate)** | [npm](https://www.npmjs.com/package/dsh-hs-candidate) |
+| **[dsh-travel-recon](https://github.com/PerryLink/dsh-travel-recon)** | [npm](https://www.npmjs.com/package/dsh-travel-recon) |
+| **[dsh-pim-lint](https://github.com/PerryLink/dsh-pim-lint)** | [npm](https://www.npmjs.com/package/dsh-pim-lint) |
+| **[dsh-eval-pack](https://github.com/PerryLink/dsh-eval-pack)** | [npm](https://www.npmjs.com/package/dsh-eval-pack) |
+| **[dsh-finops-suite](https://github.com/PerryLink/dsh-finops-suite)** | [npm](https://www.npmjs.com/package/dsh-finops-suite) |
+| **[dsh-contract-suite](https://github.com/PerryLink/dsh-contract-suite)** | [npm](https://www.npmjs.com/package/dsh-contract-suite) |
+
+</details>
 
 ## License
 
