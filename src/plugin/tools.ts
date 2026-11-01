@@ -15,6 +15,7 @@ import {
   type ParsedInvoice,
 } from '../core/invoice.js'
 import { taxIdCheck } from '../core/uscc.js'
+import { checkInvoiceCodes } from '../core/codes.js'
 import { getParser } from '../registry/parsers.js'
 import {
   assertUniqueInvoice,
@@ -956,7 +957,15 @@ export function createTools(deps: ToolDeps) {
     async execute(args) { const r = taxIdCheck(args.tax_id); return { ...r, check_character: r.check_character ?? undefined } },
   })
 
-  return [ingest, parse, query, dedup, verify, legacyVerify, receipt, legacyReceipt, redlink, archive, check, restore, taxIdTool]
+  const codeTool = defineTool({
+    name: 'invoice.code_check',
+    description: 'Check EN 16931 code-list values: currency (ISO 4217), country (ISO 3166-1 alpha-2) and VAT category (BR-CL-17). Well-formed but unlisted values are reported as unknown, never as invalid. Read-only.',
+    parameters: { currency: { type: 'string' }, country_code: { type: 'string' }, vat_category: { type: 'string' } },
+    output: { schema: { type: 'object', additionalProperties: false, properties: { checked: { type: 'number', required: true }, issues: { type: 'array', required: true, items: { type: 'object', additionalProperties: false, properties: { field: { type: 'string', required: true }, code: { type: 'string', required: true }, detail: { type: 'string', required: true } } } } } }, render: (_a, v) => text(`code check ${v.checked} values, ${v.issues.length} issues`) },
+    async execute(args) { return checkInvoiceCodes(args) },
+  })
+
+  return [ingest, parse, query, dedup, verify, legacyVerify, receipt, legacyReceipt, redlink, archive, check, restore, taxIdTool, codeTool]
 
 
 }

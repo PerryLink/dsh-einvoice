@@ -11,6 +11,7 @@ import { ofdZipXmlParser } from '../lib/adapters/ofd-zip-xml.js'
 import { InvoiceError } from '../lib/core/invoice.js'
 import { createTools } from '../lib/plugin/tools.js'
 import { taxIdCheck } from '../lib/core/uscc.js'
+import { checkInvoiceCodes } from '../lib/core/codes.js'
 
 const root = process.cwd()
 const runId = `s1-${new Date().toISOString().replace(/[:.]/g, '-')}`
@@ -89,12 +90,15 @@ for (const bad of [Buffer.alloc(0), zip({ 'not-ofd.txt': 'nope' })]) {
 
 const p95 = durations.sort((a, b) => a - b)[Math.max(0, Math.ceil(durations.length * 0.95) - 1)]
 const usccOk = taxIdCheck('91330106MA2B4C5D6X').valid === true && taxIdCheck('91330106MA2B4C5D6Y').valid === false
+const codes = checkInvoiceCodes({ currency: 'EUR', country_code: 'DE', vat_category: 'S' })
+const codesBad = checkInvoiceCodes({ currency: 'ZZZ', vat_category: 'X' })
 const metrics = [
   { req_id: 'SKU-04-A01', metric: '八字段完整率（S1 合成样本）', threshold: '>=0.98', actual: 1, pass: true, counted: false },
   { req_id: 'SKU-04-A02', metric: '扫描/OCR（未实现）', threshold: 'out_of_scope', actual: 'out_of_scope', pass: false, skipped: true, counted: false },
   { req_id: 'SKU-04-A06', metric: '单票解析 P95（S1）', threshold: '<20s', actual: p95 / 1000, pass: p95 < 20000, counted: false },
   { req_id: 'SKU-04-A07', metric: '负样本处理率 + 字段证据覆盖（S1）', threshold: '100%', actual: negativeHandled === 2 ? 1 : 0, pass: negativeHandled === 2, counted: false },
   { req_id: 'SKU-04-A08', metric: '统一社会信用代码校验位（GB 32100-2015）', threshold: '1/1', actual: usccOk ? 1 : 0, pass: usccOk, counted: false },
+  { req_id: 'SKU-04-A09', metric: 'EN 16931 代码表（币种/国家/税类）', threshold: '0 issues', actual: codes.issues.length, pass: codes.issues.length === 0 && codes.checked === 3 && codesBad.issues.length === 2, counted: false },
 ]
 
 // S2: a synthetic invoice -> ingest -> parse -> receipt; hash + idempotency + lifecycle.

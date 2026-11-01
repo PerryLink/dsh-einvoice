@@ -1,6 +1,12 @@
 # Changelog
 
-## [0.2.0-alpha.8] — 2026-11-01
+## [0.2.0-alpha.9] — 2026-11-01
+
+### Added
+
+- `invoice.code_check`: EN 16931 code-list validation for currency (ISO 4217), country (ISO 3166-1 alpha-2) and VAT category (BR-CL-17). Well-formed but unlisted values are reported as unknown, never as invalid. Verified by `node --test test/*.test.mjs` (31/31).
+
+## [Unreleased]
 
 ### Added
 

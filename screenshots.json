@@ -16,5 +16,11 @@
     "kind": "capability",
     "alt": "dsh-fin-invoice-core real test run",
     "caption": "Real command: node --test test/uscc.test.mjs — 4 tests passed, 0 failed (USCC mod-31 check character (GB 32100-2015)). Run 2026-11-01; the image is rendered from the captured terminal output."
+  },
+  {
+    "path": "docs/assets/dsh-einvoice-capability2.png",
+    "kind": "capability",
+    "alt": "dsh-einvoice EN 16931 code-list run",
+    "caption": "Real command: node --test test/codes.test.mjs — 4 tests passed, 0 failed (ISO 4217 currency, ISO 3166-1 country, EN 16931 BR-CL-17 VAT category). Run 2026-11-01; rendered from the captured terminal output."
   }
 ]
