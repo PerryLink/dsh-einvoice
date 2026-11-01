@@ -140,7 +140,6 @@ pnpm build && pnpm lint && pnpm typecheck && pnpm test
 - 本地运行；不联网、不调用模型、不上传。
 - 只使用公开/合成 fixture；不含客户数据或客户证据。
 - alpha/partial；not counted，不作 GA 或生产可用声明。
-- 冻结包仍可安装；不再加新功能，只修真实故障。
 
 ## 相关项目
 

@@ -140,7 +140,6 @@ pnpm build && pnpm lint && pnpm typecheck && pnpm test
 - Runs locally; no network, no model call, no upload.
 - Public/synthetic fixtures only; no customer data, no customer evidence.
 - Alpha/partial; not counted, no GA or production-readiness claim.
-- Frozen packages stay installable; no new features, only genuine breakage fixes.
 
 ## Related work
 
