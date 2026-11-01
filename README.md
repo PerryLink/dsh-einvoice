@@ -33,6 +33,10 @@ dsh plugin --profile <profile> add dsh-einvoice
 
 *Workflow: local input → plugin → local output. No model call is required.*
 
+![Real dsh-einvoice terminal output](docs/assets/dsh-einvoice-hero.png)
+
+*Real local test run; no model or network call.*
+
 ## Install
 
 Install and verify:
@@ -92,7 +96,7 @@ dsh --profile <profile> --dump-config | grep dsh-einvoice
 
 ### Fixture-backed example
 
-Input: [`fixtures/public/mit/invoice-github-sample.xml`](fixtures/public/mit/invoice-github-sample.xml)
+Input: [`fixtures/public/mit/invoice-github-sample.xml`](https://github.com/PerryLink/dsh-einvoice/blob/main/fixtures/public/mit/invoice-github-sample.xml)
 
 Command: `pnpm test`
 
@@ -142,6 +146,17 @@ pnpm build && pnpm lint && pnpm typecheck && pnpm test
 
 Sibling packages and family indexes: [dsh-bankrec](https://github.com/PerryLink/dsh-bankrec) · [dsh-ap-three-way](https://github.com/PerryLink/dsh-ap-three-way) · [dsh-travel-recon](https://github.com/PerryLink/dsh-travel-recon) · [dsh-finops-suite](https://github.com/PerryLink/dsh-finops-suite)
 
+
+### Related checkers
+
+Each entry is a separate package with its own rule pack and version; install only the ones you need.
+
+| Package | Why it is relevant |
+|---|---|
+| [`dsh-invoice-ledger`](https://github.com/PerryLink/dsh-invoice-ledger) | Checks the invoice ledger for duplicates, arithmetic, party and date anomalies after ingest. |
+| [`dsh-excel-reconcile`](https://github.com/PerryLink/dsh-excel-reconcile) | Two-table reconciliation when the invoice pool must be compared with an external ledger. |
+
+- [Troubleshooting](TROUBLESHOOTING.md)
 - [Domain index](https://perrylink.github.io/dsh-plugins/)
 - [Checker family](https://perrylink.github.io/zh/checkers/)
 - [Mainline family](https://github.com/PerryLink/dsh-kit)

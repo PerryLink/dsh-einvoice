@@ -33,6 +33,10 @@ dsh plugin --profile <profile> add dsh-einvoice
 
 *Fluxo: entrada local → plugin → saída local. Não exige chamada a modelo.*
 
+![Real dsh-einvoice terminal output](docs/assets/dsh-einvoice-hero.png)
+
+*Execução local real; sem modelo ou rede.*
+
 ## Instalação
 
 Instalar e verificar:
@@ -92,7 +96,7 @@ dsh --profile <profile> --dump-config | grep dsh-einvoice
 
 ### Exemplo com fixture
 
-Entrada: [`fixtures/public/mit/invoice-github-sample.xml`](fixtures/public/mit/invoice-github-sample.xml)
+Entrada: [`fixtures/public/mit/invoice-github-sample.xml`](https://github.com/PerryLink/dsh-einvoice/blob/main/fixtures/public/mit/invoice-github-sample.xml)
 
 Comando: `pnpm test`
 
@@ -142,6 +146,9 @@ pnpm build && pnpm lint && pnpm typecheck && pnpm test
 
 Pacotes irmãos e índices da família: [dsh-bankrec](https://github.com/PerryLink/dsh-bankrec) · [dsh-ap-three-way](https://github.com/PerryLink/dsh-ap-three-way) · [dsh-travel-recon](https://github.com/PerryLink/dsh-travel-recon) · [dsh-finops-suite](https://github.com/PerryLink/dsh-finops-suite)
 
+Verificadores relacionados (tabela em inglês): [Related checkers](README.md#related-checkers).
+
+- [Solução de problemas (inglês)](TROUBLESHOOTING.md)
 - [Índice de domínio](https://perrylink.github.io/dsh-plugins/)
 - [Família de checkers](https://perrylink.github.io/zh/checkers/)
 - [Família principal](https://github.com/PerryLink/dsh-kit)

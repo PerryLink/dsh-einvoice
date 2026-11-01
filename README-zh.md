@@ -33,6 +33,10 @@ dsh plugin --profile <profile> add dsh-einvoice
 
 *工作流：本地输入 → 插件 → 本地输出；不需要调用模型。*
 
+![Real dsh-einvoice terminal output](docs/assets/dsh-einvoice-hero.png)
+
+*本地真实测试运行；不调用模型或网络。*
+
 ## 安装
 
 安装并验证：
@@ -92,7 +96,7 @@ dsh --profile <profile> --dump-config | grep dsh-einvoice
 
 ### fixture 支撑的示例
 
-输入: [`fixtures/public/mit/invoice-github-sample.xml`](fixtures/public/mit/invoice-github-sample.xml)
+输入: [`fixtures/public/mit/invoice-github-sample.xml`](https://github.com/PerryLink/dsh-einvoice/blob/main/fixtures/public/mit/invoice-github-sample.xml)
 
 命令: `pnpm test`
 
@@ -142,6 +146,9 @@ pnpm build && pnpm lint && pnpm typecheck && pnpm test
 
 兄弟包与家族索引： [dsh-bankrec](https://github.com/PerryLink/dsh-bankrec) · [dsh-ap-three-way](https://github.com/PerryLink/dsh-ap-three-way) · [dsh-travel-recon](https://github.com/PerryLink/dsh-travel-recon) · [dsh-finops-suite](https://github.com/PerryLink/dsh-finops-suite)
 
+相关核查器（英文表）: [Related checkers](README.md#related-checkers).
+
+- [故障排查（英文）](TROUBLESHOOTING.md)
 - [领域索引](https://perrylink.github.io/dsh-plugins/)
 - [Checker 家族](https://perrylink.github.io/zh/checkers/)
 - [主线家族](https://github.com/PerryLink/dsh-kit)

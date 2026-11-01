@@ -1,0 +1,14 @@
+[
+  {
+    "path": "docs/assets/dsh-einvoice-hero.png",
+    "kind": "hero",
+    "alt": "dsh-einvoice terminal output",
+    "caption": "Real dsh-einvoice local test run; 23 tests passed."
+  },
+  {
+    "path": "docs/assets/dsh-einvoice-demo.gif",
+    "kind": "demo",
+    "alt": "Animated dsh-einvoice terminal session",
+    "caption": "The same run, assembled line by line."
+  }
+]

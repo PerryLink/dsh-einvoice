@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.2.0-alpha.7] — 2026-11-01
+
+### Changed
+
+- Documentation: five-language fixture/acceptance links now resolve on npm; added specific related-checker/tool links.
+- Marketplace metadata: taxonomy category, archetype, domains and status; docs page now shows the same.
+- Added a real terminal hero (and GIF for the active docs set) plus `TROUBLESHOOTING.md`.
+
 All notable changes to `dsh-einvoice` are documented here. The format follows Keep a Changelog; this project uses alpha versions.
 
 ## [0.2.0-alpha.6] — 2026-11-01
