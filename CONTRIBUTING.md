@@ -1,8 +1,35 @@
 # Contributing
 
-- License: Apache-2.0. By contributing you agree to the Developer Certificate of Origin (DCO) 1.1; sign off commits with `git commit -s`.
-- Keep third-party code within the allowed set (MIT / Apache-2.0 / BSD-2/3 / ISC / 0BSD; OFL-1.1 for fonts only). Do not add GPL/AGPL/SSPL, Odoo, Firefly III, veraPDF, Ghostscript/mutool/poppler, Aspose/Draftable or other commercial SDKs.
-- Preserve upstream LICENSE/NOTICE for reused code and mark modified files with `Modified by PerryLink 2026-10`.
-- Do not commit real invoices, customer PII, `.env`, `.pem`, tokens or `fixtures/input/`.
-- Run `pnpm lint && pnpm typecheck && pnpm test && pnpm gate:sku04` before a PR.
-- Public sample data needs a license review and redaction; see `FIXTURES.md`.
+Thanks for taking a look at `dsh-einvoice`.
+
+## Before you start
+
+- This is a **public/synthetic alpha** project, not a production product. Do not send customer data, customer documents, credentials, or private evidence.
+- The project is alpha. Small, focused fixes and documentation corrections are welcome; large features should be discussed first.
+- One pull request should do one thing. Keep generated evidence and unrelated formatting out of the diff.
+
+## Local checks
+
+```sh
+pnpm install --frozen-lockfile
+pnpm build && pnpm lint && pnpm typecheck && pnpm test
+```
+
+For the suite repositories, also run:
+
+```sh
+node scripts/check.mjs
+npm pack --dry-run
+```
+
+## Pull requests
+
+- Describe the user-visible problem and the failure before the fix.
+- Include a regression test or a fixture-backed reproduction.
+- Update `CHANGELOG.md` for user-visible changes.
+- Do not add a network call, model call, telemetry, or a customer-data path without an explicit design discussion.
+- By contributing, you agree your contribution is licensed under Apache-2.0.
+
+## Security
+
+Do not open a public issue for a vulnerability; see `SECURITY.md`.

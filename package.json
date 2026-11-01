@@ -22,7 +22,13 @@
     "README-es.md",
     "README-pt.md",
     "README-hi.md",
-    "docs/assets"
+    "docs/assets",
+    "SECURITY.md",
+    "PRIVACY.md",
+    "CODE_OF_CONDUCT.md",
+    "CONTRIBUTING.md",
+    "CHANGELOG.md",
+    "icon.svg"
   ],
   "dsh": {
     "bundle": {
@@ -90,5 +96,6 @@
   "homepage": "https://perrylink.github.io/dsh-plugins/packages/dsh-einvoice.html",
   "bugs": {
     "url": "https://github.com/PerryLink/dsh-einvoice/issues"
-  }
+  },
+  "icon": "icon.svg"
 }
