@@ -10,5 +10,11 @@
     "kind": "demo",
     "alt": "Animated dsh-einvoice terminal session",
     "caption": "The same run, assembled line by line."
+  },
+  {
+    "path": "docs/assets/dsh-fin-invoice-core-capability.png",
+    "kind": "capability",
+    "alt": "dsh-fin-invoice-core real test run",
+    "caption": "Real command: node --test test/uscc.test.mjs — 4 tests passed, 0 failed (USCC mod-31 check character (GB 32100-2015)). Run 2026-11-01; the image is rendered from the captured terminal output."
   }
 ]

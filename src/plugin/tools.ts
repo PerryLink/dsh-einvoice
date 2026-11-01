@@ -14,6 +14,7 @@ import {
   type InvoiceLine,
   type ParsedInvoice,
 } from '../core/invoice.js'
+import { taxIdCheck } from '../core/uscc.js'
 import { getParser } from '../registry/parsers.js'
 import {
   assertUniqueInvoice,
@@ -947,7 +948,15 @@ export function createTools(deps: ToolDeps) {
   const legacyVerify = { ...verify, name: 'invoice.verify', description: 'Deprecated alias for invoice.review_queue; local review queue only, no tax-bureau verification.' }
   const legacyReceipt = { ...receipt, name: 'invoice.receipt', description: 'Deprecated alias for invoice.record_receipt; local receipt only, no tax-bureau verification.' }
 
-  return [ingest, parse, query, dedup, verify, legacyVerify, receipt, legacyReceipt, redlink, archive, check, restore]
+  const taxIdTool = defineTool({
+    name: 'invoice.tax_id_check',
+    description: 'Validate a Chinese Unified Social Credit Code (18 characters, GB 32100-2015 mod-31 check character). Read-only; does not touch the archive.',
+    parameters: { tax_id: { type: 'string', required: true } },
+    output: { schema: { type: 'object', additionalProperties: false, properties: { tax_id: { type: 'string', required: true }, valid: { type: 'boolean', required: true }, kind: { type: 'string', required: true }, check_character: { type: 'string' }, reason: { type: 'string' } } }, render: (_a, v) => text(`${v.tax_id} ${v.valid ? 'ok' : 'invalid'}`) },
+    async execute(args) { const r = taxIdCheck(args.tax_id); return { ...r, check_character: r.check_character ?? undefined } },
+  })
+
+  return [ingest, parse, query, dedup, verify, legacyVerify, receipt, legacyReceipt, redlink, archive, check, restore, taxIdTool]
 
 
 }

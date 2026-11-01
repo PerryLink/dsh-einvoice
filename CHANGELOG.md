@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.2.0-alpha.8] — 2026-11-01
+
+### Added
+
+- `invoice.tax_id_check`: Chinese Unified Social Credit Code validation (18 characters, GB 32100-2015 mod-31 check character). Verified by `node --test test/uscc.test.mjs` (4/4) and the full suite (27/27); no third-party code or fixtures.
+
 ## [0.2.0-alpha.7] — 2026-11-01
 
 ### Changed
