@@ -1,6 +1,6 @@
 {
   "name": "dsh-einvoice",
-  "version": "0.2.0-alpha.10",
+  "version": "0.2.0-alpha.11",
   "description": "File-level Chinese e-invoice (OFD/XML) ingest, parse, dedup and local archive.",
   "type": "module",
   "main": "./lib/plugin/index.js",
@@ -99,5 +99,13 @@
   "bugs": {
     "url": "https://github.com/PerryLink/dsh-einvoice/issues"
   },
-  "icon": "icon.svg"
+  "icon": "icon.svg",
+  "peerDependenciesMeta": {
+    "@deepseek-ai/dsh-storage-domain": {
+      "optional": true
+    },
+    "@deepseek-ai/dsh-tools": {
+      "optional": true
+    }
+  }
 }

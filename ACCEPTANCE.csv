@@ -1,10 +1,10 @@
 req_id,metric,threshold,actual,script,evidence_sha256,pass,source,counted
-SKU-04-A01,八字段完整率（S1 合成样本）,>=0.98,1,scripts/acceptance.mjs,9f85fb9fb83b2bae50ac87becc7eee2fe6a1666f5493653b36b7f2ee53121c3d,true,public/synthetic,false
-SKU-04-A02,扫描/OCR（未实现）,out_of_scope,out_of_scope,scripts/acceptance.mjs,9f85fb9fb83b2bae50ac87becc7eee2fe6a1666f5493653b36b7f2ee53121c3d,false,public/synthetic,false
-SKU-04-A06,单票解析 P95（S1）,<20s,0.0032887869999999567,scripts/acceptance.mjs,9f85fb9fb83b2bae50ac87becc7eee2fe6a1666f5493653b36b7f2ee53121c3d,true,public/synthetic,false
-SKU-04-A07,负样本处理率 + 字段证据覆盖（S1）,100%,1,scripts/acceptance.mjs,9f85fb9fb83b2bae50ac87becc7eee2fe6a1666f5493653b36b7f2ee53121c3d,true,public/synthetic,false
-SKU-04-A08,统一社会信用代码校验位（GB 32100-2015）,1/1,1,scripts/acceptance.mjs,9f85fb9fb83b2bae50ac87becc7eee2fe6a1666f5493653b36b7f2ee53121c3d,true,public/synthetic,false
-SKU-04-A09,EN 16931 代码表（币种/国家/税类）,0 issues,0,scripts/acceptance.mjs,9f85fb9fb83b2bae50ac87becc7eee2fe6a1666f5493653b36b7f2ee53121c3d,true,public/synthetic,false
-SKU-04-A05,回执完整率（S2 单票）,100%,1,scripts/acceptance.mjs,9f85fb9fb83b2bae50ac87becc7eee2fe6a1666f5493653b36b7f2ee53121c3d,true,public/synthetic,false
-SKU-04-A03,红蓝勾稽（S3 单对）,100%,1,scripts/acceptance.mjs,9f85fb9fb83b2bae50ac87becc7eee2fe6a1666f5493653b36b7f2ee53121c3d,true,public/synthetic,false
-SKU-04-A04,归档复原（S3 单包）,100%,1,scripts/acceptance.mjs,9f85fb9fb83b2bae50ac87becc7eee2fe6a1666f5493653b36b7f2ee53121c3d,true,public/synthetic,false
+SKU-04-A01,八字段完整率（S1 合成样本）,>=0.98,1,scripts/acceptance.mjs,d260d1ce1f7222695e546993e1fe5f2bdb834fd53fe808b5b7f1be3e92b5ff4a,true,public/synthetic,false
+SKU-04-A02,扫描/OCR（未实现）,out_of_scope,out_of_scope,scripts/acceptance.mjs,d260d1ce1f7222695e546993e1fe5f2bdb834fd53fe808b5b7f1be3e92b5ff4a,false,public/synthetic,false
+SKU-04-A06,单票解析 P95（S1）,<20s,0.002908723000000009,scripts/acceptance.mjs,d260d1ce1f7222695e546993e1fe5f2bdb834fd53fe808b5b7f1be3e92b5ff4a,true,public/synthetic,false
+SKU-04-A07,负样本处理率 + 字段证据覆盖（S1）,100%,1,scripts/acceptance.mjs,d260d1ce1f7222695e546993e1fe5f2bdb834fd53fe808b5b7f1be3e92b5ff4a,true,public/synthetic,false
+SKU-04-A08,统一社会信用代码校验位（GB 32100-2015）,1/1,1,scripts/acceptance.mjs,d260d1ce1f7222695e546993e1fe5f2bdb834fd53fe808b5b7f1be3e92b5ff4a,true,public/synthetic,false
+SKU-04-A09,EN 16931 代码表（币种/国家/税类）,0 issues,0,scripts/acceptance.mjs,d260d1ce1f7222695e546993e1fe5f2bdb834fd53fe808b5b7f1be3e92b5ff4a,true,public/synthetic,false
+SKU-04-A05,回执完整率（S2 单票）,100%,1,scripts/acceptance.mjs,d260d1ce1f7222695e546993e1fe5f2bdb834fd53fe808b5b7f1be3e92b5ff4a,true,public/synthetic,false
+SKU-04-A03,红蓝勾稽（S3 单对）,100%,1,scripts/acceptance.mjs,d260d1ce1f7222695e546993e1fe5f2bdb834fd53fe808b5b7f1be3e92b5ff4a,true,public/synthetic,false
+SKU-04-A04,归档复原（S3 单包）,100%,1,scripts/acceptance.mjs,d260d1ce1f7222695e546993e1fe5f2bdb834fd53fe808b5b7f1be3e92b5ff4a,true,public/synthetic,false
