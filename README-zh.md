@@ -75,7 +75,7 @@ dsh plugin --profile <profile> add dsh-einvoice
 3. **能处理我的发票吗？** 能处理标准 OFD/XML 电子发票；全程本机运行、不联网、不上传。PDF、扫描件、图片发票不支持。
 4. **同一张发票为什么解析两次会报 `E_INV_DUP_CONFLICT`？** 同一主体下发票号唯一；这是防重复入池的保护。要保留两边记录，请用不同 `entity_id`（自带样例就是这样演示跨主体查重的）。
 
-**版本**：0.2.0-alpha.12（alpha，`counted=false`，非 GA）。测试：`node --test test/*.test.mjs` 通过 32 项、跳过 6 项（公开样本缺失，属正常）、失败 0；验收见 `ACCEPTANCE.csv`。
+**版本**：0.2.0（alpha，`counted=false`，非 GA）。测试：`node --test test/*.test.mjs` 通过 32 项、跳过 6 项（公开样本缺失，属正常）、失败 0；验收见 `ACCEPTANCE.csv`。
 
 ## 安装
 
