@@ -142,8 +142,28 @@ interface ArchiveManifest {
   members: ArchiveMember[]
 }
 
+const PKG_ID_PATTERN = /^pkg_[0-9a-f]{16}$/
+
 function safeZipPath(name: string): boolean {
   return !name.startsWith('/') && !name.split('/').includes('..') && !name.includes('\\0')
+}
+
+/** The manifest pkg_id is attacker-controlled until it passes this check. */
+function assertSafePkgId(pkgId: unknown): string {
+  if (typeof pkgId !== 'string' || !PKG_ID_PATTERN.test(pkgId)) {
+    throw new InvoiceError('E_INV_PKG_ID_INVALID', `archive manifest pkg_id is invalid: ${String(pkgId).slice(0, 80)}`)
+  }
+  return pkgId
+}
+
+/** Resolve one child under the restore root and fail closed on any escape. */
+function restoreTargetFor(restoreRootPath: string, pkgId: string): string {
+  const base = path.resolve(restoreRootPath)
+  const target = path.resolve(base, pkgId)
+  if (!target.startsWith(base + path.sep)) {
+    throw new InvoiceError('E_INV_PKG_ID_INVALID', `pkg_id escapes the restore root: ${pkgId}`)
+  }
+  return target
 }
 
 function archivePkgId(manifest: Omit<ArchiveManifest, 'pkg_id'> | ArchiveManifest): string {
@@ -493,6 +513,9 @@ export function createTools(deps: ToolDeps) {
         if (filter.entity_id && record.entity_id !== filter.entity_id) continue
         if (filter.period && invoicePeriod(record.issue_date) !== filter.period) continue
         const byNumber = record.invoice_no !== ''
+        // An unparsed record has no seller/date/total yet; grouping those would fabricate
+        // the same "seller_date_total:::0" duplicate for every ingest.
+        if (!byNumber && (!record.seller.tax_id || !record.issue_date)) continue
         const fingerprint = byNumber
           ? `invoice_no:${record.invoice_no}`
           : `seller_date_total:${record.seller.tax_id}:${record.issue_date}:${record.total_cents}`
@@ -684,7 +707,7 @@ export function createTools(deps: ToolDeps) {
       }
       return resolved
     }
-    if (!args.pkg_id || !/^pkg_[0-9a-f]{16}$/.test(args.pkg_id)) {
+    if (!args.pkg_id || !PKG_ID_PATTERN.test(args.pkg_id)) {
       throw new InvoiceError('E_INV_ARCHIVE_INVALID', 'pkg_id or path is required')
     }
     const candidate = path.join(archiveDir, `${args.pkg_id}.zip`)
@@ -913,11 +936,23 @@ export function createTools(deps: ToolDeps) {
       const buffer = await readFile(zipPath)
       const { files, manifest } = parseArchive(buffer)
       const report = verifyArchive(buffer)
-      let target = path.join(restoreRoot, report.pkg_id)
+      const pkgId = assertSafePkgId(report.pkg_id)
+      if (report.signable !== true) {
+        throw new InvoiceError('E_INV_NOT_SIGNABLE', `archive ${pkgId} failed verification`, {
+          needs_review: true,
+          details: {
+            missing: report.missing,
+            hash_mismatch: report.hash_mismatch,
+            dir_violation: report.dir_violation,
+          },
+        })
+      }
+      const root = path.resolve(restoreRoot)
+      let target = restoreTargetFor(root, pkgId)
       if (args.target_dir) {
         target = path.resolve(args.target_dir)
-        const rel = path.relative(restoreRoot, target)
-        if (rel.startsWith('..') || path.isAbsolute(rel)) {
+        const rel = path.relative(root, target)
+        if (rel.startsWith('..') || path.isAbsolute(rel) || target === root) {
           throw new InvoiceError('E_INV_PATH_NOT_ALLOWED', 'target_dir must be under the local restore root')
         }
       }

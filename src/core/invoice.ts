@@ -91,8 +91,11 @@ export function priceToCents(raw: unknown): number {
   const sign = match[1] === '-' ? -1n : 1n
   const whole = BigInt(match[2])
   const fraction = BigInt((match[3] ?? '').padEnd(12, '0'))
-  const cents = (whole * 100n + (fraction + 5_000_000_000n) / 10_000_000_000n)
-  return Number(sign * cents)
+  const cents = sign * (whole * 100n + (fraction + 5_000_000_000n) / 10_000_000_000n)
+  if (cents > BigInt(Number.MAX_SAFE_INTEGER) || cents < BigInt(Number.MIN_SAFE_INTEGER)) {
+    throw new InvoiceError('E_INV_FIELD_MISSING', 'price exceeds safe integer cents')
+  }
+  return Number(cents)
 }
 
 export function normalizeDate(raw: unknown): string {

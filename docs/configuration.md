@@ -29,6 +29,8 @@ The bundle passes no config; the defaults are intentionally local-only. S2 may a
 | `E_INV_ARCHIVE_MISSING_PART` | retryable | yes | restore the original/receipt file, then rebuild |
 | `E_INV_ARCHIVE_INVALID` | fatal | no | rebuild the archive; do not edit its ZIP/manifest |
 | `E_INV_ARCHIVE_NOT_FOUND` | fatal | no | check the `pkg_id` or path |
+| `E_INV_PKG_ID_INVALID` | fatal | no | rebuild the archive; the manifest `pkg_id` must match `^pkg_[0-9a-f]{16}$` and stay under the restore root |
+| `E_INV_NOT_SIGNABLE` | needs_review | no | run `invoice.check`; do not restore a package with missing or mismatched parts |
 | `E_INV_STORAGE_FAILED` | retryable | yes (3×) | check disk/permissions |
 | `E_INV_UNKNOWN_IMPL` | fatal | no | use `ofd-zip-xml` |
 

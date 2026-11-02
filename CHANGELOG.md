@@ -1,6 +1,24 @@
 # Changelog
 
-## [0.2.0-alpha.9] — 2026-11-01
+## [0.2.0-alpha.10] — 2026-11-01
+
+### Security / Fixes
+
+- Restore validates the package id and the signable flag before writing, priceToCents enforces the safe-integer range, dedup no longer folds unparsed records into a fake duplicate, XML parser failures map to E_INV_XML_SCHEMA_DRIFT.
+
+
+### Security
+
+- `invoice.restore` now validates the ZIP manifest `pkg_id` against `^pkg_[0-9a-f]{16}$` (`E_INV_PKG_ID_INVALID`), refuses packages whose verification is not signable (`E_INV_NOT_SIGNABLE`) before creating the restore directory, and asserts the resolved target stays under `resolve(restoreRoot) + sep`.
+- `priceToCents` rejects values that exceed `Number.MAX_SAFE_INTEGER` cents.
+- `invoice.dedup` no longer folds unparsed records into a synthetic `seller_date_total:::0` duplicate.
+- The OFD/XML reader checks the 50MB bound before decoding and normalises XML parser failures to `E_INV_XML_SCHEMA_DRIFT`.
+
+### Tests
+
+- Added `test/security.test.mjs` for restore path traversal, non-signable restore and unparsed dedup, plus adapter/core regressions for parser drift and the price guard. `node --test test/*.test.mjs`: 37 tests, 31 pass and 6 public-sample skips when the optional `04-build/.tmp/oss-samples` fixtures are absent.
+
+## [Unreleased]
 
 ### Added
 

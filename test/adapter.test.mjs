@@ -103,3 +103,18 @@ test('rejects empty and unrecognized inputs', () => {
   const buffer = zip({ 'not-ofd.txt': 'nope' })
   assert.throws(() => ofdZipXmlParser.parse({ buffer, fileName: 'bad.ofd' }), InvoiceError)
 })
+
+test('parser failures surface as E_INV_XML_SCHEMA_DRIFT', () => {
+  assert.throws(
+    () => ofdZipXmlParser.parse({ buffer: Buffer.from('<'), fileName: 'broken.xml' }),
+    (error) => error instanceof InvoiceError && error.code === 'E_INV_XML_SCHEMA_DRIFT',
+  )
+  const malformed = zip({
+    'OFD.xml': '<OFD/>',
+    'Doc_0/Attachs/original_invoice.xml': '<',
+  })
+  assert.throws(
+    () => ofdZipXmlParser.parse({ buffer: malformed, fileName: 'broken.ofd' }),
+    (error) => error instanceof InvoiceError && error.code === 'E_INV_XML_SCHEMA_DRIFT',
+  )
+})

@@ -26,6 +26,12 @@ test('priceToCents rounds tax-calculation precision', () => {
   assert.equal(priceToCents('-100.005'), -10001)
 })
 
+test('priceToCents rejects values beyond safe integer cents', () => {
+  assert.equal(priceToCents('90071992547409.91'), Number.MAX_SAFE_INTEGER)
+  assert.throws(() => priceToCents('90071992547409.92'), InvoiceError)
+  assert.throws(() => priceToCents('-90071992547409.92'), InvoiceError)
+})
+
 test('normalizeDate accepts Chinese, dashed and compact dates', () => {
   assert.equal(normalizeDate('2020年10月10日'), '2020-10-10')
   assert.equal(normalizeDate('2024/5/31'), '2024-05-31')

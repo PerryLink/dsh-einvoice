@@ -90,7 +90,14 @@ function unknownTopLevel(root: JsonObject, known: readonly string[]): Record<str
 }
 
 function parseXml(text: string): JsonObject {
-  const parsed = xmlParser.parse(text) as unknown
+  let parsed: unknown
+  try {
+    parsed = xmlParser.parse(text)
+  } catch (error) {
+    throw new InvoiceError('E_INV_XML_SCHEMA_DRIFT', `XML parser failed: ${error instanceof Error ? error.message : String(error)}`, {
+      needs_review: true,
+    })
+  }
   if (!isObject(parsed)) throw new InvoiceError('E_INV_XML_SCHEMA_DRIFT', 'XML root is not an object', { needs_review: true })
   return parsed
 }
@@ -366,16 +373,22 @@ function findEntry(entries: Record<string, Uint8Array>, suffix: string): string 
 function parseOfd(input: ParserInput): ParsedInvoice {
   let count = 0
   let total = 0
-  const entries = unzipSync(new Uint8Array(input.buffer), {
-    filter(file) {
-      count += 1
-      total += Number((file as unknown as { originalSize?: number; size?: number }).originalSize ?? (file as unknown as { size?: number }).size ?? 0)
-      if (count > 1000 || total > 100 * 1024 * 1024) {
-        throw new InvoiceError('E_INV_FILE_UNREADABLE', 'OFD archive exceeds safe entry/size limits')
-      }
-      return true
-    },
-  }) as Record<string, Uint8Array>
+  let entries: Record<string, Uint8Array>
+  try {
+    entries = unzipSync(new Uint8Array(input.buffer), {
+      filter(file) {
+        count += 1
+        total += Number((file as unknown as { originalSize?: number; size?: number }).originalSize ?? (file as unknown as { size?: number }).size ?? 0)
+        if (count > 1000 || total > 100 * 1024 * 1024) {
+          throw new InvoiceError('E_INV_FILE_UNREADABLE', 'OFD archive exceeds safe entry/size limits')
+        }
+        return true
+      },
+    }) as Record<string, Uint8Array>
+  } catch (error) {
+    if (error instanceof InvoiceError) throw error
+    throw new InvoiceError('E_INV_FILE_UNREADABLE', 'OFD archive is not a readable ZIP')
+  }
   if (!entries['OFD.xml']) throw new InvoiceError('E_INV_OFD_UNSUPPORTED', 'missing OFD.xml')
   const oldXmlName = findEntry(entries, 'Attachs/original_invoice.xml')
   if (oldXmlName) {
@@ -407,8 +420,9 @@ function parseOfd(input: ParserInput): ParsedInvoice {
 }
 
 function parseStandaloneXml(input: ParserInput): ParsedInvoice {
+  // Check the byte length before decoding: toString() itself would allocate the full string.
+  if (input.buffer.length > 50 * 1024 * 1024) throw new InvoiceError('E_INV_FILE_UNREADABLE', 'XML exceeds 50MB')
   const text = input.buffer.toString('utf8')
-  if (text.length > 50 * 1024 * 1024) throw new InvoiceError('E_INV_FILE_UNREADABLE', 'XML exceeds 50MB')
   const root = parseXml(text)
   const invoiceRoot = asObject(root.eInvoice) ?? asObject(root.Invoice) ?? root
   if (invoiceRoot.Buyer && invoiceRoot.InvoiceNo) return parseGenericInvoice(invoiceRoot)
@@ -427,9 +441,16 @@ export const ofdZipXmlParser: ParserAdapter = {
     return text.startsWith('<')
   },
   parse(input: ParserInput): ParsedInvoice {
-    if (input.buffer.length === 0) throw new InvoiceError('E_INV_FILE_UNREADABLE', 'empty file')
-    if (input.buffer.subarray(0, 2).toString('latin1') === 'PK') return parseOfd(input)
-    return parseStandaloneXml(input)
+    try {
+      if (input.buffer.length === 0) throw new InvoiceError('E_INV_FILE_UNREADABLE', 'empty file')
+      if (input.buffer.subarray(0, 2).toString('latin1') === 'PK') return parseOfd(input)
+      return parseStandaloneXml(input)
+    } catch (error) {
+      if (error instanceof InvoiceError) throw error
+      throw new InvoiceError('E_INV_XML_SCHEMA_DRIFT', `parser failed: ${error instanceof Error ? error.message : String(error)}`, {
+        needs_review: true,
+      })
+    }
   },
 }
 

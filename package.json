@@ -1,6 +1,6 @@
 {
   "name": "dsh-einvoice",
-  "version": "0.2.0-alpha.9",
+  "version": "0.2.0-alpha.10",
   "description": "File-level Chinese e-invoice (OFD/XML) ingest, parse, dedup and local archive.",
   "type": "module",
   "main": "./lib/plugin/index.js",
@@ -38,7 +38,7 @@
     }
   },
   "engines": {
-    "dsh": ">=0.2.1-rc.3 <0.3.0",
+    "dsh": ">=0.2.1-rc.3 <0.4.0",
     "node": ">=24.9.0 <25"
   },
   "packageManager": "pnpm@11.28.5",
@@ -70,9 +70,9 @@
     "access": "public"
   },
   "peerDependencies": {
-    "@deepseek-ai/cordis": ">=4.0.5 <5",
-    "@deepseek-ai/dsh-storage-domain": ">=0.2.1-rc.3 <0.3.0",
-    "@deepseek-ai/dsh-tools": ">=0.2.1-rc.3 <0.3.0"
+    "@deepseek-ai/cordis": ">=4.0.5 <5.0.0",
+    "@deepseek-ai/dsh-storage-domain": ">=0.2.1-rc.3 <0.4.0",
+    "@deepseek-ai/dsh-tools": ">=0.2.1-rc.3 <0.4.0"
   },
   "dependencies": {
     "fast-xml-parser": "5.11.2",
