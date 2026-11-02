@@ -183,7 +183,7 @@ export function assertUniqueInvoice(table: InvoiceTable, entityId: string, invoi
   if (!invoiceNo) return
   const existing = findByInvoiceNo(table, entityId, invoiceNo)
   if (existing && existing.doc_id !== docId) {
-    throw new InvoiceError('E_INV_DUP_CONFLICT', `invoice ${invoiceNo} already exists for entity ${entityId}`, {
+    throw new InvoiceError('E_INV_DUP_CONFLICT', `这张发票在这个主体下已经入过池了（E_INV_DUP_CONFLICT）｜下一步：用 invoice.query 查已有记录，或换一个 entity_id 再解析`, {
       needs_review: true,
       details: { existing_doc_id: existing.doc_id },
     })

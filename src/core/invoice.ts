@@ -52,7 +52,9 @@ export class InvoiceError extends Error {
   readonly details?: Record<string, unknown>
 
   constructor(code: string, message: string, options: InvoiceErrorOptions = {}) {
-    super(`${code}: ${message}`)
+    // User-facing format: "<human sentence>（E_INV_…）｜下一步：<one action>".
+    // Do not prefix the code twice when the message already carries it.
+    super(message.includes(code) ? message : `${code}: ${message}`)
     this.name = 'InvoiceError'
     this.code = code
     this.retryable = options.retryable ?? false

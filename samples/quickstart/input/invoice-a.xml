@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Synthetic sample for the dsh-einvoice quickstart. Invented invoice number and
+     obviously fake tax ids (TEST...); not a real invoice and not tax-authority data. -->
+<Invoice>
+  <InvoiceNo>25512345000000000091</InvoiceNo>
+  <InvoiceIssueDate>2026-08-01</InvoiceIssueDate>
+  <InvoiceTypeName>电子发票（普通发票）</InvoiceTypeName>
+  <Buyer>
+    <Name>示例买方（合成）有限公司</Name>
+    <TaxID>91330106TESTBUYER0</TaxID>
+  </Buyer>
+  <Seller>
+    <Name>示例卖方（合成）有限公司</Name>
+    <TaxID>91310115TESTSELLER</TaxID>
+  </Seller>
+  <Items>
+    <Item>
+      <Description>技术服务费（合成样例）</Description>
+      <Quantity>2</Quantity>
+      <UnitPrice>500.00</UnitPrice>
+      <Amount>1000.00</Amount>
+      <TaxRate>6%</TaxRate>
+      <TaxAmount>60.00</TaxAmount>
+    </Item>
+  </Items>
+  <Amount>1000.00</Amount>
+  <TaxAmount>60.00</TaxAmount>
+  <TotalAmount>1060.00</TotalAmount>
+</Invoice>

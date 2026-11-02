@@ -37,6 +37,46 @@ dsh plugin --profile <profile> add dsh-einvoice
 
 *本地真实测试运行；不调用模型或网络。*
 
+## 快速了解（3 分钟）
+
+**一句话**：把本地 OFD/XML 电子发票解析成八个字段并查重，全程留在本机。
+
+**适合**：报销前几十到几百张电子发票的自查；同一张发票被两个主体重复提交的排查；把票据按期间归集。
+**不适合**：需要税局验真、抵扣勾选的场景（本包**不联网**、不调税局接口）；扫描件/图片发票（不做 OCR）；PDF 发票。
+
+**输入**：本地 `.ofd`（数电票 `Tags/CustomTag.xml` 或旧版 `Attachs/original_invoice.xml`）或 `.xml` 电子发票；UTF-8；单文件 ≤50 MB；来自开票方下载或财务系统导出。
+自带样例：`samples/quickstart/input/invoice-a.xml` 与 `invoice-a-copy.ofd`（合成：发票号自造、税号 `91330106TESTBUYER0` / `91310115TESTSELLER` 明显为假值）。
+
+**输出**：发票号、开票日期、购销方、金额/税额/价税合计（整数分）、明细行、字段证据与未知字段；重复分组与查询结果。原件与索引写在 `$DSH_HOME/storages/dsh-einvoice`，**不改原文件**。
+
+**示例**：把这句话直接发给助手：
+
+> 我把同一张电子发票分别报给了两家主体（invoice-a.xml 和 invoice-a-copy.ofd），帮我入库解析后查重，告诉我发票号和价税合计。
+
+预期输出（真实运行结果）：`samples/quickstart/expected/result.json`。同一份样例的真实运行截图：
+
+![quickstart](docs/assets/quickstart.png)
+
+**权限**：
+
+```text
+读：用户指定的 .ofd/.xml 电子发票文件；不读其他目录
+写：$DSH_HOME/storages/dsh-einvoice（原件、索引与归档）；不改原文件
+联网：否
+外部系统：无（不调税局/发票查验平台，不做验真）
+```
+
+以上与源码一致：`apply()` 只从 `DSH_EINVOICE_HOME`（缺省 `$DSH_HOME/storages/dsh-einvoice`）取写入目录，源码里没有 `fetch`/`http.request` 等网络调用。会写盘的工具（`invoice.ingest`、`invoice.review_queue`、`invoice.record_receipt`、`invoice.redlink`、`invoice.archive`、`invoice.restore`）标 **R1 本地写**，只读工具（`invoice.parse`、`invoice.query`、`invoice.dedup`、`invoice.check`、`invoice.tax_id_check`、`invoice.code_check`）标 **R0**。
+
+### FAQ
+
+1. **装不上怎么办？** 先看 `node --version` 是否 ≥24.9、`dsh --version` 是否在 `>=0.2.1-rc.3 <0.4.0`；再跑 `dsh plugin --profile <profile> add dsh-einvoice`。
+2. **结果不对怎么办？** 先看 `field_evidence`（每个字段来自哪个部件/节点）与 `unknown_fields`；解析前必须 `invoice.ingest`。本包不做验真，金额勾稽只校验 `价税合计 = 金额 + 税额`。
+3. **能处理我的发票吗？** 能处理标准 OFD/XML 电子发票；全程本机运行、不联网、不上传。PDF、扫描件、图片发票不支持。
+4. **同一张发票为什么解析两次会报 `E_INV_DUP_CONFLICT`？** 同一主体下发票号唯一；这是防重复入池的保护。要保留两边记录，请用不同 `entity_id`（自带样例就是这样演示跨主体查重的）。
+
+**版本**：0.2.0-alpha.11（alpha，`counted=false`，非 GA）。测试：`node --test test/*.test.mjs` 通过 32 项、跳过 6 项（公开样本缺失，属正常）、失败 0；验收见 `ACCEPTANCE.csv`。
+
 ## 安装
 
 安装并验证：
@@ -74,16 +114,18 @@ dsh plugin --profile <profile> remove dsh-einvoice
 
 | 工具 | 用途 | 风险 |
 |---|---|---|
-| `invoice.ingest` | 导入单个本地 OFD/XML，计算 SHA-256，保存原始文件，并以字节为准保证幂等 | R1 local write |
-| `invoice.parse` | 解析旧版 OFD 的 `Attachs/original_invoice.xml` 或数电票的 `Tags/CustomTag.xml`；返回八个字段、明细行、证据及未知字段 | R0 |
-| `invoice.query` | 按主体、期间、生命周期或文本查询本地票据池 | R0 |
-| `invoice.dedup` | 按发票号码或销售方 + 日期 + 总额对重复项分组 | R0 |
-| `invoice.review_queue` | 将已解析发票排入本地人工复核队列；可选标记购买方税号不一致 | R1 local write |
-| `invoice.record_receipt` | 对本地回执计算哈希，追加该回执并推进生命周期；`verification_source=local_receipt`，`tax_verified=false` | R1 local write |
-| `invoice.redlink` | 将负数红字发票与其蓝字发票绑定并保存差额 | R1 local write |
-| `invoice.archive` | 在本地归档目录下生成清单 + 原始文件 + 回执的 ZIP | R1 local write |
-| `invoice.check` | 校验清单与成员哈希、缺失文件及路径穿越 | R0 |
-| `invoice.restore` | 将已校验的归档恢复到本地恢复根目录 | R1 local write |
+| `invoice.ingest` | 导入单个本地 OFD/XML，计算 SHA-256，保存原始文件，并以字节为准保证幂等 | R1 本地写 |
+| `invoice.parse` | 解析旧版 OFD 的 `Attachs/original_invoice.xml` 或数电票的 `Tags/CustomTag.xml`；返回八个字段、明细行、证据及未知字段 | R0 只读 |
+| `invoice.query` | 按主体、期间、生命周期或文本查询本地票据池 | R0 只读 |
+| `invoice.dedup` | 按发票号码或销售方 + 日期 + 总额对重复项分组 | R0 只读 |
+| `invoice.review_queue` | 将已解析发票排入本地人工复核队列；可选标记购买方税号不一致 | R1 本地写 |
+| `invoice.record_receipt` | 对本地回执计算哈希，追加该回执并推进生命周期；`verification_source=local_receipt`，`tax_verified=false` | R1 本地写 |
+| `invoice.redlink` | 将负数红字发票与其蓝字发票绑定并保存差额 | R1 本地写 |
+| `invoice.archive` | 在本地归档目录下生成清单 + 原始文件 + 回执的 ZIP | R1 本地写 |
+| `invoice.check` | 校验清单与成员哈希、缺失文件及路径穿越 | R0 只读 |
+| `invoice.restore` | 将已校验的归档恢复到本地恢复根目录 | R1 本地写 |
+| `invoice.tax_id_check` | 校验 18 位统一社会信用代码（GB 32100-2015 mod-31 校验位） | R0 只读 |
+| `invoice.code_check` | 检查币种/国家/税类代码表（EN 16931） | R0 只读 |
 
 ## 快速开始
 
@@ -91,6 +133,14 @@ dsh plugin --profile <profile> remove dsh-einvoice
 dsh plugin --profile <profile> add dsh-einvoice
 dsh --profile <profile> --dump-config | grep dsh-einvoice
 ```
+
+装上后，把上面「示例」里那句话发给助手即可。在仓库里也可以直接跑同一套工具：
+
+```sh
+pnpm build && node samples/quickstart/run.mjs
+```
+
+它会用 `samples/quickstart/input/invoice-a.xml` 与 `invoice-a-copy.ofd` 依次调用 `invoice.ingest → invoice.parse → invoice.dedup → invoice.query`，并打印结果。
 
 ## 示例
 

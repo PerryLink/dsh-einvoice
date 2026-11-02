@@ -76,7 +76,7 @@ async function resolveAllowedPath(inputPath: string, roots: string[]): Promise<s
   try {
     resolved = await realpath(absolute)
   } catch {
-    throw new InvoiceError('E_INV_FILE_UNREADABLE', `file does not exist: ${inputPath}`)
+    throw new InvoiceError('E_INV_FILE_UNREADABLE', `找不到这个发票文件（E_INV_FILE_UNREADABLE）｜下一步：确认路径存在且在输入根目录内，或先用自带样例 samples/quickstart/input/invoice-a.xml`)
   }
   const resolvedRoots = await Promise.all(
     roots.map(async (root) => {
@@ -88,7 +88,7 @@ async function resolveAllowedPath(inputPath: string, roots: string[]): Promise<s
     }),
   )
   const allowed = resolvedRoots.some((root) => root !== undefined && (resolved === root || resolved.startsWith(root + path.sep)))
-  if (!allowed) throw new InvoiceError('E_INV_PATH_NOT_ALLOWED', `path is outside the configured input roots: ${inputPath}`)
+  if (!allowed) throw new InvoiceError('E_INV_PATH_NOT_ALLOWED', `这个路径不在允许的输入目录里（E_INV_PATH_NOT_ALLOWED）｜下一步：把文件放进输入根目录，或设置 DSH_EINVOICE_INPUT_ROOTS`)
   return resolved
 }
 

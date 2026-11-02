@@ -1,0 +1,175 @@
+{
+  "_note": "Real tool output. doc ids are random per run, so they are normalised to DOC-1/DOC-2 here; amounts stay integer cents. Query rows are sorted by doc id because the tool orders by created_at, which can tie within one millisecond.",
+  "samples": [
+    {
+      "path": "samples/quickstart/input/invoice-a.xml",
+      "bytes": 990,
+      "sha256": "0803878ae00323d3f6134947e872870e9f4c332f704ad3a45b6a5e651c931a5f"
+    },
+    {
+      "path": "samples/quickstart/input/invoice-a-copy.ofd",
+      "bytes": 1270,
+      "sha256": "37a6229c656de49b76dce40e0982520c0c47c301c57b98ddd8084e3dbd77f9e0"
+    }
+  ],
+  "ingest": [
+    {
+      "doc": "DOC-1",
+      "entity": "ENT-DEMO-A",
+      "size": 990,
+      "sha256": "0803878ae00323d3f6134947e872870e9f4c332f704ad3a45b6a5e651c931a5f",
+      "existing": false
+    },
+    {
+      "doc": "DOC-2",
+      "entity": "ENT-DEMO-B",
+      "size": 1270,
+      "sha256": "37a6229c656de49b76dce40e0982520c0c47c301c57b98ddd8084e3dbd77f9e0",
+      "existing": false
+    }
+  ],
+  "parse": [
+    {
+      "doc": "DOC-1",
+      "via": "XML",
+      "invoice_no": "25512345000000000091",
+      "issue_date": "2026-08-01",
+      "buyer": {
+        "name": "示例买方（合成）有限公司",
+        "tax_id": "91330106TESTBUYER0"
+      },
+      "seller": {
+        "name": "示例卖方（合成）有限公司",
+        "tax_id": "91310115TESTSELLER"
+      },
+      "amount_cents": 100000,
+      "tax_cents": 6000,
+      "total_cents": 106000,
+      "currency": "CNY",
+      "lines": [
+        {
+          "line_no": 1,
+          "description": "技术服务费（合成样例）",
+          "quantity": "2",
+          "unit_price_cents": 50000,
+          "amount_cents": 100000,
+          "tax_rate": "6%",
+          "tax_cents": 6000
+        }
+      ],
+      "confidence": 1,
+      "parser_version": "ofd-zip-xml@1",
+      "field_evidence": {
+        "invoice_no": "XML:InvoiceNo",
+        "issue_date": "XML:InvoiceIssueDate",
+        "buyer_name": "XML:Buyer/Name",
+        "buyer_tax_id": "XML:Buyer/TaxID",
+        "seller_name": "XML:Seller/Name",
+        "seller_tax_id": "XML:Seller/TaxID",
+        "amount_cents": "XML:Amount",
+        "tax_cents": "XML:TaxAmount",
+        "total_cents": "XML:TotalAmount"
+      },
+      "unknown_fields": {},
+      "warnings": []
+    },
+    {
+      "doc": "DOC-2",
+      "via": "OFD",
+      "invoice_no": "25512345000000000091",
+      "issue_date": "2026-08-01",
+      "buyer": {
+        "name": "示例买方（合成）有限公司",
+        "tax_id": "91330106TESTBUYER0"
+      },
+      "seller": {
+        "name": "示例卖方（合成）有限公司",
+        "tax_id": "91310115TESTSELLER"
+      },
+      "amount_cents": 100000,
+      "tax_cents": 6000,
+      "total_cents": 106000,
+      "currency": "CNY",
+      "lines": [
+        {
+          "line_no": 1,
+          "description": "技术服务费（合成样例）",
+          "quantity": "2",
+          "unit_price_cents": 50000,
+          "amount_cents": 100000,
+          "tax_rate": "6%",
+          "tax_cents": 6000
+        }
+      ],
+      "confidence": 1,
+      "parser_version": "ofd-zip-xml@1",
+      "field_evidence": {
+        "invoice_no": "Tags/CustomTag.xml:InvoiceNo -> #1",
+        "issue_date": "Tags/CustomTag.xml:IssueDate -> #2",
+        "buyer_name": "Tags/CustomTag.xml:BuyerName -> #3",
+        "buyer_tax_id": "Tags/CustomTag.xml:BuyerTaxID -> #4",
+        "seller_name": "Tags/CustomTag.xml:SellerName -> #5",
+        "seller_tax_id": "Tags/CustomTag.xml:SellerTaxID -> #6",
+        "amount_cents": "Tags/CustomTag.xml:TaxExclusiveTotalAmount -> #7",
+        "tax_cents": "Tags/CustomTag.xml:TaxTotalAmount -> #8",
+        "total_cents": "Tags/CustomTag.xml:TaxInclusiveTotalAmount -> #9,#10"
+      },
+      "unknown_fields": {},
+      "warnings": []
+    }
+  ],
+  "dedup": {
+    "total": 1,
+    "groups": [
+      {
+        "fingerprint": "invoice_no:25512345000000000091",
+        "kind": "invoice_no",
+        "basis": "same invoice number",
+        "members": [
+          {
+            "doc": "DOC-1",
+            "invoice_no": "25512345000000000091",
+            "seller_name": "示例卖方（合成）有限公司",
+            "total_cents": 106000
+          },
+          {
+            "doc": "DOC-2",
+            "invoice_no": "25512345000000000091",
+            "seller_name": "示例卖方（合成）有限公司",
+            "total_cents": 106000
+          }
+        ]
+      }
+    ]
+  },
+  "query": {
+    "filter": {
+      "period": "2026-08"
+    },
+    "total": 2,
+    "rows": [
+      {
+        "doc": "DOC-1",
+        "invoice_no": "25512345000000000091",
+        "issue_date": "2026-08-01",
+        "seller": {
+          "name": "示例卖方（合成）有限公司",
+          "tax_id": "91310115TESTSELLER"
+        },
+        "total_cents": 106000,
+        "lifecycle": "parsed"
+      },
+      {
+        "doc": "DOC-2",
+        "invoice_no": "25512345000000000091",
+        "issue_date": "2026-08-01",
+        "seller": {
+          "name": "示例卖方（合成）有限公司",
+          "tax_id": "91310115TESTSELLER"
+        },
+        "total_cents": 106000,
+        "lifecycle": "parsed"
+      }
+    ]
+  }
+}

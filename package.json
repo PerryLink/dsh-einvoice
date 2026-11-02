@@ -1,6 +1,6 @@
 {
   "name": "dsh-einvoice",
-  "version": "0.2.0-alpha.11",
+  "version": "0.2.0-alpha.12",
   "description": "File-level Chinese e-invoice (OFD/XML) ingest, parse, dedup and local archive.",
   "type": "module",
   "main": "./lib/plugin/index.js",
@@ -30,11 +30,26 @@
     "CHANGELOG.md",
     "TROUBLESHOOTING.md",
     "screenshots.json",
-    "icon.svg"
+    "icon.svg",
+    "samples"
   ],
   "dsh": {
     "bundle": {
       "patch": "./cordis.patch.yml"
+    },
+    "demo": {
+      "sample": "samples/quickstart/input/invoice-a.xml",
+      "prompt": "我把同一张电子发票分别报给了两家主体（invoice-a.xml 和 invoice-a-copy.ofd），帮我入库解析后查重，告诉我发票号和价税合计。",
+      "expect": "samples/quickstart/expected/result.json",
+      "screenshot": "docs/assets/quickstart.png",
+      "reads": [
+        "用户指定的 OFD/XML 电子发票文件"
+      ],
+      "writes": [
+        "$DSH_HOME/storages/dsh-einvoice"
+      ],
+      "network": false,
+      "external": []
     }
   },
   "engines": {

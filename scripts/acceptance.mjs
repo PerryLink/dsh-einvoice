@@ -2,6 +2,8 @@
 
 import { createHash } from 'node:crypto'
 import { mkdirSync, writeFileSync } from 'node:fs'
+import { execFileSync } from 'node:child_process'
+import { readFileSync } from 'node:fs'
 import { mkdtemp, rm, writeFile } from 'node:fs/promises'
 import os from 'node:os'
 import path from 'node:path'
@@ -174,6 +176,11 @@ try {
 metrics.push({ req_id: 'SKU-04-A03', metric: '红蓝勾稽（S3 单对）', threshold: '100%', actual: redlinkOk ? 1 : 0, pass: redlinkOk, counted: false })
 metrics.push({ req_id: 'SKU-04-A04', metric: '归档复原（S3 单包）', threshold: '100%', actual: restoreOk ? 1 : 0, pass: restoreOk, counted: false })
 
+const qs = JSON.parse(execFileSync(process.execPath, ['samples/quickstart/run.mjs', '--json'], { encoding: 'utf8' }))
+const qsGoldText = readFileSync('samples/quickstart/expected/result.json', 'utf8')
+const qsOk = JSON.stringify(qs) === JSON.stringify(JSON.parse(qsGoldText))
+metrics.push({ req_id: 'PS1-QS01', metric: 'quickstart 样例与金标一致', threshold: '1/1', actual: qsOk ? 1 : 0, pass: qsOk, counted: true, source: 'synthetic/quickstart', evidence_sha256: sha256(qsGoldText) })
+
 const result = {
   run_id: runId,
   timestamp: new Date().toISOString(),
@@ -190,7 +197,7 @@ writeFileSync(path.join(evidenceDir, 'result.json'), resultText)
 const evidenceSha = sha256(resultText)
 const csv = [
   'req_id,metric,threshold,actual,script,evidence_sha256,pass,source,counted',
-  ...metrics.map((metric) => `${metric.req_id},${metric.metric},${metric.threshold},${metric.actual},scripts/acceptance.mjs,${evidenceSha},${metric.pass},public/synthetic,${metric.counted}`),
+  ...metrics.map((metric) => `${metric.req_id},${metric.metric},${metric.threshold},${metric.actual},scripts/acceptance.mjs,${metric.evidence_sha256 ?? evidenceSha},${metric.pass},${metric.source ?? 'public/synthetic'},${metric.counted}`),
 ].join('\n') + '\n'
 writeFileSync(path.join(root, 'ACCEPTANCE.csv'), csv)
 if (!result.pass) {

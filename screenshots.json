@@ -1,5 +1,16 @@
 [
   {
+    "path": "docs/assets/quickstart.png",
+    "kind": "quickstart",
+    "alt": "dsh-einvoice quickstart terminal run",
+    "caption": "Real command: node samples/quickstart/run.mjs — 6 tool calls on the two shipped synthetic invoice files (XML + 数电票 OFD), same invoice number reported under two entities, dedup finds 1 duplicate group. The image is a 1:1 render of samples/quickstart/expected/console.txt; nothing was re-typed.",
+    "command": "node samples/quickstart/run.mjs",
+    "run_at": "2026-11-02T20:37:54+08:00",
+    "output_sha256": "7c5eb0308d6edcd693543ada05651801f75889439e3513e3b163e07a4e03a83f",
+    "log_sha256": "2b35c1fc24375e73908063e9007f9b6ae50abf5c8e559e8051f9118bf6e11373",
+    "render": "scripts/render-capture.py samples/quickstart/expected/console.txt docs/assets/quickstart.png (CJK-capable font via RENDER_CAPTURE_FONT)"
+  },
+  {
     "path": "docs/assets/dsh-einvoice-hero.png",
     "kind": "hero",
     "alt": "dsh-einvoice terminal output",
