@@ -1,8 +1,8 @@
 <div align="center">
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/dsh-einvoice-flow-dark.svg">
-  <img src="docs/assets/dsh-einvoice-flow-light.svg" width="100%" alt="dsh-einvoice 数据流：本地 OFD/XML → invoice.ingest（SHA-256、原件）→ invoice.parse（ofd-zip-xml、八字段、字段证据）→ invoice.query / invoice.dedup；本地生命周期 review_queue / record_receipt / redlink / archive / check / restore；数据落在 $DSH_HOME/storages/dsh-einvoice，不联网">
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/dsh-einvoice-hero-zh-dark.webp">
+  <img src="docs/assets/dsh-einvoice-hero-zh-light.webp" width="100%" alt="dsh-einvoice 横幅：左侧标题与价值句；右侧是本机流水——OFD 原件 invoice-a-copy.ofd（1 270 B）与 SHA-256、parsed 记录的八字段与整数分（金额 1000.00 / 税额 60.00 / 价税合计 1060.00、106000 分）、field_evidence 与 received → parsed → verified / quarantined 生命周期；数据取自 quickstart 合成样例">
 </picture>
 
 # dsh-einvoice
@@ -39,6 +39,11 @@ dsh plugin --profile <profile> add dsh-einvoice
 
 - **适合**：报销前几十到几百张电子发票的自查；同一张发票被两个主体重复提交的排查；按期间把票据归集、出回执、做红蓝勾稽并留一份可校验的归档包。
 - **不适合**：需要税局验真、抵扣勾选的场景（本包**不联网**、不调税局接口）；扫描件 / 图片发票（不做 OCR）；PDF 发票。
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/dsh-einvoice-flow-v5-dark.svg">
+  <img src="docs/assets/dsh-einvoice-flow-v5-light.svg" width="100%" alt="dsh-einvoice 结构：两条输入通道（OFD 容器与独立 XML）汇入 invoice.ingest（realpath 白名单、大小闸门、SHA-256、原件 0600、同字节幂等），再由 invoice.parse（ofd-zip-xml@1）归一为八字段与字段证据；之后分两轨——R0 只读轨（query / dedup / check / tax_id_check / code_check）与 R1 本地写轨（review_queue / record_receipt / redlink / archive / restore）；生命周期 received → parsed → verified / quarantined；数据落在 fin_invoice 与 storages/dsh-einvoice，不联网">
+</picture>
 
 ## 三步上手
 
@@ -323,7 +328,7 @@ node scripts/acceptance.mjs                             # 重跑公开 / 合成�
 node samples/quickstart/run.mjs                         # 合成样例，应输出 6 次工具调用、1 个重复组
 ```
 
-TypeScript 源码在 `src/`（`src/core/` 八字段与金额、`src/adapters/` OFD/XML 适配、`src/registry/` 解析器注册表、`src/plugin/` 宿主面），构建产物在 `lib/`；fixture 在 `fixtures/`，随包样例在 `samples/quickstart/`。当前版本 `0.2.1`（与 `package.json` 一致）。测试用 `node --test test/*.test.mjs`；公开样本缺失导致的 skip 属正常，不是失败（见 [`TROUBLESHOOTING.md`](TROUBLESHOOTING.md)）。开头流程图由 [`scripts/gen-readme-assets.py`](scripts/gen-readme-assets.py) 程序化生成（Python，输出 `docs/assets/dsh-einvoice-flow-{light,dark}.svg`），可重复执行。
+TypeScript 源码在 `src/`（`src/core/` 八字段与金额、`src/adapters/` OFD/XML 适配、`src/registry/` 解析器注册表、`src/plugin/` 宿主面），构建产物在 `lib/`；fixture 在 `fixtures/`，随包样例在 `samples/quickstart/`。当前版本 `0.2.1`（与 `package.json` 一致）。测试用 `node --test test/*.test.mjs`；公开样本缺失导致的 skip 属正常，不是失败（见 [`TROUBLESHOOTING.md`](TROUBLESHOOTING.md)）。开头横幅与结构图由 [`scripts/gen-readme-assets.py`](scripts/gen-readme-assets.py) 程序化生成（Python：Pillow 画 1440×576 横幅四张 webp，手写 SVG 画 1100×660 结构图深浅双版），可重复执行。
 
 Topics：`deepseek-harness`, `dsh`, `dsh-plugin`, `einvoice`, `invoice`, `ofd`, `perrylink`, `finance`
 

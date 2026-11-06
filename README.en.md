@@ -1,8 +1,8 @@
 <div align="center">
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/dsh-einvoice-flow-dark.svg">
-  <img src="docs/assets/dsh-einvoice-flow-light.svg" width="100%" alt="dsh-einvoice data flow: local OFD/XML → invoice.ingest (SHA-256, original) → invoice.parse (ofd-zip-xml, eight fields, field evidence) → invoice.query / invoice.dedup; local lifecycle review_queue / record_receipt / redlink / archive / check / restore; data under $DSH_HOME/storages/dsh-einvoice, no network">
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/dsh-einvoice-hero-en-dark.webp">
+  <img src="docs/assets/dsh-einvoice-hero-en-light.webp" width="100%" alt="dsh-einvoice banner: title and value lines on the left; on the right the local pipeline — the OFD original invoice-a-copy.ofd (1 270 B) with its SHA-256, the parsed record's eight fields in integer cents (amount 1000.00 / tax 60.00 / total 1060.00, 106000 cents), field_evidence, and the received → parsed → verified / quarantined lifecycle; values come from the quickstart synthetic sample">
 </picture>
 
 # dsh-einvoice
@@ -39,6 +39,11 @@ Read one local `.ofd` / `.xml` e-invoice, compute its SHA-256, keep the original
 
 - **Good fit**: self-checks before reimbursing tens to a few hundred e-invoices; finding the same invoice submitted by two different entities; collecting invoices by period, recording receipts, linking red/blue invoices, and keeping a verifiable archive package.
 - **Not a fit**: tax-bureau verification or input-VAT deduction (this package is **offline** and calls no tax-bureau API); scanned or photographed invoices (no OCR); PDF invoices.
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/dsh-einvoice-flow-v5-dark.svg">
+  <img src="docs/assets/dsh-einvoice-flow-v5-light.svg" width="100%" alt="dsh-einvoice structure: two input channels (OFD container and standalone XML) feed invoice.ingest (realpath allowlist, size gate, SHA-256, original 0600, byte-idempotent), then invoice.parse (ofd-zip-xml@1) normalizes eight fields and field evidence; the flow then splits into an R0 read-only rail (query / dedup / check / tax_id_check / code_check) and an R1 local-write rail (review_queue / record_receipt / redlink / archive / restore); lifecycle received → parsed → verified / quarantined; data lives in fin_invoice and storages/dsh-einvoice, no network">
+</picture>
 
 ## Three-step setup
 
@@ -323,7 +328,7 @@ node scripts/acceptance.mjs                             # re-run public/syntheti
 node samples/quickstart/run.mjs                         # synthetic sample; expect 6 tool calls and 1 duplicate group
 ```
 
-TypeScript sources live in `src/` (`src/core/` for the eight fields and money, `src/adapters/` for OFD/XML parsing, `src/registry/` for the parser registry, `src/plugin/` for the host face); build output goes to `lib/`; fixtures are in `fixtures/`, and the shipped sample in `samples/quickstart/`. Current version `0.2.1` (matches `package.json`). Tests run with `node --test test/*.test.mjs`; skips caused by missing public samples are normal, not failures (see [`TROUBLESHOOTING.md`](TROUBLESHOOTING.md)). The hero diagram is generated programmatically by [`scripts/gen-readme-assets.py`](scripts/gen-readme-assets.py) (Python; outputs `docs/assets/dsh-einvoice-flow-{light,dark}.svg`) and is safe to re-run.
+TypeScript sources live in `src/` (`src/core/` for the eight fields and money, `src/adapters/` for OFD/XML parsing, `src/registry/` for the parser registry, `src/plugin/` for the host face); build output goes to `lib/`; fixtures are in `fixtures/`, and the shipped sample in `samples/quickstart/`. Current version `0.2.1` (matches `package.json`). Tests run with `node --test test/*.test.mjs`; skips caused by missing public samples are normal, not failures (see [`TROUBLESHOOTING.md`](TROUBLESHOOTING.md)). The banner and the structure diagram are generated programmatically by [`scripts/gen-readme-assets.py`](scripts/gen-readme-assets.py) (Python: four 1440×576 webp banners via Pillow, plus a hand-written 1100×660 SVG pair for the structure diagram) and are safe to re-run.
 
 Topics: `deepseek-harness`, `dsh`, `dsh-plugin`, `einvoice`, `invoice`, `ofd`, `perrylink`, `finance`
 

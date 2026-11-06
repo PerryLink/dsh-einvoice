@@ -1,8 +1,8 @@
 <div align="center">
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/dsh-einvoice-flow-dark.svg">
-  <img src="docs/assets/dsh-einvoice-flow-light.svg" width="100%" alt="dsh-einvoice डेटा प्रवाह: स्थानीय OFD/XML → invoice.ingest (SHA-256, मूल) → invoice.parse (ofd-zip-xml, आठ फ़ील्ड, फ़ील्ड प्रमाण) → invoice.query / invoice.dedup; स्थानीय जीवनचक्र review_queue / record_receipt / redlink / archive / check / restore; डेटा $DSH_HOME/storages/dsh-einvoice में, कोई नेटवर्क नहीं">
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/dsh-einvoice-hero-en-dark.webp">
+  <img src="docs/assets/dsh-einvoice-hero-en-light.webp" width="100%" alt="dsh-einvoice बैनर: बाईं ओर शीर्षक और मूल्य वाक्य; दाईं ओर स्थानीय प्रवाह — OFD मूल invoice-a-copy.ofd (1 270 B) और उसका SHA-256, parsed रिकॉर्ड के आठ फ़ील्ड पूर्णांक सेंट में (राशि 1000.00 / कर 60.00 / कुल 1060.00, 106000 सेंट), field_evidence और received → parsed → verified / quarantined जीवनचक्र; मान quickstart के सिंथेटिक नमूने से">
 </picture>
 
 # dsh-einvoice
@@ -39,6 +39,11 @@ dsh plugin --profile <profile> add dsh-einvoice
 
 - **किसके लिए उपयुक्त**: दसियों से कुछ सौ ई-इनवॉइस के प्रतिपूर्ति-पूर्व स्व-जाँच; एक ही इनवॉइस को दो इकाइयों द्वारा जमा करने का पता लगाना; अवधि के अनुसार इनवॉइस एकत्र करना, रसीद दर्ज करना, लाल/नीली इनवॉइस जोड़ना और सत्यापन-योग्य संग्रह पैकेज रखना।
 - **किसके लिए नहीं**: कर कार्यालय सत्यापन या इनपुट-VAT कटौती (यह पैकेज **ऑफ़लाइन** है और किसी कर API को नहीं बुलाता); स्कैन या फ़ोटो खींची गई इनवॉइस (OCR नहीं); PDF इनवॉइस।
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/dsh-einvoice-flow-v5-dark.svg">
+  <img src="docs/assets/dsh-einvoice-flow-v5-light.svg" width="100%" alt="dsh-einvoice संरचना: दो इनपुट चैनल (OFD कंटेनर और स्वतंत्र XML) invoice.ingest में जाते हैं (realpath अनुमति-सूची, आकार सीमा, SHA-256, मूल 0600, बाइट-इडेम्पोटेंट), फिर invoice.parse (ofd-zip-xml@1) आठ फ़ील्ड और फ़ील्ड प्रमाण सामान्य करता है; उसके बाद प्रवाह दो पटरियों में बंटता है — R0 केवल-पढ़ने की पटरी (query / dedup / check / tax_id_check / code_check) और R1 स्थानीय-लेखन पटरी (review_queue / record_receipt / redlink / archive / restore); जीवनचक्र received → parsed → verified / quarantined; डेटा fin_invoice और storages/dsh-einvoice में, कोई नेटवर्क नहीं">
+</picture>
 
 ## तीन चरणों में शुरुआत
 
@@ -323,7 +328,7 @@ node scripts/acceptance.mjs                             # सार्वजन�
 node samples/quickstart/run.mjs                         # सिंथेटिक सैंपल; 6 टूल कॉल और 1 डुप्लिकेट समूह अपेक्षित
 ```
 
-TypeScript स्रोत `src/` में हैं (`src/core/` आठ फ़ील्ड और राशि, `src/adapters/` OFD/XML पार्सिंग, `src/registry/` पार्सर रजिस्ट्री, `src/plugin/` होस्ट फ़ेस); बिल्ड आउटपुट `lib/` में जाता है; fixtures `fixtures/` में और शामिल नमूना `samples/quickstart/` में है। वर्तमान वर्ज़न `0.2.1` (`package.json` से मेल खाता है)। टेस्ट `node --test test/*.test.mjs` से चलते हैं; सार्वजनिक नमूनों के अभाव से होने वाले skip सामान्य हैं, विफलता नहीं (देखें [`TROUBLESHOOTING.md`](TROUBLESHOOTING.md))। हेडर आरेख [`scripts/gen-readme-assets.py`](scripts/gen-readme-assets.py) से प्रोग्रामेटिक रूप से बनता है (Python; आउटपुट `docs/assets/dsh-einvoice-flow-{light,dark}.svg`) और दोबारा चलाया जा सकता है।
+TypeScript स्रोत `src/` में हैं (`src/core/` आठ फ़ील्ड और राशि, `src/adapters/` OFD/XML पार्सिंग, `src/registry/` पार्सर रजिस्ट्री, `src/plugin/` होस्ट फ़ेस); बिल्ड आउटपुट `lib/` में जाता है; fixtures `fixtures/` में और शामिल नमूना `samples/quickstart/` में है। वर्तमान वर्ज़न `0.2.1` (`package.json` से मेल खाता है)। टेस्ट `node --test test/*.test.mjs` से चलते हैं; सार्वजनिक नमूनों के अभाव से होने वाले skip सामान्य हैं, विफलता नहीं (देखें [`TROUBLESHOOTING.md`](TROUBLESHOOTING.md))। हेडर बैनर और संरचना आरेख [`scripts/gen-readme-assets.py`](scripts/gen-readme-assets.py) से प्रोग्रामेटिक रूप से बनते हैं (Python: Pillow से 1440×576 के चार webp बैनर और संरचना आरेख के लिए हाथ से लिखा 1100×660 का SVG जोड़ा), और दोबारा चलाए जा सकते हैं।
 
 Topics: `deepseek-harness`, `dsh`, `dsh-plugin`, `einvoice`, `invoice`, `ofd`, `perrylink`, `finance`
 

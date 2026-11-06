@@ -1,8 +1,8 @@
 <div align="center">
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/dsh-einvoice-flow-dark.svg">
-  <img src="docs/assets/dsh-einvoice-flow-light.svg" width="100%" alt="Flujo de datos de dsh-einvoice: OFD/XML local → invoice.ingest (SHA-256, original) → invoice.parse (ofd-zip-xml, ocho campos, evidencia de campos) → invoice.query / invoice.dedup; ciclo local review_queue / record_receipt / redlink / archive / check / restore; datos en $DSH_HOME/storages/dsh-einvoice, sin red">
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/dsh-einvoice-hero-en-dark.webp">
+  <img src="docs/assets/dsh-einvoice-hero-en-light.webp" width="100%" alt="Banner de dsh-einvoice: título y frases de valor a la izquierda; a la derecha el flujo local: el OFD original invoice-a-copy.ofd (1 270 B) con su SHA-256, el registro parsed con los ocho campos en céntimos enteros (importe 1000.00 / impuesto 60.00 / total 1060.00, 106000 céntimos), field_evidence y el ciclo received → parsed → verified / quarantined; valores de la muestra sintética del quickstart">
 </picture>
 
 # dsh-einvoice
@@ -39,6 +39,11 @@ Lee una factura electrónica local `.ofd` / `.xml`, calcula su SHA-256, conserva
 
 - **Adecuado para**: autocomprobaciones antes de reembolsar decenas o unos cientos de facturas electrónicas; detectar la misma factura presentada por dos entidades; agrupar facturas por periodo, registrar recibos, enlazar facturas rojas/azules y conservar un paquete de archivo verificable.
 - **No adecuado para**: verificación ante la autoridad fiscal o deducción de IVA soportado (este paquete es **offline** y no llama a ninguna API fiscal); facturas escaneadas o fotografiadas (sin OCR); facturas PDF.
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/dsh-einvoice-flow-v5-dark.svg">
+  <img src="docs/assets/dsh-einvoice-flow-v5-light.svg" width="100%" alt="Estructura de dsh-einvoice: dos canales de entrada (contenedor OFD y XML independiente) alimentan invoice.ingest (lista blanca realpath, límite de tamaño, SHA-256, original 0600, idempotente por bytes), luego invoice.parse (ofd-zip-xml@1) normaliza ocho campos y evidencia de campos; después el flujo se divide en un carril R0 de solo lectura (query / dedup / check / tax_id_check / code_check) y un carril R1 de escritura local (review_queue / record_receipt / redlink / archive / restore); ciclo received → parsed → verified / quarantined; datos en fin_invoice y storages/dsh-einvoice, sin red">
+</picture>
 
 ## Instalación en tres pasos
 
@@ -323,7 +328,7 @@ node scripts/acceptance.mjs                             # repetir la aceptación
 node samples/quickstart/run.mjs                         # muestra sintética; espera 6 llamadas a herramientas y 1 grupo duplicado
 ```
 
-El código TypeScript está en `src/` (`src/core/` para los ocho campos y el dinero, `src/adapters/` para OFD/XML, `src/registry/` para el registro de analizadores, `src/plugin/` para la cara de anfitrión); la compilación va a `lib/`; las fixtures están en `fixtures/` y la muestra incluida en `samples/quickstart/`. Versión actual `0.2.1` (coincide con `package.json`). Las pruebas se ejecutan con `node --test test/*.test.mjs`; los skips por muestras públicas ausentes son normales, no fallos (ver [`TROUBLESHOOTING.md`](TROUBLESHOOTING.md)). El diagrama de cabecera se genera programáticamente con [`scripts/gen-readme-assets.py`](scripts/gen-readme-assets.py) (Python; salida `docs/assets/dsh-einvoice-flow-{light,dark}.svg`) y se puede repetir.
+El código TypeScript está en `src/` (`src/core/` para los ocho campos y el dinero, `src/adapters/` para OFD/XML, `src/registry/` para el registro de analizadores, `src/plugin/` para la cara de anfitrión); la compilación va a `lib/`; las fixtures están en `fixtures/` y la muestra incluida en `samples/quickstart/`. Versión actual `0.2.1` (coincide con `package.json`). Las pruebas se ejecutan con `node --test test/*.test.mjs`; los skips por muestras públicas ausentes son normales, no fallos (ver [`TROUBLESHOOTING.md`](TROUBLESHOOTING.md)). El banner y el diagrama de estructura se generan programáticamente con [`scripts/gen-readme-assets.py`](scripts/gen-readme-assets.py) (Python: cuatro banners webp de 1440×576 con Pillow y un par de SVG de 1100×660 escrito a mano para el diagrama de estructura) y se pueden repetir.
 
 Topics: `deepseek-harness`, `dsh`, `dsh-plugin`, `einvoice`, `invoice`, `ofd`, `perrylink`, `finance`
 
