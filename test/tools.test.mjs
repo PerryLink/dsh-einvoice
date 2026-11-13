@@ -33,9 +33,9 @@ test('ingest -> parse -> query end to end', async () => {
     await writeFile(file, xml)
     const table = new FakeTable()
     const tools = createTools({ table, baseDir: path.join(dir, 'store'), inputRoots: [dir] })
-    const ingest = tools.find((tool) => tool.name === 'invoice.ingest')
-    const parse = tools.find((tool) => tool.name === 'invoice.parse')
-    const query = tools.find((tool) => tool.name === 'invoice.query')
+    const ingest = tools.find((tool) => tool.name === 'invoice_ingest')
+    const parse = tools.find((tool) => tool.name === 'invoice_parse')
+    const query = tools.find((tool) => tool.name === 'invoice_query')
     const exec = { callId: 'call-1', agent: { id: 'agent-1' } }
 
     const first = await ingest.execute({ source: { kind: 'file', path: file }, entity_id: 'ENT-A' }, exec)
@@ -64,8 +64,8 @@ test('rejects paths outside configured roots and unknown docs', async () => {
   const dir = await mkdtemp(path.join(os.tmpdir(), 'dsh-einvoice-test-'))
   try {
     const tools = createTools({ table: new FakeTable(), baseDir: path.join(dir, 'store'), inputRoots: [dir] })
-    const ingest = tools.find((tool) => tool.name === 'invoice.ingest')
-    const parse = tools.find((tool) => tool.name === 'invoice.parse')
+    const ingest = tools.find((tool) => tool.name === 'invoice_ingest')
+    const parse = tools.find((tool) => tool.name === 'invoice_parse')
     const exec = { callId: 'call-2' }
     await assert.rejects(() => ingest.execute({ source: { kind: 'file', path: '/etc/hosts' } }, exec), /E_INV_PATH_NOT_ALLOWED/)
     await assert.rejects(() => parse.execute({ doc_id: 'missing' }, exec), /E_INV_DOC_NOT_FOUND/)

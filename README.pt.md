@@ -42,7 +42,7 @@ Leia uma nota fiscal eletrônica local `.ofd` / `.xml`, calcule o SHA-256, guard
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/assets/dsh-einvoice-flow-v5-dark.svg">
-  <img src="docs/assets/dsh-einvoice-flow-v5-light.svg" width="100%" alt="Estrutura do dsh-einvoice: dois canais de entrada (contêiner OFD e XML independente) alimentam invoice.ingest (lista de permissões realpath, limite de tamanho, SHA-256, original 0600, idempotente por bytes), depois invoice.parse (ofd-zip-xml@1) normaliza oito campos e evidência de campos; em seguida o fluxo se divide em uma faixa R0 somente leitura (query / dedup / check / tax_id_check / code_check) e uma faixa R1 de escrita local (review_queue / record_receipt / redlink / archive / restore); ciclo received → parsed → verified / quarantined; dados em fin_invoice e storages/dsh-einvoice, sem rede">
+  <img src="docs/assets/dsh-einvoice-flow-v5-light.svg" width="100%" alt="Estrutura do dsh-einvoice: dois canais de entrada (contêiner OFD e XML independente) alimentam invoice_ingest (lista de permissões realpath, limite de tamanho, SHA-256, original 0600, idempotente por bytes), depois invoice_parse (ofd-zip-xml@1) normaliza oito campos e evidência de campos; em seguida o fluxo se divide em uma faixa R0 somente leitura (query / dedup / check / tax_id_check / code_check) e uma faixa R1 de escrita local (review_queue / record_receipt / redlink / archive / restore); ciclo received → parsed → verified / quarantined; dados em fin_invoice e storages/dsh-einvoice, sem rede">
 </picture>
 
 ## Instalação em três passos
@@ -73,7 +73,7 @@ Leia uma nota fiscal eletrônica local `.ofd` / `.xml`, calcule o SHA-256, guard
    node samples/quickstart/run.mjs
    ```
 
-   O quickstart usa as duas notas sintéticas incluídas (uma XML e uma OFD de nota digital) e chama em ordem `invoice.ingest → invoice.parse → invoice.dedup → invoice.query`. Deve terminar com:
+   O quickstart usa as duas notas sintéticas incluídas (uma XML e uma OFD de nota digital) e chama em ordem `invoice_ingest → invoice_parse → invoice_dedup → invoice_query`. Deve terminar com:
 
    ```text
    ok: quickstart finished (6 tool calls, 1 duplicate invoice found)
@@ -94,15 +94,15 @@ Todos os plugins da PerryLink estão na loja embutida do DSH Desktop: **Market �
 
 ## Capacidades principais
 
-- **Ingestão em nível de arquivo** — `invoice.ingest` lê um OFD/XML local dentro das raízes de entrada permitidas, calcula o SHA-256 e guarda o original em `originals/` com modo `0600`; reingerir os mesmos bytes devolve o `doc_id` existente em vez de criar outro registro.
-- **Análise de oito campos** — `invoice.parse` executa o adaptador `ofd-zip-xml@1` sobre OFD antigo (`Attachs/original_invoice.xml`), OFD de nota digital (`Tags/CustomTag.xml` + `ObjectRef`) e XML independente; devolve os oito campos, as linhas, `field_evidence` (de qual nó cada campo veio) e `unknown_fields`.
-- **Consulta do registro local** — `invoice.query` filtra por entidade, período, ciclo de vida ou texto com paginação estável; cada linha traz `doc_id`, número da nota, partes, valores e versão do analisador.
-- **Detecção de duplicados** — `invoice.dedup` agrupa por número da nota e, na ausência dele, por CNPJ do vendedor + data de emissão + total; é somente leitura, não funde nem reescreve registros.
-- **Fila de revisão manual** — `invoice.review_queue` enfileira notas analisadas para revisão local e pode marcar `entity_mismatch` / `missing_buyer_tax_id` contra um CNPJ de comprador esperado; nunca contata a autoridade fiscal.
-- **Recibos locais** — `invoice.record_receipt` calcula o hash de um recibo local, adiciona um recibo imutável e avança o ciclo de vida; devolve `verification_source=local_receipt`, `tax_verified=false` e não é verificação fiscal.
-- **Vínculo vermelho/azul** — `invoice.redlink` vincula uma nota vermelha negativa à sua nota azul, guardando a alocação e os deltas de valor / imposto; vinculá-la a outra nota azul gera `E_INV_REDLINK_BOUND` em vez de revincular em silêncio.
-- **Arquivamento, verificação e restauração** — `invoice.archive` monta um ZIP determinístico com `manifest.json`, originais e recibos; `invoice.check` verifica hashes do manifesto, hashes dos membros, arquivos ausentes e path traversal; `invoice.restore` grava apenas quando a verificação passa.
-- **Verificações de CNPJ e listas de códigos** — `invoice.tax_id_check` valida o Código Unificado de Crédito Social de 18 caracteres (GB 32100-2015, dígito verificador mod-31); `invoice.code_check` confere códigos de moeda / país / categoria de IVA (EN 16931); ambas são somente leitura.
+- **Ingestão em nível de arquivo** — `invoice_ingest` lê um OFD/XML local dentro das raízes de entrada permitidas, calcula o SHA-256 e guarda o original em `originals/` com modo `0600`; reingerir os mesmos bytes devolve o `doc_id` existente em vez de criar outro registro.
+- **Análise de oito campos** — `invoice_parse` executa o adaptador `ofd-zip-xml@1` sobre OFD antigo (`Attachs/original_invoice.xml`), OFD de nota digital (`Tags/CustomTag.xml` + `ObjectRef`) e XML independente; devolve os oito campos, as linhas, `field_evidence` (de qual nó cada campo veio) e `unknown_fields`.
+- **Consulta do registro local** — `invoice_query` filtra por entidade, período, ciclo de vida ou texto com paginação estável; cada linha traz `doc_id`, número da nota, partes, valores e versão do analisador.
+- **Detecção de duplicados** — `invoice_dedup` agrupa por número da nota e, na ausência dele, por CNPJ do vendedor + data de emissão + total; é somente leitura, não funde nem reescreve registros.
+- **Fila de revisão manual** — `invoice_review_queue` enfileira notas analisadas para revisão local e pode marcar `entity_mismatch` / `missing_buyer_tax_id` contra um CNPJ de comprador esperado; nunca contata a autoridade fiscal.
+- **Recibos locais** — `invoice_record_receipt` calcula o hash de um recibo local, adiciona um recibo imutável e avança o ciclo de vida; devolve `verification_source=local_receipt`, `tax_verified=false` e não é verificação fiscal.
+- **Vínculo vermelho/azul** — `invoice_redlink` vincula uma nota vermelha negativa à sua nota azul, guardando a alocação e os deltas de valor / imposto; vinculá-la a outra nota azul gera `E_INV_REDLINK_BOUND` em vez de revincular em silêncio.
+- **Arquivamento, verificação e restauração** — `invoice_archive` monta um ZIP determinístico com `manifest.json`, originais e recibos; `invoice_check` verifica hashes do manifesto, hashes dos membros, arquivos ausentes e path traversal; `invoice_restore` grava apenas quando a verificação passa.
+- **Verificações de CNPJ e listas de códigos** — `invoice_tax_id_check` valida o Código Unificado de Crédito Social de 18 caracteres (GB 32100-2015, dígito verificador mod-31); `invoice_code_check` confere códigos de moeda / país / categoria de IVA (EN 16931); ambas são somente leitura.
 - **Puramente local** — sem chamadas `fetch` / HTTP / DNS / WebSocket no código; sem conexão com a autoridade fiscal, plataformas de verificação de notas, ERP ou nuvem.
 
 ### Superfície de ferramentas
@@ -111,20 +111,20 @@ Os nomes das ferramentas são uma API estável (coincidem com a saída do runtim
 
 | Ferramenta | Finalidade | Risco |
 |---|---|---|
-| `invoice.ingest` | Ingerir um OFD/XML local: lista branca de caminhos, ≤50 MB, SHA-256, retenção do original, idempotente por bytes | R1 escrita local |
-| `invoice.parse` | Analisar OFD antigo `Attachs/original_invoice.xml` ou nota digital `Tags/CustomTag.xml`; devolver oito campos, linhas, evidência e campos desconhecidos | R0 somente leitura |
-| `invoice.query` | Consultar o registro local por entidade, período, ciclo de vida ou texto com paginação estável (1–200 por página) | R0 somente leitura |
-| `invoice.dedup` | Agrupar duplicados por número da nota, ou vendedor + data + total | R0 somente leitura |
-| `invoice.review_queue` | Enfileirar notas analisadas para revisão manual local; marcas opcionais de CNPJ do comprador inconsistente | R1 escrita local |
-| `invoice.record_receipt` | Calcular hash de um recibo local, adicioná-lo e avançar o ciclo de vida; `verification_source=local_receipt`, `tax_verified=false` | R1 escrita local |
-| `invoice.redlink` | Vincular uma nota vermelha negativa à sua nota azul e guardar alocação e deltas | R1 escrita local |
-| `invoice.archive` | Montar um ZIP determinístico com manifesto + originais + recibos no diretório local de arquivo e autoverificá-lo | R1 escrita local |
-| `invoice.check` | Verificar hashes de manifesto/membros, arquivos ausentes e path traversal; somente leitura | R0 somente leitura |
-| `invoice.restore` | Restaurar um arquivo verificado na raiz local de restauração; recusa o que não passar na verificação | R1 escrita local |
-| `invoice.tax_id_check` | Validar o Código Unificado de Crédito Social de 18 caracteres (GB 32100-2015 mod-31) | R0 somente leitura |
-| `invoice.code_check` | Conferir as listas de códigos de moeda / país / categoria de IVA (EN 16931) | R0 somente leitura |
+| `invoice_ingest` | Ingerir um OFD/XML local: lista branca de caminhos, ≤50 MB, SHA-256, retenção do original, idempotente por bytes | R1 escrita local |
+| `invoice_parse` | Analisar OFD antigo `Attachs/original_invoice.xml` ou nota digital `Tags/CustomTag.xml`; devolver oito campos, linhas, evidência e campos desconhecidos | R0 somente leitura |
+| `invoice_query` | Consultar o registro local por entidade, período, ciclo de vida ou texto com paginação estável (1–200 por página) | R0 somente leitura |
+| `invoice_dedup` | Agrupar duplicados por número da nota, ou vendedor + data + total | R0 somente leitura |
+| `invoice_review_queue` | Enfileirar notas analisadas para revisão manual local; marcas opcionais de CNPJ do comprador inconsistente | R1 escrita local |
+| `invoice_record_receipt` | Calcular hash de um recibo local, adicioná-lo e avançar o ciclo de vida; `verification_source=local_receipt`, `tax_verified=false` | R1 escrita local |
+| `invoice_redlink` | Vincular uma nota vermelha negativa à sua nota azul e guardar alocação e deltas | R1 escrita local |
+| `invoice_archive` | Montar um ZIP determinístico com manifesto + originais + recibos no diretório local de arquivo e autoverificá-lo | R1 escrita local |
+| `invoice_check` | Verificar hashes de manifesto/membros, arquivos ausentes e path traversal; somente leitura | R0 somente leitura |
+| `invoice_restore` | Restaurar um arquivo verificado na raiz local de restauração; recusa o que não passar na verificação | R1 escrita local |
+| `invoice_tax_id_check` | Validar o Código Unificado de Crédito Social de 18 caracteres (GB 32100-2015 mod-31) | R0 somente leitura |
+| `invoice_code_check` | Conferir as listas de códigos de moeda / país / categoria de IVA (EN 16931) | R0 somente leitura |
 
-`invoice.verify` e `invoice.receipt` permanecem como aliases obsoletos de `invoice.review_queue` / `invoice.record_receipt`; código novo deve usar os nomes novos.
+`invoice_verify` e `invoice_receipt` permanecem como aliases obsoletos de `invoice_review_queue` / `invoice_record_receipt`; código novo deve usar os nomes novos.
 
 ### Entrada e saída
 
@@ -185,18 +185,18 @@ Este plugin não tem chaves `Config` de Schemastery: o `cordis.patch.yml` apenas
 | Variável | Padrão | Significado |
 |---|---|---|
 | `DSH_EINVOICE_HOME` | `$DSH_HOME/storages/dsh-einvoice` | Diretório base de originais (`originals/`), arquivos (`archives/`), restaurações (`restore/`) e do registro local; sem `DSH_HOME` cai em `storages/dsh-einvoice` sob o cwd do processo anfitrião |
-| `DSH_EINVOICE_INPUT_ROOTS` | cwd do processo anfitrião | Raízes de entrada permitidas para `invoice.ingest` / `invoice.record_receipt`, separadas por `path.delimiter` (`;` no Windows) |
+| `DSH_EINVOICE_INPUT_ROOTS` | cwd do processo anfitrião | Raízes de entrada permitidas para `invoice_ingest` / `invoice_record_receipt`, separadas por `path.delimiter` (`;` no Windows) |
 
 Os argumentos de ferramenta mais usados:
 
 | Parâmetro | Padrão | Aplica-se a | Significado |
 |---|---|---|---|
-| `entity_id` | `default` (apenas `ingest`) | `invoice.ingest` / `query` / `review_queue` / `archive` | Id da entidade legal; o número da nota é único dentro de uma entidade |
-| `page` | `50` | `invoice.query` | Tamanho da página, 1–200 |
-| `profile` | `ofd-zip-xml` | `invoice.parse` | Perfil do analisador; o pacote inclui apenas `ofd-zip-xml` |
-| `ocr` | `off` | `invoice.parse` | O pacote não executa OCR e aceita apenas `off` |
-| `limit` | `100` | `invoice.review_queue` | Máximo de entradas na fila nesta chamada, 1–200 |
-| `include_receipts` | `true` | `invoice.archive` | Se os recibos entram no pacote de arquivo |
+| `entity_id` | `default` (apenas `ingest`) | `invoice_ingest` / `query` / `review_queue` / `archive` | Id da entidade legal; o número da nota é único dentro de uma entidade |
+| `page` | `50` | `invoice_query` | Tamanho da página, 1–200 |
+| `profile` | `ofd-zip-xml` | `invoice_parse` | Perfil do analisador; o pacote inclui apenas `ofd-zip-xml` |
+| `ocr` | `off` | `invoice_parse` | O pacote não executa OCR e aceita apenas `off` |
+| `limit` | `100` | `invoice_review_queue` | Máximo de entradas na fila nesta chamada, 1–200 |
+| `include_receipts` | `true` | `invoice_archive` | Se os recibos entram no pacote de arquivo |
 
 <details>
 <summary>Códigos de erro e solução de problemas</summary>
@@ -207,8 +207,8 @@ A tabela completa de códigos de erro (20 códigos, com possibilidade de nova te
 |---|---|---|
 | `E_INV_FILE_UNREADABLE` | Caminho inexistente, 0 byte ou mais de 50 MB | Confirme que o caminho está sob uma raiz de entrada, ou comece pela amostra incluída |
 | `E_INV_PATH_NOT_ALLOWED` | O arquivo está fora de `DSH_EINVOICE_INPUT_ROOTS` | Mova o arquivo para uma raiz de entrada ou amplie a variável |
-| `E_INV_DOC_NOT_FOUND` | O `doc_id` nunca foi ingerido | Rode `invoice.ingest` primeiro |
-| `E_INV_DUP_CONFLICT` | O número da nota já existe sob o mesmo `entity_id` | Use `invoice.query`, ou escolha outro `entity_id` |
+| `E_INV_DOC_NOT_FOUND` | O `doc_id` nunca foi ingerido | Rode `invoice_ingest` primeiro |
+| `E_INV_DUP_CONFLICT` | O número da nota já existe sob o mesmo `entity_id` | Use `invoice_query`, ou escolha outro `entity_id` |
 | `E_INV_OFD_UNSUPPORTED` | O ZIP não é um OFD ou não há XML de nota reconhecível | Use o `.ofd` original do emissor; PDF / imagens não são suportados |
 | `E_INV_XML_SCHEMA_DRIFT` | Total ≠ valor + imposto, ou a estrutura mudou | Use `field_evidence` para localizar o nó; confirme que a nota não foi reeditada |
 
@@ -226,21 +226,21 @@ Os originais são guardados por hash de conteúdo em `$DSH_HOME/storages/dsh-ein
 <details>
 <summary>Ele processa minhas notas reais? Verifica na autoridade fiscal?</summary>
 
-Analisa notas eletrônicas OFD/XML padrão localmente, mas o pacote é alpha e verificado apenas com dados públicos/sintéticos — não constitui conclusão de auditoria, reembolso ou pagamento. Anonimize dados reais antes de usar e mantenha um revisor humano. **Sem verificação fiscal**: `invoice.record_receipt` apenas registra um recibo local (`verification_source=local_receipt`, `tax_verified=false`) e nunca se conecta à autoridade fiscal nem a uma plataforma de verificação de notas.
+Analisa notas eletrônicas OFD/XML padrão localmente, mas o pacote é alpha e verificado apenas com dados públicos/sintéticos — não constitui conclusão de auditoria, reembolso ou pagamento. Anonimize dados reais antes de usar e mantenha um revisor humano. **Sem verificação fiscal**: `invoice_record_receipt` apenas registra um recibo local (`verification_source=local_receipt`, `tax_verified=false`) e nunca se conecta à autoridade fiscal nem a uma plataforma de verificação de notas.
 
 </details>
 
 <details>
 <summary>Por que analisar a mesma nota duas vezes gera `E_INV_DUP_CONFLICT`?</summary>
 
-O número da nota é único dentro de um `entity_id`; isso protege o registro contra ingestão duplicada e não é falha de análise. Use `invoice.query` para inspecionar o registro existente; se a mesma nota realmente foi apresentada por duas entidades, analise-a com outro `entity_id` — é exatamente o que a amostra incluída demonstra.
+O número da nota é único dentro de um `entity_id`; isso protege o registro contra ingestão duplicada e não é falha de análise. Use `invoice_query` para inspecionar o registro existente; se a mesma nota realmente foi apresentada por duas entidades, analise-a com outro `entity_id` — é exatamente o que a amostra incluída demonstra.
 
 </details>
 
 <details>
 <summary>Os campos analisados não batem — o que fazer?</summary>
 
-Comece por `field_evidence` (de qual nó XML ou `ObjectRef` cada campo veio) e `unknown_fields` (presentes na nota mas não usados por este pacote); a conferência monetária apenas exige total = valor + imposto. `invoice.ingest` precisa rodar antes de `invoice.parse`; uma deriva estrutural gera `E_INV_XML_SCHEMA_DRIFT` em vez de adivinhar em silêncio.
+Comece por `field_evidence` (de qual nó XML ou `ObjectRef` cada campo veio) e `unknown_fields` (presentes na nota mas não usados por este pacote); a conferência monetária apenas exige total = valor + imposto. `invoice_ingest` precisa rodar antes de `invoice_parse`; uma deriva estrutural gera `E_INV_XML_SCHEMA_DRIFT` em vez de adivinhar em silêncio.
 
 </details>
 
@@ -257,7 +257,7 @@ Confira `node --version` para `>=24.9 <25` e `dsh --version` para `>=0.2.1-rc.3 
 - **Os arquivos originais nunca são modificados.** As escritas caem apenas sob `$DSH_EINVOICE_HOME` (padrão `$DSH_HOME/storages/dsh-einvoice`) em `originals/`, `archives/`, `restore/` e no domínio de armazenamento local; os originais são gravados com modo `0600`.
 - **Lista branca de caminhos de entrada.** Os caminhos são resolvidos com `realpath` e precisam ficar sob `DSH_EINVOICE_INPUT_ROOTS`; escapes por link simbólico, arquivos vazios, não regulares e maiores que 50 MB são rejeitados.
 - **Descompactação OFD limitada.** No máximo 1000 entradas e 100 MB descompactados; o processamento de entidades XML está desativado, bloqueando bombas ZIP e expansão de entidades.
-- **Guardas de adulteração e path traversal no arquivo.** `invoice.check` verifica hashes do manifesto, hashes dos membros, arquivos ausentes e path traversal; `pkg_id` precisa corresponder a `^pkg_[0-9a-f]{16}$`, o destino de restauração precisa ficar sob a raiz de restauração, e `invoice.restore` recusa um pacote que não passe na verificação.
+- **Guardas de adulteração e path traversal no arquivo.** `invoice_check` verifica hashes do manifesto, hashes dos membros, arquivos ausentes e path traversal; `pkg_id` precisa corresponder a `^pkg_[0-9a-f]{16}$`, o destino de restauração precisa ficar sob a raiz de restauração, e `invoice_restore` recusa um pacote que não passe na verificação.
 - **Proteção contra duplicados.** Reingerir os mesmos bytes é idempotente por `source_sha256`; o número da nota é único dentro de um `entity_id`; revincular uma nota vermelha a outra nota azul é rejeitado (`E_INV_REDLINK_BOUND`).
 - **Erros uniformes, falhas em voz alta.** As falhas trazem um código `E_INV_…`, uma mensagem simples e um próximo passo; uma entrada não suportada falha em voz alta em vez de degradar em silêncio.
 - **Sem superfície oculta.** Sem ferramentas R2/R3, sem exposição MCP, sem metade cliente; o anfitrião monta apenas os serviços `tools` e `storageDomain`.
@@ -274,9 +274,9 @@ Confira `node --version` para `>=24.9 <25` e `dsh --version` para `>=0.2.1-rc.3 
 
 - **Verificado apenas com dados públicos/sintéticos.** Cada linha de aceitação vem de uma fixture pública ou sintética (linhas SKU com `counted=false` em `ACCEPTANCE.csv`; PS1-QS01 é uma reprodução local da amostra com `counted=true`); sem dados ou evidência de clientes.
 - **Alpha / parcial / não contabilizado / não GA.** Sem promessa de produção; não constitui conclusão de auditoria, reembolso ou pagamento.
-- **Sem OCR.** Notas escaneadas, fotografadas e PDF não são suportadas; `invoice.parse` aceita apenas `ocr: off`.
+- **Sem OCR.** Notas escaneadas, fotografadas e PDF não são suportadas; `invoice_parse` aceita apenas `ocr: off`.
 - **Sem verificação fiscal.** Um recibo é apenas um registro local (`tax_verified=false`); para dedução de IVA ou conferências fiscais, use os canais oficiais.
-- **Ingestão de um único arquivo.** Um OFD/XML por chamada, no máximo 50 MB; para lotes, itere `invoice.ingest`.
+- **Ingestão de um único arquivo.** Um OFD/XML por chamada, no máximo 50 MB; para lotes, itere `invoice_ingest`.
 - **Apenas CNY e um analisador.** A moeda é fixa em `CNY` e os valores são em centavos inteiros; o único analisador é `ofd-zip-xml` (versão `ofd-zip-xml@1`), e um perfil desconhecido gera `E_INV_UNKNOWN_IMPL`.
 - **O armazenamento é JSON KV.** O domínio `fin_invoice` não tem chaves estrangeiras, transações entre tabelas nem migrações; a unicidade de `(entity_id, invoice_no)` é checada no código da aplicação.
 - **Sem interface de cliente.** O pacote é somente host e não registra slot nem pacote cliente; tudo passa pela superfície de ferramentas.
@@ -284,7 +284,7 @@ Confira `node --version` para `>=24.9 <25` e `dsh --version` para `>=0.2.1-rc.3 
 
 ## Interoperabilidade com outros plugins DSH
 
-- **Nomes de ferramenta com namespace.** Todas as ferramentas ficam sob `invoice.*` e não ocupam um nome nu de ferramentas integradas ou de outro plugin.
+- **Nomes de ferramenta com namespace.** Todas as ferramentas ficam sob `invoice_*` e não ocupam um nome nu de ferramentas integradas ou de outro plugin.
 - **Não rouba superfície do anfitrião.** Não registra comandos, slots de cliente, rotas `webServer` nem chaves de serviço; injeta apenas os serviços de anfitrião `tools` e `storageDomain`.
 - **Domínio de armazenamento independente.** Usa um único domínio, `fin_invoice` (versão 1); a desmontagem é um effect do Cordis, então parar ou recarregar a quente desfaz tudo.
 - **Responsabilidades complementares.** Conferências em nível de livro fiscal ficam com [`dsh-invoice-ledger`](https://github.com/PerryLink/dsh-invoice-ledger), e a conciliação de duas tabelas com [`dsh-excel-reconcile`](https://github.com/PerryLink/dsh-excel-reconcile); cada um é um pacote independente, instalado só quando necessário.
@@ -328,7 +328,7 @@ node scripts/acceptance.mjs                             # repetir a aceitação 
 node samples/quickstart/run.mjs                         # amostra sintética; espera 6 chamadas de ferramenta e 1 grupo duplicado
 ```
 
-O código TypeScript está em `src/` (`src/core/` para os oito campos e o dinheiro, `src/adapters/` para OFD/XML, `src/registry/` para o registro de analisadores, `src/plugin/` para a face de anfitrião); a compilação vai para `lib/`; as fixtures estão em `fixtures/` e a amostra incluída em `samples/quickstart/`. Versão atual `0.2.1` (confere com `package.json`). Os testes rodam com `node --test test/*.test.mjs`; skips por amostras públicas ausentes são normais, não falhas (ver [`TROUBLESHOOTING.md`](TROUBLESHOOTING.md)). O banner e o diagrama de estrutura são gerados programaticamente por [`scripts/gen-readme-assets.py`](scripts/gen-readme-assets.py) (Python: quatro banners webp de 1440×576 com Pillow e um par de SVG de 1100×660 escrito à mão para o diagrama de estrutura) e podem ser repetidos.
+O código TypeScript está em `src/` (`src/core/` para os oito campos e o dinheiro, `src/adapters/` para OFD/XML, `src/registry/` para o registro de analisadores, `src/plugin/` para a face de anfitrião); a compilação vai para `lib/`; as fixtures estão em `fixtures/` e a amostra incluída em `samples/quickstart/`. Versão atual `0.3.0` (confere com `package.json`). Os testes rodam com `node --test test/*.test.mjs`; skips por amostras públicas ausentes são normais, não falhas (ver [`TROUBLESHOOTING.md`](TROUBLESHOOTING.md)). O banner e o diagrama de estrutura são gerados programaticamente por [`scripts/gen-readme-assets.py`](scripts/gen-readme-assets.py) (Python: quatro banners webp de 1440×576 com Pillow e um par de SVG de 1100×660 escrito à mão para o diagrama de estrutura) e podem ser repetidos.
 
 Topics: `deepseek-harness`, `dsh`, `dsh-plugin`, `einvoice`, `invoice`, `ofd`, `perrylink`, `finance`
 

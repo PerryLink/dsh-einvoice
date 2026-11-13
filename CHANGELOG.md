@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.3.0] — 2026-11-13
+
+### Breaking
+
+- **Tool names no longer contain a dot.** All fourteen tools are now `invoice_ingest`, `invoice_parse`, `invoice_query`, `invoice_dedup`, `invoice_review_queue`, `invoice_record_receipt`, `invoice_redlink`, `invoice_archive`, `invoice_check`, `invoice_restore`, `invoice_verify`, `invoice_receipt`, `invoice_tax_id_check` and `invoice_code_check`. Providers validate `tools[].name` against `^[a-zA-Z0-9_-]+$`; the old dotted names invalidated the whole `tools` array, so the plugin registered but every request carrying its tools was rejected with `Invalid 'tools[N].name'`. Minor bump because tool names are part of the 0.2.0 compatibility promise — update prompts, saved calls and permission rules that still use the old dotted names.
+- The deprecated aliases are still available as `invoice_verify` (for `invoice_review_queue`) and `invoice_receipt` (for `invoice_record_receipt`); they are aliases, not separate tools.
+- `test/tool-name-wire.test.mjs` pins the wire pattern so a new tool cannot reintroduce a dot, drop the `invoice_` namespace or duplicate a name.
+- Earlier changelog entries, the five-language READMEs, docs, quickstart sample and diagrams use the new spelling, so a repository-wide search no longer finds dotted tool names.
+
 ## [0.2.0] — 2026-11-02
 
 ### Stable
@@ -18,9 +27,9 @@
 
 ### Security
 
-- `invoice.restore` now validates the ZIP manifest `pkg_id` against `^pkg_[0-9a-f]{16}$` (`E_INV_PKG_ID_INVALID`), refuses packages whose verification is not signable (`E_INV_NOT_SIGNABLE`) before creating the restore directory, and asserts the resolved target stays under `resolve(restoreRoot) + sep`.
+- `invoice_restore` now validates the ZIP manifest `pkg_id` against `^pkg_[0-9a-f]{16}$` (`E_INV_PKG_ID_INVALID`), refuses packages whose verification is not signable (`E_INV_NOT_SIGNABLE`) before creating the restore directory, and asserts the resolved target stays under `resolve(restoreRoot) + sep`.
 - `priceToCents` rejects values that exceed `Number.MAX_SAFE_INTEGER` cents.
-- `invoice.dedup` no longer folds unparsed records into a synthetic `seller_date_total:::0` duplicate.
+- `invoice_dedup` no longer folds unparsed records into a synthetic `seller_date_total:::0` duplicate.
 - The OFD/XML reader checks the 50MB bound before decoding and normalises XML parser failures to `E_INV_XML_SCHEMA_DRIFT`.
 
 ### Tests
@@ -31,13 +40,13 @@
 
 ### Added
 
-- `invoice.code_check`: EN 16931 code-list validation for currency (ISO 4217), country (ISO 3166-1 alpha-2) and VAT category (BR-CL-17). Well-formed but unlisted values are reported as unknown, never as invalid. Verified by `node --test test/*.test.mjs` (31/31).
+- `invoice_code_check`: EN 16931 code-list validation for currency (ISO 4217), country (ISO 3166-1 alpha-2) and VAT category (BR-CL-17). Well-formed but unlisted values are reported as unknown, never as invalid. Verified by `node --test test/*.test.mjs` (31/31).
 
 ## [Unreleased]
 
 ### Added
 
-- `invoice.tax_id_check`: Chinese Unified Social Credit Code validation (18 characters, GB 32100-2015 mod-31 check character). Verified by `node --test test/uscc.test.mjs` (4/4) and the full suite (27/27); no third-party code or fixtures.
+- `invoice_tax_id_check`: Chinese Unified Social Credit Code validation (18 characters, GB 32100-2015 mod-31 check character). Verified by `node --test test/uscc.test.mjs` (4/4) and the full suite (27/27); no third-party code or fixtures.
 
 ## [0.2.0-alpha.7] — 2026-11-01
 

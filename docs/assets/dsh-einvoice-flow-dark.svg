@@ -10,45 +10,45 @@
 <path d="M314 192h17" stroke="#8b949e" stroke-width="3"/>
 <path d="M329 185l10 7-10 7" fill="none" stroke="#8b949e" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
 <rect x="337" y="146" width="250" height="92" rx="14" fill="#161b22" stroke="#30363d" stroke-width="2"/>
-<text x="462" y="184" fill="#f0f6fc" text-anchor="middle" font-family="ui-monospace,monospace" font-size="16" font-weight="700">invoice.ingest</text>
+<text x="462" y="184" fill="#f0f6fc" text-anchor="middle" font-family="ui-monospace,monospace" font-size="16" font-weight="700">invoice_ingest</text>
 <text x="462" y="212" fill="#8b949e" text-anchor="middle" font-family="ui-monospace,monospace" font-size="12">sha256 · originals/ 0600</text>
 <path d="M591 192h17" stroke="#8b949e" stroke-width="3"/>
 <path d="M606 185l10 7-10 7" fill="none" stroke="#8b949e" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
 <rect x="614" y="146" width="250" height="92" rx="14" fill="#161b22" stroke="#4B67B4" stroke-width="2"/>
-<text x="739" y="184" fill="#f0f6fc" text-anchor="middle" font-family="ui-monospace,monospace" font-size="16" font-weight="700">invoice.parse</text>
+<text x="739" y="184" fill="#f0f6fc" text-anchor="middle" font-family="ui-monospace,monospace" font-size="16" font-weight="700">invoice_parse</text>
 <text x="739" y="212" fill="#8b949e" text-anchor="middle" font-family="ui-monospace,monospace" font-size="12">ofd-zip-xml@1 · 8 fields</text>
 <path d="M868 192h17" stroke="#8b949e" stroke-width="3"/>
 <path d="M883 185l10 7-10 7" fill="none" stroke="#8b949e" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
 <rect x="891" y="146" width="250" height="92" rx="14" fill="#161b22" stroke="#30363d" stroke-width="2"/>
-<text x="1016" y="184" fill="#f0f6fc" text-anchor="middle" font-family="ui-monospace,monospace" font-size="16" font-weight="700">invoice.query</text>
-<text x="1016" y="212" fill="#8b949e" text-anchor="middle" font-family="ui-monospace,monospace" font-size="12">invoice.dedup · pool</text>
+<text x="1016" y="184" fill="#f0f6fc" text-anchor="middle" font-family="ui-monospace,monospace" font-size="16" font-weight="700">invoice_query</text>
+<text x="1016" y="212" fill="#8b949e" text-anchor="middle" font-family="ui-monospace,monospace" font-size="12">invoice_dedup · pool</text>
 <path d="M462 238v44" stroke="#4B67B4" stroke-width="2" stroke-dasharray="5 5"/>
 <path d="M1016 238v44" stroke="#4B67B4" stroke-width="2" stroke-dasharray="5 5"/>
 <rect x="60" y="282" width="1080" height="52" rx="12" fill="#161b22" stroke="#4B67B4" stroke-width="2"/>
 <text x="600" y="315" fill="#f0f6fc" text-anchor="middle" font-family="ui-monospace,monospace" font-size="14">fin_invoice · $DSH_HOME/storages/dsh-einvoice · originals/ · archives/ · restore/ · no network</text>
 <text x="60" y="366" fill="#8b949e" font-family="ui-monospace,monospace" font-size="12">after parse · local lifecycle</text>
 <rect x="60" y="380" width="165" height="64" rx="12" fill="#161b22" stroke="#4B67B4" stroke-width="2"/>
-<text x="142" y="406" fill="#f0f6fc" text-anchor="middle" font-family="ui-monospace,monospace" font-size="11.5" font-weight="700">invoice.review_queue</text>
+<text x="142" y="406" fill="#f0f6fc" text-anchor="middle" font-family="ui-monospace,monospace" font-size="11.5" font-weight="700">invoice_review_queue</text>
 <text x="142" y="427" fill="#8b949e" text-anchor="middle" font-family="ui-monospace,monospace" font-size="11">R1 · pending</text>
 <path d="M227 412h11" stroke="#8b949e" stroke-width="2"/>
 <rect x="240" y="380" width="165" height="64" rx="12" fill="#161b22" stroke="#4B67B4" stroke-width="2"/>
-<text x="322" y="406" fill="#f0f6fc" text-anchor="middle" font-family="ui-monospace,monospace" font-size="11.5" font-weight="700">invoice.record_receipt</text>
+<text x="322" y="406" fill="#f0f6fc" text-anchor="middle" font-family="ui-monospace,monospace" font-size="11.5" font-weight="700">invoice_record_receipt</text>
 <text x="322" y="427" fill="#8b949e" text-anchor="middle" font-family="ui-monospace,monospace" font-size="11">R1 · local_receipt</text>
 <path d="M407 412h11" stroke="#8b949e" stroke-width="2"/>
 <rect x="420" y="380" width="165" height="64" rx="12" fill="#161b22" stroke="#4B67B4" stroke-width="2"/>
-<text x="502" y="406" fill="#f0f6fc" text-anchor="middle" font-family="ui-monospace,monospace" font-size="11.5" font-weight="700">invoice.redlink</text>
+<text x="502" y="406" fill="#f0f6fc" text-anchor="middle" font-family="ui-monospace,monospace" font-size="11.5" font-weight="700">invoice_redlink</text>
 <text x="502" y="427" fill="#8b949e" text-anchor="middle" font-family="ui-monospace,monospace" font-size="11">R1 · red -> blue</text>
 <path d="M587 412h11" stroke="#8b949e" stroke-width="2"/>
 <rect x="600" y="380" width="165" height="64" rx="12" fill="#161b22" stroke="#4B67B4" stroke-width="2"/>
-<text x="682" y="406" fill="#f0f6fc" text-anchor="middle" font-family="ui-monospace,monospace" font-size="11.5" font-weight="700">invoice.archive</text>
+<text x="682" y="406" fill="#f0f6fc" text-anchor="middle" font-family="ui-monospace,monospace" font-size="11.5" font-weight="700">invoice_archive</text>
 <text x="682" y="427" fill="#8b949e" text-anchor="middle" font-family="ui-monospace,monospace" font-size="11">R1 · manifest + zip</text>
 <path d="M767 412h11" stroke="#8b949e" stroke-width="2"/>
 <rect x="780" y="380" width="165" height="64" rx="12" fill="#161b22" stroke="#4B67B4" stroke-width="2"/>
-<text x="862" y="406" fill="#f0f6fc" text-anchor="middle" font-family="ui-monospace,monospace" font-size="11.5" font-weight="700">invoice.check</text>
+<text x="862" y="406" fill="#f0f6fc" text-anchor="middle" font-family="ui-monospace,monospace" font-size="11.5" font-weight="700">invoice_check</text>
 <text x="862" y="427" fill="#8b949e" text-anchor="middle" font-family="ui-monospace,monospace" font-size="11">R0 · hashes</text>
 <path d="M947 412h11" stroke="#8b949e" stroke-width="2"/>
 <rect x="960" y="380" width="165" height="64" rx="12" fill="#161b22" stroke="#3fb950" stroke-width="2"/>
-<text x="1042" y="406" fill="#f0f6fc" text-anchor="middle" font-family="ui-monospace,monospace" font-size="11.5" font-weight="700">invoice.restore</text>
+<text x="1042" y="406" fill="#f0f6fc" text-anchor="middle" font-family="ui-monospace,monospace" font-size="11.5" font-weight="700">invoice_restore</text>
 <text x="1042" y="427" fill="#8b949e" text-anchor="middle" font-family="ui-monospace,monospace" font-size="11">R1 · restore/</text>
-<text x="60" y="462" fill="#8b949e" font-family="ui-monospace,monospace" font-size="12.5">invoice.tax_id_check · invoice.code_check · R0 · integer cents · ofd-zip-xml@1 · no network</text>
+<text x="60" y="462" fill="#8b949e" font-family="ui-monospace,monospace" font-size="12.5">invoice_tax_id_check · invoice_code_check · R0 · integer cents · ofd-zip-xml@1 · no network</text>
 </svg>

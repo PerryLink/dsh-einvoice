@@ -27,9 +27,9 @@ sources: REQ-EINVOICE §1/§4/§6–§10；DESIGN §1–§10；DECISIONS 04；TO
 
 **v0.1 不做**：IMAP/Graph 自动抓取、OCR 引擎、税局自动查验/写接口、ERP 过账、电子签章法律效力判定、他类票据、Client UI（S1）。
 
-**S1 切片（本计划第一交付）**：`invoice.ingest` + `invoice.parse` + `invoice.query` 三个工具；1 个 storage 实体；1 个 parser registry + 1 个 adapter；≤10 个文件（6 源码 + 4 配置）。S1 不做 dedup/verify/receipt/archive/Client。
+**S1 切片（本计划第一交付）**：`invoice_ingest` + `invoice_parse` + `invoice_query` 三个工具；1 个 storage 实体；1 个 parser registry + 1 个 adapter；≤10 个文件（6 源码 + 4 配置）。S1 不做 dedup/verify/receipt/archive/Client。
 
-**范围细化（记录）**：DESIGN §10 S1 含“导出”；S1 工具上限 3，导出改为 S2 的 CLI/工具，S1 用 `invoice.query` 展示票池。不改 15 SKU/季度/定价/验收门。
+**范围细化（记录）**：DESIGN §10 S1 含“导出”；S1 工具上限 3，导出改为 S2 的 CLI/工具，S1 用 `invoice_query` 展示票池。不改 15 SKU/季度/定价/验收门。
 
 ## 2. 买家与场景
 
@@ -39,15 +39,15 @@ sources: REQ-EINVOICE §1/§4/§6–§10；DESIGN §1–§10；DECISIONS 04；TO
 
 | 工具 | S1 | 入参 | 出参 | R | approval | mcp_exposure | 幂等键 | 错误码 |
 |---|---|---|---|---|---|---|---|---|
-| `invoice.ingest` | ✅ | `source{kind:'file', path, sha256?}`、`entity_id?`、`dry_run?` | `doc_id`、`sha256`、`size`、`existing?` | R1 本地写 | 否 | none | 原件 SHA-256 | `E_INV_FILE_UNREADABLE`、`E_INV_PATH_NOT_ALLOWED`、`E_INV_STORAGE_FAILED` |
-| `invoice.parse` | ✅ | `doc_id`、`profile?`、`ocr:'off'` | 八字段 + `lines[]` + `confidence` + `field_evidence` + `unknown_fields` + `parser_version` | R0 只读 | 否 | none | `(doc_id, parser_version)` | `E_INV_DOC_NOT_FOUND`、`E_INV_OFD_UNSUPPORTED`、`E_INV_XML_SCHEMA_DRIFT`、`E_INV_FIELD_MISSING`、`E_INV_UNKNOWN_IMPL` |
-| `invoice.query` | ✅ | `filter{entity_id?,period?,lifecycle?,q?}`、`cursor?`、`page?` | `rows[]`、`total`、`next_cursor?` | R0 只读 | 否 | none | 无 | `E_INV_DOC_NOT_FOUND` |
-| `invoice.dedup` | S2 | `entity_id`+`period` 或 `doc_ids[]` | `groups[{fingerprint,kind,members,basis}]` | R0 | 否 | none | 只读 | `E_INV_DUP_CONFLICT` |
-| `invoice.verify` | S2 | `invoice_ids[]`、`mode=queue\|submit`、`budget` | `queue[]`、`attempts[]`、`manual_tasks[]` | R1 外部只读 | 否 | none | `(invoice_id,attempt_no)` | `E_INV_VERIFY_RATE_LIMITED` 等 |
-| `invoice.receipt` | S2 | `invoice_id`、`receipt_file`、`result_code`、`verified_at`、`operator` | `receipt_id`、`receipt_sha256` | R1 + 审批 | 是（`ctx.approval`） | none | `(invoice_id,receipt_sha256)` | `E_INV_RECEIPT_*` |
-| `invoice.redlink` | S2/S3 | `red_id`、`blue_id?`、`mode`、`allocation` | `redlink{...}` | R1 | 否 | none | `red_id` | `E_INV_REDLINK_*` |
-| `invoice.archive` | S3 | `entity_id`、`period`、`template_id`、`include_receipts` | `pkg_id`、`manifest_sha256`、`zip_path`、`file_count`、`check_state` | R1 + 审批 | 是 | none | `(entity,period,member_hash_set)` | `E_INV_ARCHIVE_*` |
-| `invoice.check` | S3 | `pkg_id` 或 `path` | `{missing,hash_mismatch,dir_violation,signable}` | R0 | 否 | none | 只读 | `E_INV_ARCHIVE_MISSING_PART` |
+| `invoice_ingest` | ✅ | `source{kind:'file', path, sha256?}`、`entity_id?`、`dry_run?` | `doc_id`、`sha256`、`size`、`existing?` | R1 本地写 | 否 | none | 原件 SHA-256 | `E_INV_FILE_UNREADABLE`、`E_INV_PATH_NOT_ALLOWED`、`E_INV_STORAGE_FAILED` |
+| `invoice_parse` | ✅ | `doc_id`、`profile?`、`ocr:'off'` | 八字段 + `lines[]` + `confidence` + `field_evidence` + `unknown_fields` + `parser_version` | R0 只读 | 否 | none | `(doc_id, parser_version)` | `E_INV_DOC_NOT_FOUND`、`E_INV_OFD_UNSUPPORTED`、`E_INV_XML_SCHEMA_DRIFT`、`E_INV_FIELD_MISSING`、`E_INV_UNKNOWN_IMPL` |
+| `invoice_query` | ✅ | `filter{entity_id?,period?,lifecycle?,q?}`、`cursor?`、`page?` | `rows[]`、`total`、`next_cursor?` | R0 只读 | 否 | none | 无 | `E_INV_DOC_NOT_FOUND` |
+| `invoice_dedup` | S2 | `entity_id`+`period` 或 `doc_ids[]` | `groups[{fingerprint,kind,members,basis}]` | R0 | 否 | none | 只读 | `E_INV_DUP_CONFLICT` |
+| `invoice_verify` | S2 | `invoice_ids[]`、`mode=queue\|submit`、`budget` | `queue[]`、`attempts[]`、`manual_tasks[]` | R1 外部只读 | 否 | none | `(invoice_id,attempt_no)` | `E_INV_VERIFY_RATE_LIMITED` 等 |
+| `invoice_receipt` | S2 | `invoice_id`、`receipt_file`、`result_code`、`verified_at`、`operator` | `receipt_id`、`receipt_sha256` | R1 + 审批 | 是（`ctx.approval`） | none | `(invoice_id,receipt_sha256)` | `E_INV_RECEIPT_*` |
+| `invoice_redlink` | S2/S3 | `red_id`、`blue_id?`、`mode`、`allocation` | `redlink{...}` | R1 | 否 | none | `red_id` | `E_INV_REDLINK_*` |
+| `invoice_archive` | S3 | `entity_id`、`period`、`template_id`、`include_receipts` | `pkg_id`、`manifest_sha256`、`zip_path`、`file_count`、`check_state` | R1 + 审批 | 是 | none | `(entity,period,member_hash_set)` | `E_INV_ARCHIVE_*` |
+| `invoice_check` | S3 | `pkg_id` 或 `path` | `{missing,hash_mismatch,dir_violation,signable}` | R0 | 否 | none | 只读 | `E_INV_ARCHIVE_MISSING_PART` |
 
 - **MCP**：S1 全部 `none`（V2 §8 更严；DESIGN 说 parse/query/check 可 `metadata_only`，差异记录在 §8）。
 - **R2/R3**：v0.1 不注册；`risk===3` 直接抛 `R3 disabled in v0.1`。
@@ -77,7 +77,7 @@ S1 **无**：只读本地文件/目录，无 IMAP/SMB/税局/网络。S2 的 IMA
 |---|---|---|---|---|
 | `E_INV_FILE_UNREADABLE` | fatal | 零字节/损坏/加密 | 否 | 隔离原件，人工复核 |
 | `E_INV_PATH_NOT_ALLOWED` | fatal | 路径越出 allowlist/符号链接逃逸 | 否 | 移到允许目录 |
-| `E_INV_DOC_NOT_FOUND` | fatal | doc_id 不存在 | 否 | 先 `invoice.ingest` |
+| `E_INV_DOC_NOT_FOUND` | fatal | doc_id 不存在 | 否 | 先 `invoice_ingest` |
 | `E_INV_OFD_UNSUPPORTED` | fatal | 非 GB/T 33190/缺结构件 | 否 | 只读 XML 降级或人工 |
 | `E_INV_XML_SCHEMA_DRIFT` | needs_review | 未知节点/版本超前 | 是（复核后） | 保留 unknown_fields，人工裁决 |
 | `E_INV_FIELD_MISSING` | needs_review | 八字段缺一 | 是 | 补票/人工录入 |
@@ -182,7 +182,7 @@ REQ-EINVOICE §8 七行 → `SKU-04-A01..A07`；S1 只跑 **A01（八字段，pu
 | adapters | `src/adapters/ofd-zip-xml.ts` | 解 OFD zip、读 old XML/数电 CustomTag、独立 XML → `ParsedInvoice` | `fflate`、`fast-xml-parser`、core | `ctx.tools.register` |
 | registry | `src/registry/parsers.ts` | 冻结的 parser 表；key `ofd-zip-xml`；未知 key `E_INV_UNKNOWN_IMPL`；重复 key 启动失败 | core/adapters | 运行中可变 |
 | plugin | `src/plugin/index.ts` | `inject=['tools','storageDomain']`、开 domain、注册 3 工具、注册 parser | core/adapters/registry、DSH services | 业务规则 |
-| plugin | `src/plugin/tools.ts` | `invoice.ingest/parse/query` 的 `defineTool` 薄封装 | plugin/core/adapters | 直接读文件绕过 adapter |
+| plugin | `src/plugin/tools.ts` | `invoice_ingest/parse/query` 的 `defineTool` 薄封装 | plugin/core/adapters | 直接读文件绕过 adapter |
 | plugin | `src/plugin/storage.ts` | domain spec/打开/关闭、InvoiceSchema、应用层唯一校验 | `ctx.storageDomain`、zod | SQL/事务假设 |
 
 - S1 源文件 6 + 配置 4（`package.json`、`cordis.patch.yml`、`tsconfig.json`、`tsdown.config.ts`）= 10；测试另计。
@@ -194,7 +194,7 @@ REQ-EINVOICE §8 七行 → `SKU-04-A01..A07`；S1 只跑 **A01（八字段，pu
 
 1. SKU-04 走 **B2 public demo**；客户门仍 PARK，public/synthetic 全部 `not counted`。
 2. 安装包 `dsh-einvoice`；引擎 `dsh-fin-invoice-core` S2 再拆。
-3. S1 = `invoice.ingest` + `invoice.parse` + `invoice.query`，3 工具。
+3. S1 = `invoice_ingest` + `invoice_parse` + `invoice_query`，3 工具。
 4. 1 个 storage 实体 `fin_invoice.invoices`；无 migration/事务。
 5. 1 个 registry + 1 个 adapter：`ofd-zip-xml`（fflate + fast-xml-parser）。
 6. 旧式 `original_invoice.xml` 与数电 `CustomTag` 两条解析路径。

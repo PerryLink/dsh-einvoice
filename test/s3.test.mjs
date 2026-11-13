@@ -30,10 +30,10 @@ async function setup(dir) {
   const tools = createTools({ table, baseDir: path.join(dir, 'store'), inputRoots: [dir] })
   const byName = Object.fromEntries(tools.map((tool) => [tool.name, tool]))
   const exec = { callId: 's3-call', agent: { id: 'agent-s3' } }
-  const blueIngest = await byName['invoice.ingest'].execute({ source: { kind: 'file', path: path.join(dir, 'blue.xml') }, entity_id: 'ENT-A' }, exec)
-  const redIngest = await byName['invoice.ingest'].execute({ source: { kind: 'file', path: path.join(dir, 'red.xml') }, entity_id: 'ENT-A' }, exec)
-  await byName['invoice.parse'].execute({ doc_id: blueIngest.doc_id }, exec)
-  await byName['invoice.parse'].execute({ doc_id: redIngest.doc_id }, exec)
+  const blueIngest = await byName['invoice_ingest'].execute({ source: { kind: 'file', path: path.join(dir, 'blue.xml') }, entity_id: 'ENT-A' }, exec)
+  const redIngest = await byName['invoice_ingest'].execute({ source: { kind: 'file', path: path.join(dir, 'red.xml') }, entity_id: 'ENT-A' }, exec)
+  await byName['invoice_parse'].execute({ doc_id: blueIngest.doc_id }, exec)
+  await byName['invoice_parse'].execute({ doc_id: redIngest.doc_id }, exec)
   return { table, byName, exec, blueId: blueIngest.doc_id, redId: redIngest.doc_id }
 }
 
@@ -46,28 +46,28 @@ test('redlink binds a negative red invoice and archive/check/restore round-trip'
     await writeFile(receiptFile, '平台结果码=100; 验真\n')
     const { byName, exec, blueId, redId } = await setup(dir)
 
-    const linked = await byName['invoice.redlink'].execute({ red_id: redId }, exec)
+    const linked = await byName['invoice_redlink'].execute({ red_id: redId }, exec)
     assert.equal(linked.blue_id, blueId)
     assert.equal(linked.amount_delta_cents, 0)
     assert.equal(linked.tax_delta_cents, 0)
 
-    await byName['invoice.receipt'].execute({
+    await byName['invoice_receipt'].execute({
       invoice_id: blueId, receipt_file: receiptFile, result_code: '100', result: 'pass',
       verified_at: '2026-08-02T10:00:00+08:00', operator: 'tester',
     }, exec)
 
-    const pkg = await byName['invoice.archive'].execute({ entity_id: 'ENT-A', period: '2026-08' }, exec)
+    const pkg = await byName['invoice_archive'].execute({ entity_id: 'ENT-A', period: '2026-08' }, exec)
     assert.match(pkg.pkg_id, /^pkg_[0-9a-f]{16}$/)
     assert.equal(pkg.check_state, 'ok')
     assert.ok(pkg.file_count >= 4)
 
-    const check = await byName['invoice.check'].execute({ pkg_id: pkg.pkg_id }, exec)
+    const check = await byName['invoice_check'].execute({ pkg_id: pkg.pkg_id }, exec)
     assert.equal(check.signable, true)
     assert.deepEqual(check.missing, [])
     assert.deepEqual(check.hash_mismatch, [])
     assert.deepEqual(check.dir_violation, [])
 
-    const restored = await byName['invoice.restore'].execute({ pkg_id: pkg.pkg_id }, exec)
+    const restored = await byName['invoice_restore'].execute({ pkg_id: pkg.pkg_id }, exec)
     assert.equal(restored.pkg_id, pkg.pkg_id)
     assert.ok(restored.restored >= 3)
     assert.deepEqual(restored.mismatches, [])
@@ -84,9 +84,9 @@ test('redlink and archive fail closed on invalid inputs', async () => {
     await writeFile(path.join(dir, 'blue.xml'), xml('25512345000000000091', '1000.00', '60.00', '1060.00'))
     await writeFile(path.join(dir, 'red.xml'), xml('25512345000000000092', '-2000.00', '-120.00', '-2120.00'))
     const { byName, exec, redId } = await setup(dir)
-    await assert.rejects(() => byName['invoice.redlink'].execute({ red_id: redId }, exec), /E_INV_REDLINK_UNBOUND/)
-    await assert.rejects(() => byName['invoice.archive'].execute({ entity_id: 'NO-SUCH' }, exec), /E_INV_ARCHIVE_EMPTY/)
-    await assert.rejects(() => byName['invoice.check'].execute({ pkg_id: 'pkg_0000000000000000' }, exec), /E_INV_ARCHIVE_NOT_FOUND/)
+    await assert.rejects(() => byName['invoice_redlink'].execute({ red_id: redId }, exec), /E_INV_REDLINK_UNBOUND/)
+    await assert.rejects(() => byName['invoice_archive'].execute({ entity_id: 'NO-SUCH' }, exec), /E_INV_ARCHIVE_EMPTY/)
+    await assert.rejects(() => byName['invoice_check'].execute({ pkg_id: 'pkg_0000000000000000' }, exec), /E_INV_ARCHIVE_NOT_FOUND/)
   } finally {
     await rm(dir, { recursive: true, force: true })
   }

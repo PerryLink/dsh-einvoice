@@ -13,16 +13,16 @@ test('the bundled EN 16931 VAT category list has the nine codes', () => {
 })
 
 test('well-formed, listed values produce no issues', async () => {
-  const r = await tools['invoice.code_check'].execute({ currency: 'eur', country_code: 'de', vat_category: 's' }, exec)
+  const r = await tools['invoice_code_check'].execute({ currency: 'eur', country_code: 'de', vat_category: 's' }, exec)
   assert.equal(r.checked, 3)
   assert.deepEqual(r.issues, [])
 })
 
 test('format errors are distinct from unknown values', async () => {
-  const bad = await tools['invoice.code_check'].execute({ currency: 'EURO', country_code: 'DEU', vat_category: '' }, exec)
+  const bad = await tools['invoice_code_check'].execute({ currency: 'EURO', country_code: 'DEU', vat_category: '' }, exec)
   assert.equal(bad.issues.filter((i) => i.code === 'E_INV_CODE_FORMAT').length, 2)
   assert.ok(bad.issues.some((i) => i.code === 'E_INV_CODE_VAT_CATEGORY'))
-  const unknown = await tools['invoice.code_check'].execute({ currency: 'ZZZ', country_code: 'QQ' }, exec)
+  const unknown = await tools['invoice_code_check'].execute({ currency: 'ZZZ', country_code: 'QQ' }, exec)
   assert.equal(unknown.issues.filter((i) => i.code === 'E_INV_CODE_UNKNOWN').length, 2)
 })
 

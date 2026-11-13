@@ -7,6 +7,6 @@ The S1 parser registry is deliberately small: one adapter, `ofd-zip-xml@1`.
 3. Add fixtures under `fixtures/synthetic/` (no PII) or `fixtures/input/` (gitignored; public/redacted only) and tests under `test/`.
 4. Run `pnpm lint && pnpm typecheck && pnpm test && pnpm gate:sku04`.
 
-Profiles: `invoice.parse` accepts `profile` as the registry id. S1 only ships `ofd-zip-xml`; a future `ofdrw-cli` adapter would be a B-class external process and must not be bundled.
+Profiles: `invoice_parse` accepts `profile` as the registry id. S1 only ships `ofd-zip-xml`; a future `ofdrw-cli` adapter would be a B-class external process and must not be bundled.
 
 Do not add a registry for a single implementation; the registry exists because OFD/XML parser variants are expected (old invoice XML, 数电 CustomTag, standalone XML).

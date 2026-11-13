@@ -126,13 +126,13 @@ try {
   const tools = createTools({ table, baseDir: path.join(receiptDir, 'store'), inputRoots: [receiptDir] })
   const byName = Object.fromEntries(tools.map((tool) => [tool.name, tool]))
   const exec = { callId: 'acceptance-s2', agent: { id: 'acceptance' } }
-  const ing = await byName['invoice.ingest'].execute({ source: { kind: 'file', path: invoicePath }, entity_id: 'ENT-A' }, exec)
-  await byName['invoice.parse'].execute({ doc_id: ing.doc_id }, exec)
-  const receipt = await byName['invoice.receipt'].execute({
+  const ing = await byName['invoice_ingest'].execute({ source: { kind: 'file', path: invoicePath }, entity_id: 'ENT-A' }, exec)
+  await byName['invoice_parse'].execute({ doc_id: ing.doc_id }, exec)
+  const receipt = await byName['invoice_receipt'].execute({
     invoice_id: ing.doc_id, receipt_file: receiptPath, result_code: '100', result: 'pass',
     verified_at: '2026-08-02T10:00:00+08:00', operator: 'acceptance',
   }, exec)
-  const duplicate = await byName['invoice.receipt'].execute({
+  const duplicate = await byName['invoice_receipt'].execute({
     invoice_id: ing.doc_id, receipt_file: receiptPath, result_code: '100', result: 'pass',
     verified_at: '2026-08-02T10:00:00+08:00', operator: 'acceptance',
   }, exec)
@@ -157,15 +157,15 @@ try {
   const tools = createTools({ table, baseDir: path.join(s3Dir, 'store'), inputRoots: [s3Dir] })
   const byName = Object.fromEntries(tools.map((tool) => [tool.name, tool]))
   const exec = { callId: 'acceptance-s3', agent: { id: 'acceptance' } }
-  const blue = await byName['invoice.ingest'].execute({ source: { kind: 'file', path: bluePath }, entity_id: 'ENT-A' }, exec)
-  const red = await byName['invoice.ingest'].execute({ source: { kind: 'file', path: redPath }, entity_id: 'ENT-A' }, exec)
-  await byName['invoice.parse'].execute({ doc_id: blue.doc_id }, exec)
-  await byName['invoice.parse'].execute({ doc_id: red.doc_id }, exec)
-  const linked = await byName['invoice.redlink'].execute({ red_id: red.doc_id }, exec)
+  const blue = await byName['invoice_ingest'].execute({ source: { kind: 'file', path: bluePath }, entity_id: 'ENT-A' }, exec)
+  const red = await byName['invoice_ingest'].execute({ source: { kind: 'file', path: redPath }, entity_id: 'ENT-A' }, exec)
+  await byName['invoice_parse'].execute({ doc_id: blue.doc_id }, exec)
+  await byName['invoice_parse'].execute({ doc_id: red.doc_id }, exec)
+  const linked = await byName['invoice_redlink'].execute({ red_id: red.doc_id }, exec)
   redlinkOk = linked.blue_id === blue.doc_id && linked.amount_delta_cents === 0
-  const pkg = await byName['invoice.archive'].execute({ entity_id: 'ENT-A', period: '2026-08' }, exec)
-  const checked = await byName['invoice.check'].execute({ pkg_id: pkg.pkg_id }, exec)
-  const restored = await byName['invoice.restore'].execute({ pkg_id: pkg.pkg_id }, exec)
+  const pkg = await byName['invoice_archive'].execute({ entity_id: 'ENT-A', period: '2026-08' }, exec)
+  const checked = await byName['invoice_check'].execute({ pkg_id: pkg.pkg_id }, exec)
+  const restored = await byName['invoice_restore'].execute({ pkg_id: pkg.pkg_id }, exec)
   restoreOk = checked.signable && pkg.check_state === 'ok' && restored.restored >= 2 && restored.mismatches.length === 0
 } catch {
   redlinkOk = false

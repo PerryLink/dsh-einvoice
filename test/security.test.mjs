@@ -64,11 +64,11 @@ test('restore accepts a well-formed pkg_id and stays under the restore root', as
     await writeFile(file, xml('25512345000000000091'))
     const baseDir = path.join(dir, 'store')
     const { byName, exec } = makeTools(baseDir, [dir])
-    const ingested = await byName['invoice.ingest'].execute({ source: { kind: 'file', path: file }, entity_id: 'ENT-A' }, exec)
-    await byName['invoice.parse'].execute({ doc_id: ingested.doc_id }, exec)
-    const pkg = await byName['invoice.archive'].execute({ entity_id: 'ENT-A' }, exec)
+    const ingested = await byName['invoice_ingest'].execute({ source: { kind: 'file', path: file }, entity_id: 'ENT-A' }, exec)
+    await byName['invoice_parse'].execute({ doc_id: ingested.doc_id }, exec)
+    const pkg = await byName['invoice_archive'].execute({ entity_id: 'ENT-A' }, exec)
 
-    const restored = await byName['invoice.restore'].execute({ pkg_id: pkg.pkg_id }, exec)
+    const restored = await byName['invoice_restore'].execute({ pkg_id: pkg.pkg_id }, exec)
     assert.equal(restored.pkg_id, pkg.pkg_id)
     assert.match(restored.pkg_id, /^pkg_[0-9a-f]{16}$/)
     assert.ok(restored.restored >= 1)
@@ -89,7 +89,7 @@ test('restore rejects a manifest pkg_id that tries to escape the restore root', 
     await writeArchive(baseDir, 'pkg_0123456789abcdef', manifest('../../evil'))
     const { byName, exec } = makeTools(baseDir)
     await assert.rejects(
-      () => byName['invoice.restore'].execute({ pkg_id: 'pkg_0123456789abcdef' }, exec),
+      () => byName['invoice_restore'].execute({ pkg_id: 'pkg_0123456789abcdef' }, exec),
       (error) => error?.code === 'E_INV_PKG_ID_INVALID',
     )
     await assert.rejects(() => access(path.join(dir, 'evil')), /ENOENT/)
@@ -117,7 +117,7 @@ test('restore refuses a package that is not signable', async () => {
     )
     const { byName, exec } = makeTools(baseDir)
     await assert.rejects(
-      () => byName['invoice.restore'].execute({ pkg_id: 'pkg_0123456789abcdef' }, exec),
+      () => byName['invoice_restore'].execute({ pkg_id: 'pkg_0123456789abcdef' }, exec),
       (error) => error?.code === 'E_INV_NOT_SIGNABLE',
     )
     await assert.rejects(() => access(path.join(baseDir, 'restore')), /ENOENT/)
@@ -132,10 +132,10 @@ test('dedup does not fabricate a seller_date_total:::0 group from unparsed recor
     await writeFile(path.join(dir, 'a.xml'), xml('25512345000000000091'))
     await writeFile(path.join(dir, 'b.xml'), xml('25512345000000000092'))
     const { byName, exec } = makeTools(path.join(dir, 'store'), [dir])
-    await byName['invoice.ingest'].execute({ source: { kind: 'file', path: path.join(dir, 'a.xml') }, entity_id: 'ENT-A' }, exec)
-    await byName['invoice.ingest'].execute({ source: { kind: 'file', path: path.join(dir, 'b.xml') }, entity_id: 'ENT-A' }, exec)
+    await byName['invoice_ingest'].execute({ source: { kind: 'file', path: path.join(dir, 'a.xml') }, entity_id: 'ENT-A' }, exec)
+    await byName['invoice_ingest'].execute({ source: { kind: 'file', path: path.join(dir, 'b.xml') }, entity_id: 'ENT-A' }, exec)
 
-    const dedup = await byName['invoice.dedup'].execute({}, exec)
+    const dedup = await byName['invoice_dedup'].execute({}, exec)
     assert.equal(dedup.total, 0)
     assert.deepEqual(dedup.groups, [])
   } finally {

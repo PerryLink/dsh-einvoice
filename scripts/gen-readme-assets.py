@@ -2,9 +2,9 @@
 """Generate the dsh-einvoice README visuals (docs/assets/).
 
 This repository is a local, file-level Chinese e-invoice (OFD / XML) pipeline:
-two input channels (OFD container / standalone XML) -> invoice.ingest (realpath
+two input channels (OFD container / standalone XML) -> invoice_ingest (realpath
 allowlist, size gate, SHA-256, original kept 0600, byte-idempotent) ->
-invoice.parse (ofd-zip-xml@1: eight fields, integer cents, field evidence,
+invoice_parse (ofd-zip-xml@1: eight fields, integer cents, field evidence,
 unknown fields) -> two rails (R0 read-only: query / dedup / check / tax id and
 code checks; R1 local write: review queue / receipt / red-link / archive /
 restore) -> one local store (fin_invoice + originals / archives / restore).
@@ -255,7 +255,7 @@ HERO = {
         lines=["一张本地 OFD / XML → 八字段台账",
                "查重、回执、红蓝勾稽、归档校验都在本机"],
         sub="整数分勾稽 · 同字节幂等 · 票号主体唯一 · 不联网",
-        meta="R0 只读 / R1 本地写 · ofd-zip-xml@1 · v0.2.1",
+        meta="R0 只读 / R1 本地写 · ofd-zip-xml@1 · v0.3.0",
         foot="社区插件 · 与 DeepSeek 无关 · 仅公开 / 合成数据验证",
         file="invoice-a-copy.ofd",
         file_sub="1 270 B · 数电票 OFD · 合成样例",
@@ -277,7 +277,7 @@ HERO = {
         lines=["One local invoice → eight fields",
                "Search, dedupe, archive — all local"],
         sub="integer cents · byte-idempotent · offline",
-        meta="R0 read / R1 local write · ofd-zip-xml@1 · v0.2.1",
+        meta="R0 read / R1 local write · ofd-zip-xml@1 · v0.3.0",
         foot="Community plugin · not affiliated with DeepSeek",
         file="invoice-a-copy.ofd",
         file_sub="1 270 B · digital OFD · synthetic",
@@ -440,7 +440,7 @@ def draw_hero(lang: str, skin: str) -> Image.Image:
 SVG_TEXT = {
     "title": "dsh-einvoice",
     "subtitle": "本地 OFD/XML → 八字段归一 → R0 只读 / R1 本地写 · 原件不改",
-    "pill": "ofd-zip-xml@1 · v0.2.1 · 不联网",
+    "pill": "ofd-zip-xml@1 · v0.3.0 · 不联网",
     "left_head": "输入 · 双通道",
     "left_note": "本地文件",
     "a_label": "A · OFD 容器",
@@ -468,14 +468,14 @@ SVG_TEXT = {
     ],
     "merge_a": "OFD",
     "merge_b": "XML",
-    "ingest_head": "invoice.ingest",
+    "ingest_head": "invoice_ingest",
     "ingest_tag": "R1",
     "ingest_rows": [
         "realpath · 输入根白名单",
         "SHA-256 · originals/ 0600",
         "同字节幂等 · doc_id ULID",
     ],
-    "parse_head": "invoice.parse",
+    "parse_head": "invoice_parse",
     "parse_tag": "R0",
     "parse_rows": [
         "ofd-zip-xml@1 · 八字段",
@@ -488,7 +488,7 @@ SVG_TEXT = {
     "out2": "+ field_evidence + unknown_fields",
     "r0_head": "R0 · 只读轨",
     "r1_head": "R1 · 本地写轨",
-    "ns": "invoice.*",
+    "ns": "invoice_*",
     "r0_rows": [
         ("query", "主体 / 期间 / 生命周期"),
         ("dedup", "票号 / 税号+日期+总额"),
@@ -509,9 +509,9 @@ SVG_TEXT = {
     "alt": (
         "dsh-einvoice 结构：两条输入通道（OFD 容器：OFD.xml、旧版 "
         "Attachs/original_invoice.xml、数电 Tags/CustomTag.xml 的 ObjectRef → "
-        "Pages/*/Content.xml 文本；以及独立 XML）汇入 invoice.ingest（realpath "
+        "Pages/*/Content.xml 文本；以及独立 XML）汇入 invoice_ingest（realpath "
         "白名单、大小闸门、SHA-256、原件 0600、同字节幂等），再由 "
-        "invoice.parse（ofd-zip-xml@1）归一为八字段、明细行、字段证据与未知字段；"
+        "invoice_parse（ofd-zip-xml@1）归一为八字段、明细行、字段证据与未知字段；"
         "之后分两轨：R0 只读轨 query / dedup / check / tax_id_check / "
         "code_check，R1 本地写轨 review_queue / record_receipt / redlink / "
         "archive / restore。生命周期 received → parsed，回执后 verified 或 "

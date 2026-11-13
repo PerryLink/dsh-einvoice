@@ -2,13 +2,13 @@ $ node samples/quickstart/run.mjs
 sample: samples/quickstart/input/invoice-a.xml (990 B, sha256 0803878ae00323d3…)
 sample: samples/quickstart/input/invoice-a-copy.ofd (1270 B, sha256 37a6229c656de49b…)
 samples are synthetic: invented invoice number, fake tax ids (TEST…), no real invoice
-invoice.ingest      DOC-1 entity=ENT-DEMO-A existing=false size=990
-invoice.parse       DOC-1 via=XML no=25512345000000000091 date=2026-08-01 total=1060.00
+invoice_ingest      DOC-1 entity=ENT-DEMO-A existing=false size=990
+invoice_parse       DOC-1 via=XML no=25512345000000000091 date=2026-08-01 total=1060.00
                     seller=示例卖方（合成）有限公司 tax=91310115TESTSELLER lines=1 (fake tax id)
-invoice.ingest      DOC-2 entity=ENT-DEMO-B existing=false size=1270
-invoice.parse       DOC-2 via=OFD no=25512345000000000091 date=2026-08-01 total=1060.00
+invoice_ingest      DOC-2 entity=ENT-DEMO-B existing=false size=1270
+invoice_parse       DOC-2 via=OFD no=25512345000000000091 date=2026-08-01 total=1060.00
                     seller=示例卖方（合成）有限公司 tax=91310115TESTSELLER lines=1 (fake tax id)
-invoice.dedup       groups=1 basis=same invoice number
+invoice_dedup       groups=1 basis=same invoice number
                     invoice_no:25512345000000000091 → DOC-1, DOC-2 (1060.00 / 1060.00 CNY)
-invoice.query       period=2026-08 total=2 (DOC-1:parsed, DOC-2:parsed)
+invoice_query       period=2026-08 total=2 (DOC-1:parsed, DOC-2:parsed)
 ok: quickstart finished (6 tool calls, 1 duplicate invoice found)
