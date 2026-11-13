@@ -6,8 +6,8 @@
     "caption": "Real command: node samples/quickstart/run.mjs — 6 tool calls on the two shipped synthetic invoice files (XML + 数电票 OFD), same invoice number reported under two entities, dedup finds 1 duplicate group. The image is a 1:1 render of samples/quickstart/expected/console.txt; nothing was re-typed.",
     "command": "node samples/quickstart/run.mjs",
     "run_at": "2026-11-02T20:37:54+08:00",
-    "output_sha256": "7c5eb0308d6edcd693543ada05651801f75889439e3513e3b163e07a4e03a83f",
-    "log_sha256": "2b35c1fc24375e73908063e9007f9b6ae50abf5c8e559e8051f9118bf6e11373",
+    "output_sha256": "d19ae0e4d4870f1f1c9ce3320503bfa662ce3d9da8b33361b408bedc694a197a",
+    "log_sha256": "98d9318d7eba9a34708806f49fb2c75414ab2bdeb04afa0abcc51b7e155ca66b",
     "render": "scripts/render-capture.py samples/quickstart/expected/console.txt docs/assets/quickstart.png (CJK-capable font via RENDER_CAPTURE_FONT)"
   },
   {

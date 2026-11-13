@@ -5,7 +5,7 @@ core/        invoice.ts       pure eight-field normalization, money, dates, tax-
 adapters/    ofd-zip-xml.ts   OFD ZIP + XML reader (old attachment / 数电 CustomTag + ObjectRef / standalone XML)
 registry/    parsers.ts       frozen parser table: "ofd-zip-xml@1"
 plugin/      index.ts         DSH Host entry: tools + storageDomain
-             tools.ts         invoice.ingest / parse / query / dedup / verify / receipt / redlink / archive / check / restore
+             tools.ts         invoice_ingest / parse / query / dedup / verify / receipt / redlink / archive / check / restore
              storage.ts       fin_invoice domain (JSON KV), originals store, ULID, hashes
 ```
 
@@ -14,9 +14,9 @@ S2 adds duplicate grouping (invoice number, or seller+date+total), a local manua
 Data flow:
 
 ```text
-local file -> invoice.ingest (path allowlist, size, SHA-256, original copy, ULID doc_id)
-           -> invoice.parse  (parser registry -> adapter -> core normalization -> storage update)
-           -> invoice.query  (snapshot iteration/filter/page)
+local file -> invoice_ingest (path allowlist, size, SHA-256, original copy, ULID doc_id)
+           -> invoice_parse  (parser registry -> adapter -> core normalization -> storage update)
+           -> invoice_query  (snapshot iteration/filter/page)
 ```
 
 ## Parser paths

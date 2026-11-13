@@ -52,13 +52,13 @@ try {
   const parsed = []
   for (const [index, input] of inputs.entries()) {
     const id = `DOC-${index + 1}`
-    const ingest = await byName['invoice.ingest'].execute(
+    const ingest = await byName['invoice_ingest'].execute(
       { source: { kind: 'file', path: path.join(root, input.rel) }, entity_id: input.entity },
       exec,
     )
     labels.set(ingest.doc_id, id)
     ingested.push({ doc: id, entity: input.entity, size: ingest.size, sha256: ingest.sha256, existing: ingest.existing })
-    const value = await byName['invoice.parse'].execute({ doc_id: ingest.doc_id, ocr: 'off' }, exec)
+    const value = await byName['invoice_parse'].execute({ doc_id: ingest.doc_id, ocr: 'off' }, exec)
     parsed.push({
       doc: id,
       via: input.via,
@@ -79,8 +79,8 @@ try {
     })
   }
 
-  const dedup = await byName['invoice.dedup'].execute({}, exec)
-  const query = await byName['invoice.query'].execute({ filter: { period: '2026-08' }, page: 50 }, exec)
+  const dedup = await byName['invoice_dedup'].execute({}, exec)
+  const query = await byName['invoice_query'].execute({ filter: { period: '2026-08' }, page: 50 }, exec)
 
   const gold = {
     _note: 'Real tool output. doc ids are random per run, so they are normalised to DOC-1/DOC-2 here; amounts stay integer cents. Query rows are sorted by doc id because the tool orders by created_at, which can tie within one millisecond.',
@@ -126,15 +126,15 @@ try {
     console.log('samples are synthetic: invented invoice number, fake tax ids (TEST…), no real invoice')
     for (const [index, item] of ingested.entries()) {
       const p = parsed[index]
-      console.log(`invoice.ingest      ${item.doc} entity=${item.entity} existing=${item.existing} size=${item.size}`)
-      console.log(`invoice.parse       ${p.doc} via=${p.via} no=${p.invoice_no} date=${p.issue_date} total=${money(p.total_cents)}`)
+      console.log(`invoice_ingest      ${item.doc} entity=${item.entity} existing=${item.existing} size=${item.size}`)
+      console.log(`invoice_parse       ${p.doc} via=${p.via} no=${p.invoice_no} date=${p.issue_date} total=${money(p.total_cents)}`)
       console.log(`                    seller=${p.seller.name} tax=${p.seller.tax_id} lines=${p.lines.length} (fake tax id)`)
     }
-    console.log(`invoice.dedup       groups=${dedup.total} basis=${dedup.groups[0]?.basis ?? 'none'}`)
+    console.log(`invoice_dedup       groups=${dedup.total} basis=${dedup.groups[0]?.basis ?? 'none'}`)
     for (const group of gold.dedup.groups) {
       console.log(`                    ${group.fingerprint} → ${group.members.map((m) => m.doc).join(', ')} (${group.members.map((m) => m.total_cents / 100).map((v) => v.toFixed(2)).join(' / ')} CNY)`)
     }
-    console.log(`invoice.query       period=2026-08 total=${query.total} (${[...gold.query.rows].sort((a, b) => a.doc.localeCompare(b.doc)).map((r) => `${r.doc}:${r.lifecycle}`).join(', ')})`)
+    console.log(`invoice_query       period=2026-08 total=${query.total} (${[...gold.query.rows].sort((a, b) => a.doc.localeCompare(b.doc)).map((r) => `${r.doc}:${r.lifecycle}`).join(', ')})`)
     console.log(`ok: quickstart finished (6 tool calls, ${dedup.total} duplicate invoice found)`)
   }
 } finally {

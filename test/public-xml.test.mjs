@@ -18,9 +18,9 @@ test('public MIT invoice XML ingest/parse', async () => {
   const tools = createTools({ table, baseDir: '/tmp/einvoice-public', inputRoots: [process.cwd()] })
   const by = Object.fromEntries(tools.map((tool) => [tool.name, tool]))
   const exec = { callId: 'public-xml', agent: { id: 'tester' } }
-  const ingested = await by['invoice.ingest'].execute({ source: { kind: 'file', path: 'fixtures/public/mit/invoice-github-sample.xml' }, entity_id: 'ENT-PUBLIC' }, exec)
+  const ingested = await by['invoice_ingest'].execute({ source: { kind: 'file', path: 'fixtures/public/mit/invoice-github-sample.xml' }, entity_id: 'ENT-PUBLIC' }, exec)
   assert.ok(ingested.doc_id)
-  const parsed = await by['invoice.parse'].execute({ doc_id: ingested.doc_id }, exec)
+  const parsed = await by['invoice_parse'].execute({ doc_id: ingested.doc_id }, exec)
   assert.equal(parsed.invoice_no, '25512345000000000091')
   assert.ok(parsed.total_cents > 0)
 })

@@ -233,7 +233,7 @@ function verifyArchive(buffer: Buffer): {
 
 export function createTools(deps: ToolDeps) {
   const ingest = defineTool({
-    name: 'invoice.ingest',
+    name: 'invoice_ingest',
     description:
       'Ingest one local OFD/XML invoice file into the SKU-04 pool. Computes SHA-256, stores the original under the local pool, and returns the document id. Re-ingesting the same bytes is idempotent.',
     parameters: {
@@ -295,7 +295,7 @@ export function createTools(deps: ToolDeps) {
   })
 
   const parse = defineTool({
-    name: 'invoice.parse',
+    name: 'invoice_parse',
     description:
       'Parse one ingested OFD/XML invoice into the eight fields, line items, field evidence and unknown fields. Supports old OFD invoice XML and 数电票 CustomTag/ObjectRef.',
     parameters: {
@@ -363,7 +363,7 @@ export function createTools(deps: ToolDeps) {
   })
 
   const query = defineTool({
-    name: 'invoice.query',
+    name: 'invoice_query',
     description: 'Query the SKU-04 invoice pool by entity, period, lifecycle or text; returns a stable page.',
     parameters: {
       filter: {
@@ -453,7 +453,7 @@ export function createTools(deps: ToolDeps) {
 
 
   const dedup = defineTool({
-    name: 'invoice.dedup',
+    name: 'invoice_dedup',
     description: 'Group parsed invoices by invoice number, or by seller+date+total when the number is absent; returns duplicate groups and their basis. Read-only.',
     parameters: {
       filter: {
@@ -539,7 +539,7 @@ export function createTools(deps: ToolDeps) {
   })
 
   const verify = defineTool({
-    name: 'invoice.review_queue',
+    name: 'invoice_review_queue',
     description: 'Queue parsed invoices for manual/semi-automatic verification. S2 has no tax-bureau network call: it records a pending local queue and optional entity-tax-id mismatch flags.',
     parameters: {
       invoice_ids: { type: 'array', items: { type: 'string' }, description: 'Optional subset; defaults to parsed invoices' },
@@ -618,7 +618,7 @@ export function createTools(deps: ToolDeps) {
   })
 
   const receipt = defineTool({
-    name: 'invoice.record_receipt',
+    name: 'invoice_record_receipt',
     description: 'Record a local verification receipt for one parsed invoice: hash the receipt file, append an immutable receipt record, and move the invoice to verified/quarantined. Local R1 write; no tax-bureau write.',
     parameters: {
       invoice_id: { type: 'string', required: true },
@@ -720,7 +720,7 @@ export function createTools(deps: ToolDeps) {
   }
 
   const redlink = defineTool({
-    name: 'invoice.redlink',
+    name: 'invoice_redlink',
     description: 'Bind a negative red invoice to a positive blue invoice by seller and total, store the binding and deltas. Local R1 write; no tax-bureau call.',
     parameters: {
       red_id: { type: 'string', required: true },
@@ -772,7 +772,7 @@ export function createTools(deps: ToolDeps) {
           tax_delta_cents: taxDelta,
           allocation_cents: allocation,
           bound_at: now,
-          bound_by: args.bound_by?.trim() || 'invoice.redlink',
+          bound_by: args.bound_by?.trim() || 'invoice_redlink',
         },
         updated_at: now,
       }
@@ -782,7 +782,7 @@ export function createTools(deps: ToolDeps) {
   })
 
   const archive = defineTool({
-    name: 'invoice.archive',
+    name: 'invoice_archive',
     description: 'Build a local deterministic invoice archive ZIP with manifest.json, original files and receipts; hash the manifest and verify the result. Local R1 write; no signing.',
     parameters: {
       entity_id: { type: 'string' },
@@ -851,7 +851,7 @@ export function createTools(deps: ToolDeps) {
         period: args.period ?? 'ALL',
         template_id: args.template_id ?? 'default-v1',
         created_at: new Date().toISOString(),
-        created_by: 'invoice.archive',
+        created_by: 'invoice_archive',
         members,
       }
       const pkgId = archivePkgId(base)
@@ -875,7 +875,7 @@ export function createTools(deps: ToolDeps) {
   })
 
   const check = defineTool({
-    name: 'invoice.check',
+    name: 'invoice_check',
     description: 'Verify an archive package: manifest hash, member hashes, missing files and directory traversal. Read-only; does not restore.',
     parameters: {
       pkg_id: { type: 'string' },
@@ -912,7 +912,7 @@ export function createTools(deps: ToolDeps) {
   })
 
   const restore = defineTool({
-    name: 'invoice.restore',
+    name: 'invoice_restore',
     description: 'Restore a verified local archive ZIP into a directory under the local restore root, verifying each member hash before writing. Local R1 write.',
     parameters: {
       pkg_id: { type: 'string', required: true },
@@ -981,11 +981,11 @@ export function createTools(deps: ToolDeps) {
     },
   })
 
-  const legacyVerify = { ...verify, name: 'invoice.verify', description: 'Deprecated alias for invoice.review_queue; local review queue only, no tax-bureau verification.' }
-  const legacyReceipt = { ...receipt, name: 'invoice.receipt', description: 'Deprecated alias for invoice.record_receipt; local receipt only, no tax-bureau verification.' }
+  const legacyVerify = { ...verify, name: 'invoice_verify', description: 'Deprecated alias for invoice_review_queue; local review queue only, no tax-bureau verification.' }
+  const legacyReceipt = { ...receipt, name: 'invoice_receipt', description: 'Deprecated alias for invoice_record_receipt; local receipt only, no tax-bureau verification.' }
 
   const taxIdTool = defineTool({
-    name: 'invoice.tax_id_check',
+    name: 'invoice_tax_id_check',
     description: 'Validate a Chinese Unified Social Credit Code (18 characters, GB 32100-2015 mod-31 check character). Read-only; does not touch the archive.',
     parameters: { tax_id: { type: 'string', required: true } },
     output: { schema: { type: 'object', additionalProperties: false, properties: { tax_id: { type: 'string', required: true }, valid: { type: 'boolean', required: true }, kind: { type: 'string', required: true }, check_character: { type: 'string' }, reason: { type: 'string' } } }, render: (_a, v) => text(`${v.tax_id} ${v.valid ? 'ok' : 'invalid'}`) },
@@ -993,7 +993,7 @@ export function createTools(deps: ToolDeps) {
   })
 
   const codeTool = defineTool({
-    name: 'invoice.code_check',
+    name: 'invoice_code_check',
     description: 'Check EN 16931 code-list values: currency (ISO 4217), country (ISO 3166-1 alpha-2) and VAT category (BR-CL-17). Well-formed but unlisted values are reported as unknown, never as invalid. Read-only.',
     parameters: { currency: { type: 'string' }, country_code: { type: 'string' }, vat_category: { type: 'string' } },
     output: { schema: { type: 'object', additionalProperties: false, properties: { checked: { type: 'number', required: true }, issues: { type: 'array', required: true, items: { type: 'object', additionalProperties: false, properties: { field: { type: 'string', required: true }, code: { type: 'string', required: true }, detail: { type: 'string', required: true } } } } } }, render: (_a, v) => text(`code check ${v.checked} values, ${v.issues.length} issues`) },

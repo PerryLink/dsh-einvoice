@@ -59,7 +59,7 @@
 
 ### S2 — 0.1.0-alpha.1 (2026-10-31 01:08 +08)
 
-- Added `invoice.dedup` (invoice-number or seller+date+total groups), `invoice.verify` (local manual queue + optional buyer-tax-id mismatch), `invoice.receipt` (receipt SHA-256, idempotency, lifecycle verified/quarantined).
+- Added `invoice_dedup` (invoice-number or seller+date+total groups), `invoice_verify` (local manual queue + optional buyer-tax-id mismatch), `invoice_receipt` (receipt SHA-256, idempotency, lifecycle verified/quarantined).
 - Storage: optional `verification`/`receipts` fields on the existing `fin_invoice` domain (backward-compatible; no version bump needed).
 - `pnpm test` → 13/13 pass; `pnpm gate:sku04` → 4 rows (A01/A05/A06/A07), all public/synthetic, `partial`.
 - `npm publish --tag next` submitted `0.1.0-alpha.1`; tarball shasum `f16de997ead1ed64c2de7ff255553f597f37023a`. Registry `next` tag propagation pending; see `PUBLISH-STATUS.md`.
@@ -71,7 +71,7 @@
 
 ### S3 — 0.1.0-alpha.2 (2026-10-31 01:16 +08)
 
-- Added `invoice.redlink`, `invoice.archive` (manifest + originals + receipts ZIP), `invoice.check`, `invoice.restore`.
+- Added `invoice_redlink`, `invoice_archive` (manifest + originals + receipts ZIP), `invoice_check`, `invoice_restore`.
 - Storage: optional `redlink` and `source_name` on the existing `fin_invoice` domain; archives/restores are files under `DSH_EINVOICE_HOME`, not a DB table.
 - `pnpm test` → 15/15 pass; `pnpm gate:sku04` → 6 rows (A01/A03/A04/A05/A06/A07), public/synthetic, `partial`.
 - `npm publish --tag next` submitted alpha.2; shasum `aceb20e5843e2b5f692d9a05981977328e89e6d6`; pending propagation.

@@ -42,7 +42,7 @@ Read one local `.ofd` / `.xml` e-invoice, compute its SHA-256, keep the original
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/assets/dsh-einvoice-flow-v5-dark.svg">
-  <img src="docs/assets/dsh-einvoice-flow-v5-light.svg" width="100%" alt="dsh-einvoice structure: two input channels (OFD container and standalone XML) feed invoice.ingest (realpath allowlist, size gate, SHA-256, original 0600, byte-idempotent), then invoice.parse (ofd-zip-xml@1) normalizes eight fields and field evidence; the flow then splits into an R0 read-only rail (query / dedup / check / tax_id_check / code_check) and an R1 local-write rail (review_queue / record_receipt / redlink / archive / restore); lifecycle received → parsed → verified / quarantined; data lives in fin_invoice and storages/dsh-einvoice, no network">
+  <img src="docs/assets/dsh-einvoice-flow-v5-light.svg" width="100%" alt="dsh-einvoice structure: two input channels (OFD container and standalone XML) feed invoice_ingest (realpath allowlist, size gate, SHA-256, original 0600, byte-idempotent), then invoice_parse (ofd-zip-xml@1) normalizes eight fields and field evidence; the flow then splits into an R0 read-only rail (query / dedup / check / tax_id_check / code_check) and an R1 local-write rail (review_queue / record_receipt / redlink / archive / restore); lifecycle received → parsed → verified / quarantined; data lives in fin_invoice and storages/dsh-einvoice, no network">
 </picture>
 
 ## Three-step setup
@@ -73,7 +73,7 @@ Read one local `.ofd` / `.xml` e-invoice, compute its SHA-256, keep the original
    node samples/quickstart/run.mjs
    ```
 
-   The quickstart uses the two synthetic invoices shipped with the package (one XML, one digital e-invoice OFD) and calls `invoice.ingest → invoice.parse → invoice.dedup → invoice.query` in order. It should end with:
+   The quickstart uses the two synthetic invoices shipped with the package (one XML, one digital e-invoice OFD) and calls `invoice_ingest → invoice_parse → invoice_dedup → invoice_query` in order. It should end with:
 
    ```text
    ok: quickstart finished (6 tool calls, 1 duplicate invoice found)
@@ -94,15 +94,15 @@ Every PerryLink plugin is listed in the built-in DSH Desktop market: **Market �
 
 ## Core capabilities
 
-- **File-level ingest** — `invoice.ingest` reads one local OFD/XML under the allowed input roots, computes its SHA-256 and stores the original under `originals/` with mode `0600`; re-ingesting the same bytes returns the existing `doc_id` instead of creating a new record.
-- **Eight-field parsing** — `invoice.parse` runs the `ofd-zip-xml@1` adapter over old OFD (`Attachs/original_invoice.xml`), digital e-invoice OFD (`Tags/CustomTag.xml` + `ObjectRef`) and standalone XML; it returns the eight fields, line items, `field_evidence` (which node each field came from) and `unknown_fields`.
-- **Local pool query** — `invoice.query` filters by entity, period, lifecycle or text with stable paging; each row carries `doc_id`, invoice number, parties, amounts and parser version.
-- **Duplicate detection** — `invoice.dedup` groups by invoice number, falling back to seller tax id + issue date + total when the number is absent; read-only, it neither merges nor rewrites records.
-- **Manual review queue** — `invoice.review_queue` queues parsed invoices for local review, optionally flags `entity_mismatch` / `missing_buyer_tax_id` against an expected buyer tax id; it never contacts a tax bureau.
-- **Local receipts** — `invoice.record_receipt` hashes a local receipt file, appends an immutable receipt and advances the lifecycle; it returns `verification_source=local_receipt`, `tax_verified=false`, and is explicitly not tax-bureau verification.
-- **Red/blue linking** — `invoice.redlink` binds a negative red invoice to its blue invoice, storing the allocation and the amount / tax deltas; binding it to a different blue invoice raises `E_INV_REDLINK_BOUND` instead of silently rebinding.
-- **Archive, check and restore** — `invoice.archive` builds a deterministic ZIP with `manifest.json`, originals and receipts; `invoice.check` verifies manifest hashes, member hashes, missing files and directory traversal; `invoice.restore` writes only after `invoice.check` semantics pass.
-- **Tax-id and code-list checks** — `invoice.tax_id_check` validates the 18-character Unified Social Credit Code (GB 32100-2015 mod-31 check character); `invoice.code_check` checks currency / country / VAT category codes (EN 16931); both are read-only.
+- **File-level ingest** — `invoice_ingest` reads one local OFD/XML under the allowed input roots, computes its SHA-256 and stores the original under `originals/` with mode `0600`; re-ingesting the same bytes returns the existing `doc_id` instead of creating a new record.
+- **Eight-field parsing** — `invoice_parse` runs the `ofd-zip-xml@1` adapter over old OFD (`Attachs/original_invoice.xml`), digital e-invoice OFD (`Tags/CustomTag.xml` + `ObjectRef`) and standalone XML; it returns the eight fields, line items, `field_evidence` (which node each field came from) and `unknown_fields`.
+- **Local pool query** — `invoice_query` filters by entity, period, lifecycle or text with stable paging; each row carries `doc_id`, invoice number, parties, amounts and parser version.
+- **Duplicate detection** — `invoice_dedup` groups by invoice number, falling back to seller tax id + issue date + total when the number is absent; read-only, it neither merges nor rewrites records.
+- **Manual review queue** — `invoice_review_queue` queues parsed invoices for local review, optionally flags `entity_mismatch` / `missing_buyer_tax_id` against an expected buyer tax id; it never contacts a tax bureau.
+- **Local receipts** — `invoice_record_receipt` hashes a local receipt file, appends an immutable receipt and advances the lifecycle; it returns `verification_source=local_receipt`, `tax_verified=false`, and is explicitly not tax-bureau verification.
+- **Red/blue linking** — `invoice_redlink` binds a negative red invoice to its blue invoice, storing the allocation and the amount / tax deltas; binding it to a different blue invoice raises `E_INV_REDLINK_BOUND` instead of silently rebinding.
+- **Archive, check and restore** — `invoice_archive` builds a deterministic ZIP with `manifest.json`, originals and receipts; `invoice_check` verifies manifest hashes, member hashes, missing files and directory traversal; `invoice_restore` writes only after `invoice_check` semantics pass.
+- **Tax-id and code-list checks** — `invoice_tax_id_check` validates the 18-character Unified Social Credit Code (GB 32100-2015 mod-31 check character); `invoice_code_check` checks currency / country / VAT category codes (EN 16931); both are read-only.
 - **Purely local** — no `fetch` / HTTP / DNS / WebSocket calls in the source; no tax bureau, invoice-verification platform, ERP or cloud connection.
 
 ### Tool surface
@@ -111,20 +111,20 @@ Tool names are a stable API (matched to runtime output, kept in English); descri
 
 | Tool | Purpose | Risk |
 |---|---|---|
-| `invoice.ingest` | Ingest one local OFD/XML: path allowlist, ≤50 MB, SHA-256, original retention, idempotent by bytes | R1 local write |
-| `invoice.parse` | Parse old OFD `Attachs/original_invoice.xml` or digital e-invoice `Tags/CustomTag.xml`; return eight fields, lines, field evidence and unknown fields | R0 read-only |
-| `invoice.query` | Query the local pool by entity, period, lifecycle or text with stable paging (1–200 per page) | R0 read-only |
-| `invoice.dedup` | Group duplicates by invoice number, or seller + date + total | R0 read-only |
-| `invoice.review_queue` | Queue parsed invoices for manual local review; optional buyer-tax-id mismatch flags | R1 local write |
-| `invoice.record_receipt` | Hash a local receipt, append it and advance the lifecycle; `verification_source=local_receipt`, `tax_verified=false` | R1 local write |
-| `invoice.redlink` | Bind a negative red invoice to its blue invoice and store allocation and deltas | R1 local write |
-| `invoice.archive` | Build a deterministic manifest + originals + receipts ZIP under the local archive directory, then self-check it | R1 local write |
-| `invoice.check` | Verify manifest/member hashes, missing files and directory traversal; read-only | R0 read-only |
-| `invoice.restore` | Restore a verified archive into the local restore root; refuse one that fails verification | R1 local write |
-| `invoice.tax_id_check` | Validate the 18-character Unified Social Credit Code (GB 32100-2015 mod-31) | R0 read-only |
-| `invoice.code_check` | Check currency / country / VAT category code lists (EN 16931) | R0 read-only |
+| `invoice_ingest` | Ingest one local OFD/XML: path allowlist, ≤50 MB, SHA-256, original retention, idempotent by bytes | R1 local write |
+| `invoice_parse` | Parse old OFD `Attachs/original_invoice.xml` or digital e-invoice `Tags/CustomTag.xml`; return eight fields, lines, field evidence and unknown fields | R0 read-only |
+| `invoice_query` | Query the local pool by entity, period, lifecycle or text with stable paging (1–200 per page) | R0 read-only |
+| `invoice_dedup` | Group duplicates by invoice number, or seller + date + total | R0 read-only |
+| `invoice_review_queue` | Queue parsed invoices for manual local review; optional buyer-tax-id mismatch flags | R1 local write |
+| `invoice_record_receipt` | Hash a local receipt, append it and advance the lifecycle; `verification_source=local_receipt`, `tax_verified=false` | R1 local write |
+| `invoice_redlink` | Bind a negative red invoice to its blue invoice and store allocation and deltas | R1 local write |
+| `invoice_archive` | Build a deterministic manifest + originals + receipts ZIP under the local archive directory, then self-check it | R1 local write |
+| `invoice_check` | Verify manifest/member hashes, missing files and directory traversal; read-only | R0 read-only |
+| `invoice_restore` | Restore a verified archive into the local restore root; refuse one that fails verification | R1 local write |
+| `invoice_tax_id_check` | Validate the 18-character Unified Social Credit Code (GB 32100-2015 mod-31) | R0 read-only |
+| `invoice_code_check` | Check currency / country / VAT category code lists (EN 16931) | R0 read-only |
 
-`invoice.verify` and `invoice.receipt` remain as deprecated aliases of `invoice.review_queue` / `invoice.record_receipt`; new code should use the new names.
+`invoice_verify` and `invoice_receipt` remain as deprecated aliases of `invoice_review_queue` / `invoice_record_receipt`; new code should use the new names.
 
 ### Input and output
 
@@ -185,18 +185,18 @@ This plugin has no Schemastery config keys: `cordis.patch.yml` only `insert`s on
 | Variable | Default | Meaning |
 |---|---|---|
 | `DSH_EINVOICE_HOME` | `$DSH_HOME/storages/dsh-einvoice` | Base directory for originals (`originals/`), archives (`archives/`), restores (`restore/`) and the local pool; without `DSH_HOME` it falls back to `storages/dsh-einvoice` under the host process cwd |
-| `DSH_EINVOICE_INPUT_ROOTS` | cwd of the host process | Allowed input roots for `invoice.ingest` / `invoice.record_receipt`, separated by `path.delimiter` (`;` on Windows) |
+| `DSH_EINVOICE_INPUT_ROOTS` | cwd of the host process | Allowed input roots for `invoice_ingest` / `invoice_record_receipt`, separated by `path.delimiter` (`;` on Windows) |
 
 The most-used tool arguments:
 
 | Parameter | Default | Applies to | Meaning |
 |---|---|---|---|
-| `entity_id` | `default` (`ingest` only) | `invoice.ingest` / `query` / `review_queue` / `archive` | Legal-entity id; an invoice number is unique within one entity |
-| `page` | `50` | `invoice.query` | Page size, 1–200 |
-| `profile` | `ofd-zip-xml` | `invoice.parse` | Parser profile; the package ships only `ofd-zip-xml` |
-| `ocr` | `off` | `invoice.parse` | The package runs no OCR and accepts only `off` |
-| `limit` | `100` | `invoice.review_queue` | Maximum queue entries for this call, 1–200 |
-| `include_receipts` | `true` | `invoice.archive` | Whether receipts are packed into the archive |
+| `entity_id` | `default` (`ingest` only) | `invoice_ingest` / `query` / `review_queue` / `archive` | Legal-entity id; an invoice number is unique within one entity |
+| `page` | `50` | `invoice_query` | Page size, 1–200 |
+| `profile` | `ofd-zip-xml` | `invoice_parse` | Parser profile; the package ships only `ofd-zip-xml` |
+| `ocr` | `off` | `invoice_parse` | The package runs no OCR and accepts only `off` |
+| `limit` | `100` | `invoice_review_queue` | Maximum queue entries for this call, 1–200 |
+| `include_receipts` | `true` | `invoice_archive` | Whether receipts are packed into the archive |
 
 <details>
 <summary>Error codes and troubleshooting</summary>
@@ -207,8 +207,8 @@ The full error-code table (20 codes, with retryability and user action) is in [`
 |---|---|---|
 | `E_INV_FILE_UNREADABLE` | Path missing, 0 bytes, or over 50 MB | Check the path is under an input root, or start with the shipped sample |
 | `E_INV_PATH_NOT_ALLOWED` | File is outside `DSH_EINVOICE_INPUT_ROOTS` | Move the file under an input root, or widen the variable |
-| `E_INV_DOC_NOT_FOUND` | `doc_id` was never ingested | Run `invoice.ingest` first |
-| `E_INV_DUP_CONFLICT` | Invoice number already exists under the same `entity_id` | Use `invoice.query`, or pick a different `entity_id` |
+| `E_INV_DOC_NOT_FOUND` | `doc_id` was never ingested | Run `invoice_ingest` first |
+| `E_INV_DUP_CONFLICT` | Invoice number already exists under the same `entity_id` | Use `invoice_query`, or pick a different `entity_id` |
 | `E_INV_OFD_UNSUPPORTED` | ZIP is not an OFD, or no recognized invoice XML inside | Use the issuer's original `.ofd`; PDF / images are unsupported |
 | `E_INV_XML_SCHEMA_DRIFT` | Total ≠ amount + tax, or the structure drifted | Use `field_evidence` to locate the node; confirm the invoice was not re-edited |
 
@@ -226,21 +226,21 @@ Originals are stored by content hash under `$DSH_HOME/storages/dsh-einvoice/orig
 <details>
 <summary>Can it process my real invoices? Does it verify them with the tax bureau?</summary>
 
-It parses standard OFD/XML e-invoices locally, but the package is alpha and verified only on public/synthetic data — it is not an audit, reimbursement or payment conclusion. Sanitize real data before use and keep a human reviewer. **No tax-bureau verification**: `invoice.record_receipt` only records a local receipt (`verification_source=local_receipt`, `tax_verified=false`) and never connects to the tax bureau or an invoice-verification platform.
+It parses standard OFD/XML e-invoices locally, but the package is alpha and verified only on public/synthetic data — it is not an audit, reimbursement or payment conclusion. Sanitize real data before use and keep a human reviewer. **No tax-bureau verification**: `invoice_record_receipt` only records a local receipt (`verification_source=local_receipt`, `tax_verified=false`) and never connects to the tax bureau or an invoice-verification platform.
 
 </details>
 
 <details>
 <summary>Why does parsing the same invoice twice raise `E_INV_DUP_CONFLICT`?</summary>
 
-An invoice number is unique within one `entity_id`; this protects the pool from duplicate ingestion and is not a parse failure. Use `invoice.query` to inspect the existing record; if the same invoice really was submitted by two entities, parse it under a different `entity_id` — that is exactly what the shipped sample demonstrates.
+An invoice number is unique within one `entity_id`; this protects the pool from duplicate ingestion and is not a parse failure. Use `invoice_query` to inspect the existing record; if the same invoice really was submitted by two entities, parse it under a different `entity_id` — that is exactly what the shipped sample demonstrates.
 
 </details>
 
 <details>
 <summary>The parsed fields look wrong — what now?</summary>
 
-Start with `field_evidence` (which XML node or `ObjectRef` each field came from) and `unknown_fields` (present in the invoice but unused by this package); the money check only asserts total = amount + tax. `invoice.ingest` must run before `invoice.parse`; structural drift raises `E_INV_XML_SCHEMA_DRIFT` instead of silently guessing.
+Start with `field_evidence` (which XML node or `ObjectRef` each field came from) and `unknown_fields` (present in the invoice but unused by this package); the money check only asserts total = amount + tax. `invoice_ingest` must run before `invoice_parse`; structural drift raises `E_INV_XML_SCHEMA_DRIFT` instead of silently guessing.
 
 </details>
 
@@ -257,7 +257,7 @@ Check `node --version` for `>=24.9 <25` and `dsh --version` for `>=0.2.1-rc.3 <0
 - **Original files are never modified.** Writes land only under `$DSH_EINVOICE_HOME` (default `$DSH_HOME/storages/dsh-einvoice`) in `originals/`, `archives/`, `restore/` and the local storage domain; originals are written with mode `0600`.
 - **Input path allowlist.** Paths are resolved with `realpath` and must stay under `DSH_EINVOICE_INPUT_ROOTS`; symlink escapes, empty files, non-regular files and files over 50 MB are rejected.
 - **Bounded OFD unzip.** At most 1000 entries and 100 MB uncompressed; XML entity processing is disabled, blocking zip bombs and entity expansion.
-- **Archive tamper and traversal guards.** `invoice.check` verifies manifest hashes, member hashes, missing files and directory traversal; `pkg_id` must match `^pkg_[0-9a-f]{16}$`, the restore target must stay under the restore root, and `invoice.restore` refuses a package that fails verification.
+- **Archive tamper and traversal guards.** `invoice_check` verifies manifest hashes, member hashes, missing files and directory traversal; `pkg_id` must match `^pkg_[0-9a-f]{16}$`, the restore target must stay under the restore root, and `invoice_restore` refuses a package that fails verification.
 - **Duplicate protection.** Re-ingesting the same bytes is idempotent by `source_sha256`; an invoice number is unique within one `entity_id`; rebinding a red invoice to a different blue invoice is rejected (`E_INV_REDLINK_BOUND`).
 - **Uniform errors, loud failures.** Failures carry an `E_INV_…` code with a plain message and one next step; unsupported input fails loudly instead of degrading silently.
 - **No hidden surface.** No R2/R3 tools, no MCP exposure, no client half; the host mounts only the `tools` and `storageDomain` services.
@@ -274,9 +274,9 @@ Check `node --version` for `>=24.9 <25` and `dsh --version` for `>=0.2.1-rc.3 <0
 
 - **Verified on public/synthetic data only.** Every acceptance row comes from a public or synthetic fixture (`counted=false` for the SKU rows in `ACCEPTANCE.csv`; PS1-QS01 is a local sample reproduction with `counted=true`); no customer data or customer evidence.
 - **Alpha / partial / not counted / not GA.** No production-readiness claim; not an audit, reimbursement or payment conclusion.
-- **No OCR.** Scanned, photographed and PDF invoices are unsupported; `invoice.parse` accepts only `ocr: off`.
+- **No OCR.** Scanned, photographed and PDF invoices are unsupported; `invoice_parse` accepts only `ocr: off`.
 - **No tax-bureau verification.** A receipt is a local record only (`tax_verified=false`); use official channels for input-VAT deduction or tax-bureau checks.
-- **Single-file ingest.** One OFD/XML per call, at most 50 MB; loop `invoice.ingest` for batches.
+- **Single-file ingest.** One OFD/XML per call, at most 50 MB; loop `invoice_ingest` for batches.
 - **CNY and one parser only.** Currency is fixed to `CNY` and amounts are integer cents; the only parser is `ofd-zip-xml` (version `ofd-zip-xml@1`), and an unknown profile raises `E_INV_UNKNOWN_IMPL`.
 - **Storage is JSON KV.** The `fin_invoice` domain has no foreign keys, cross-table transactions or migrations; `(entity_id, invoice_no)` uniqueness is checked in application code.
 - **No client UI.** The package is host-only and registers no slot or client package; everything goes through the tool surface.
@@ -284,7 +284,7 @@ Check `node --version` for `>=24.9 <25` and `dsh --version` for `>=0.2.1-rc.3 <0
 
 ## Interoperability with other DSH plugins
 
-- **Namespaced tool names.** Every tool lives under `invoice.*` and does not take a bare name used by built-in tools or another plugin.
+- **Namespaced tool names.** Every tool lives under `invoice_*` and does not take a bare name used by built-in tools or another plugin.
 - **No host surface stealing.** It registers no command, client slot, `webServer` route or service key; it only injects the `tools` and `storageDomain` host services.
 - **Independent storage domain.** It uses one domain, `fin_invoice` (version 1); teardown is a Cordis effect, so stopping or hot-reloading the plugin undoes it.
 - **Complementary responsibilities.** Ledger-level checks belong to [`dsh-invoice-ledger`](https://github.com/PerryLink/dsh-invoice-ledger), and two-table reconciliation to [`dsh-excel-reconcile`](https://github.com/PerryLink/dsh-excel-reconcile); each is a separate package, installed only when needed.
@@ -328,7 +328,7 @@ node scripts/acceptance.mjs                             # re-run public/syntheti
 node samples/quickstart/run.mjs                         # synthetic sample; expect 6 tool calls and 1 duplicate group
 ```
 
-TypeScript sources live in `src/` (`src/core/` for the eight fields and money, `src/adapters/` for OFD/XML parsing, `src/registry/` for the parser registry, `src/plugin/` for the host face); build output goes to `lib/`; fixtures are in `fixtures/`, and the shipped sample in `samples/quickstart/`. Current version `0.2.1` (matches `package.json`). Tests run with `node --test test/*.test.mjs`; skips caused by missing public samples are normal, not failures (see [`TROUBLESHOOTING.md`](TROUBLESHOOTING.md)). The banner and the structure diagram are generated programmatically by [`scripts/gen-readme-assets.py`](scripts/gen-readme-assets.py) (Python: four 1440×576 webp banners via Pillow, plus a hand-written 1100×660 SVG pair for the structure diagram) and are safe to re-run.
+TypeScript sources live in `src/` (`src/core/` for the eight fields and money, `src/adapters/` for OFD/XML parsing, `src/registry/` for the parser registry, `src/plugin/` for the host face); build output goes to `lib/`; fixtures are in `fixtures/`, and the shipped sample in `samples/quickstart/`. Current version `0.3.0` (matches `package.json`). Tests run with `node --test test/*.test.mjs`; skips caused by missing public samples are normal, not failures (see [`TROUBLESHOOTING.md`](TROUBLESHOOTING.md)). The banner and the structure diagram are generated programmatically by [`scripts/gen-readme-assets.py`](scripts/gen-readme-assets.py) (Python: four 1440×576 webp banners via Pillow, plus a hand-written 1100×660 SVG pair for the structure diagram) and are safe to re-run.
 
 Topics: `deepseek-harness`, `dsh`, `dsh-plugin`, `einvoice`, `invoice`, `ofd`, `perrylink`, `finance`
 

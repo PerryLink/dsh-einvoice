@@ -7,7 +7,7 @@
 
 ## E_INV_FILE_UNREADABLE — 找不到这个发票文件
 
-- **症状**：`invoice.ingest` 提示「找不到这个发票文件（E_INV_FILE_UNREADABLE）｜下一步：…」。
+- **症状**：`invoice_ingest` 提示「找不到这个发票文件（E_INV_FILE_UNREADABLE）｜下一步：…」。
 - **原因**：路径写错、文件被移动；或文件 0 字节 / 超过 50 MB。
 - **动作**：确认路径存在且在输入根目录内；先用自带样例 `samples/quickstart/input/invoice-a.xml` 跑通，再换自己的文件。
 
@@ -19,9 +19,9 @@
 
 ## E_INV_DUP_CONFLICT — 这张发票已经入过池了
 
-- **症状**：`invoice.parse` 提示「这张发票在这个主体下已经入过池了（E_INV_DUP_CONFLICT）」。
+- **症状**：`invoice_parse` 提示「这张发票在这个主体下已经入过池了（E_INV_DUP_CONFLICT）」。
 - **原因**：同一 `entity_id` 下发票号唯一；这是防重复入池的保护，不是解析失败。
-- **动作**：用 `invoice.query` 查已有记录；若确属两个主体各报一次，改用不同的 `entity_id` 再解析（自带样例演示的就是这种跨主体查重）。
+- **动作**：用 `invoice_query` 查已有记录；若确属两个主体各报一次，改用不同的 `entity_id` 再解析（自带样例演示的就是这种跨主体查重）。
 
 ## E_INV_OFD_UNSUPPORTED — 这不是可识别的 OFD
 
@@ -58,7 +58,7 @@
 ## 结果看起来不对
 
 - 先看 `field_evidence`（字段来自哪个部件/节点）和 `unknown_fields`（票面里有、但本包不用的字段）。
-- 本包**不联网、不做验真**：`invoice.record_receipt` 只记录本地回执，`tax_verified=false`。
+- 本包**不联网、不做验真**：`invoice_record_receipt` 只记录本地回执，`tax_verified=false`。
 - 金额一律用整数分做勾稽，避免浮点误差。
 
 ## 跑测试

@@ -59,7 +59,7 @@
 ## 0.2.0-alpha.0 — file-level public demo (2026-10-31)
 
 - Scope narrowed: no OCR/tax-bureau/receipt/filing/30-year claims.
-- `invoice.review_queue` / `invoice.record_receipt` added; old `invoice.verify` / `invoice.receipt` kept as deprecated aliases.
+- `invoice_review_queue` / `invoice_record_receipt` added; old `invoice_verify` / `invoice_receipt` kept as deprecated aliases.
 - Local receipts expose `verification_source=local_receipt`, `tax_verified=false`; lifecycle remains local.
 - A02 scan/OCR recorded as `not_run`; 7 gate rows, all public/synthetic/not counted.
 

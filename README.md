@@ -42,7 +42,7 @@ dsh plugin --profile <profile> add dsh-einvoice
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/assets/dsh-einvoice-flow-v5-dark.svg">
-  <img src="docs/assets/dsh-einvoice-flow-v5-light.svg" width="100%" alt="dsh-einvoice 结构：两条输入通道（OFD 容器与独立 XML）汇入 invoice.ingest（realpath 白名单、大小闸门、SHA-256、原件 0600、同字节幂等），再由 invoice.parse（ofd-zip-xml@1）归一为八字段与字段证据；之后分两轨——R0 只读轨（query / dedup / check / tax_id_check / code_check）与 R1 本地写轨（review_queue / record_receipt / redlink / archive / restore）；生命周期 received → parsed → verified / quarantined；数据落在 fin_invoice 与 storages/dsh-einvoice，不联网">
+  <img src="docs/assets/dsh-einvoice-flow-v5-light.svg" width="100%" alt="dsh-einvoice 结构：两条输入通道（OFD 容器与独立 XML）汇入 invoice_ingest（realpath 白名单、大小闸门、SHA-256、原件 0600、同字节幂等），再由 invoice_parse（ofd-zip-xml@1）归一为八字段与字段证据；之后分两轨——R0 只读轨（query / dedup / check / tax_id_check / code_check）与 R1 本地写轨（review_queue / record_receipt / redlink / archive / restore）；生命周期 received → parsed → verified / quarantined；数据落在 fin_invoice 与 storages/dsh-einvoice，不联网">
 </picture>
 
 ## 三步上手
@@ -73,7 +73,7 @@ dsh plugin --profile <profile> add dsh-einvoice
    node samples/quickstart/run.mjs
    ```
 
-   quickstart 用随包的两份合成票（XML + 数电票 OFD）依次调用 `invoice.ingest → invoice.parse → invoice.dedup → invoice.query`，结尾应输出：
+   quickstart 用随包的两份合成票（XML + 数电票 OFD）依次调用 `invoice_ingest → invoice_parse → invoice_dedup → invoice_query`，结尾应输出：
 
    ```text
    ok: quickstart finished (6 tool calls, 1 duplicate invoice found)
@@ -94,15 +94,15 @@ dsh plugin --profile <profile> add dsh-einvoice
 
 ## 核心能力
 
-- **文件级入库** —— `invoice.ingest` 读取一个本地 OFD/XML，限制在输入根目录内，算 SHA-256、把原件按 `0600` 存进 `originals/`；同一份字节重复入库直接返回既有 `doc_id`，不产生新记录。
-- **八字段解析** —— `invoice.parse` 通过 `ofd-zip-xml@1` 适配器处理旧版 OFD（`Attachs/original_invoice.xml`）、数电票 OFD（`Tags/CustomTag.xml` + `ObjectRef`）与独立 XML；返回八字段、明细行、`field_evidence`（字段来自哪个节点）与 `unknown_fields`。
-- **本地票据池查询** —— `invoice.query` 按主体、期间、生命周期或文本匹配，稳定分页；返回 `doc_id`、发票号、购销方、金额与解析版本。
-- **重复检测** —— `invoice.dedup` 按发票号分组；没有票号时退回「销售方税号 + 开票日期 + 价税合计」分组；只读，不合并、不改写记录。
-- **人工复核队列** —— `invoice.review_queue` 把已解析票据排进本地待复核队列，可给出期望购买方税号并标记 `entity_mismatch` / `missing_buyer_tax_id`；不联系税局。
-- **本地回执** —— `invoice.record_receipt` 对本地回执文件算哈希、追加不可变回执并推进生命周期；返回 `verification_source=local_receipt`、`tax_verified=false`，明确不是税局验真。
-- **红蓝勾稽** —— `invoice.redlink` 把负数红字发票绑定到蓝字发票，记录分配额与金额 / 税额差额；已绑定到另一张蓝票时报 `E_INV_REDLINK_BOUND`，不静默改绑。
-- **归档、校验与恢复** —— `invoice.archive` 生成含 `manifest.json`、原件与回执的确定性 ZIP；`invoice.check` 校验清单哈希、成员哈希、缺失文件与路径穿越；`invoice.restore` 只在归档校验通过后写入本地恢复根目录。
-- **税号与代码表校验** —— `invoice.tax_id_check` 校验 18 位统一社会信用代码（GB 32100-2015 mod-31 校验位）；`invoice.code_check` 检查币种 / 国家 / 税类代码（EN 16931）；两者都只读。
+- **文件级入库** —— `invoice_ingest` 读取一个本地 OFD/XML，限制在输入根目录内，算 SHA-256、把原件按 `0600` 存进 `originals/`；同一份字节重复入库直接返回既有 `doc_id`，不产生新记录。
+- **八字段解析** —— `invoice_parse` 通过 `ofd-zip-xml@1` 适配器处理旧版 OFD（`Attachs/original_invoice.xml`）、数电票 OFD（`Tags/CustomTag.xml` + `ObjectRef`）与独立 XML；返回八字段、明细行、`field_evidence`（字段来自哪个节点）与 `unknown_fields`。
+- **本地票据池查询** —— `invoice_query` 按主体、期间、生命周期或文本匹配，稳定分页；返回 `doc_id`、发票号、购销方、金额与解析版本。
+- **重复检测** —— `invoice_dedup` 按发票号分组；没有票号时退回「销售方税号 + 开票日期 + 价税合计」分组；只读，不合并、不改写记录。
+- **人工复核队列** —— `invoice_review_queue` 把已解析票据排进本地待复核队列，可给出期望购买方税号并标记 `entity_mismatch` / `missing_buyer_tax_id`；不联系税局。
+- **本地回执** —— `invoice_record_receipt` 对本地回执文件算哈希、追加不可变回执并推进生命周期；返回 `verification_source=local_receipt`、`tax_verified=false`，明确不是税局验真。
+- **红蓝勾稽** —— `invoice_redlink` 把负数红字发票绑定到蓝字发票，记录分配额与金额 / 税额差额；已绑定到另一张蓝票时报 `E_INV_REDLINK_BOUND`，不静默改绑。
+- **归档、校验与恢复** —— `invoice_archive` 生成含 `manifest.json`、原件与回执的确定性 ZIP；`invoice_check` 校验清单哈希、成员哈希、缺失文件与路径穿越；`invoice_restore` 只在归档校验通过后写入本地恢复根目录。
+- **税号与代码表校验** —— `invoice_tax_id_check` 校验 18 位统一社会信用代码（GB 32100-2015 mod-31 校验位）；`invoice_code_check` 检查币种 / 国家 / 税类代码（EN 16931）；两者都只读。
 - **纯本地** —— 源码中没有 `fetch` / HTTP / DNS / WebSocket 调用；不连税局、发票查验平台、ERP 或云服务。
 
 ### 工具面
@@ -111,20 +111,20 @@ dsh plugin --profile <profile> add dsh-einvoice
 
 | 工具 | 用途 | 风险 |
 |---|---|---|
-| `invoice.ingest` | 导入一个本地 OFD/XML：路径白名单、≤50 MB、SHA-256、原件留存、按字节幂等 | R1 本地写 |
-| `invoice.parse` | 解析旧版 OFD 的 `Attachs/original_invoice.xml` 或数电票的 `Tags/CustomTag.xml`；返回八字段、明细行、字段证据与未知字段 | R0 只读 |
-| `invoice.query` | 按主体、期间、生命周期或文本查询本地票据池，稳定分页（每页 1–200） | R0 只读 |
-| `invoice.dedup` | 按发票号，或销售方 + 日期 + 价税合计对重复项分组 | R0 只读 |
-| `invoice.review_queue` | 将已解析发票排入本地人工复核队列；可选标记购买方税号不一致 | R1 本地写 |
-| `invoice.record_receipt` | 对本地回执算哈希、追加回执并推进生命周期；`verification_source=local_receipt`、`tax_verified=false` | R1 本地写 |
-| `invoice.redlink` | 把负数红字发票绑定到蓝字发票，保存分配额与差额 | R1 本地写 |
-| `invoice.archive` | 在本地归档目录生成清单 + 原件 + 回执的确定性 ZIP，并自校验 | R1 本地写 |
-| `invoice.check` | 校验清单 / 成员哈希、缺失文件及路径穿越；只读 | R0 只读 |
-| `invoice.restore` | 把已校验归档恢复到本地恢复根目录；校验不过则拒绝 | R1 本地写 |
-| `invoice.tax_id_check` | 校验 18 位统一社会信用代码（GB 32100-2015 mod-31） | R0 只读 |
-| `invoice.code_check` | 检查币种 / 国家 / 税类代码表（EN 16931） | R0 只读 |
+| `invoice_ingest` | 导入一个本地 OFD/XML：路径白名单、≤50 MB、SHA-256、原件留存、按字节幂等 | R1 本地写 |
+| `invoice_parse` | 解析旧版 OFD 的 `Attachs/original_invoice.xml` 或数电票的 `Tags/CustomTag.xml`；返回八字段、明细行、字段证据与未知字段 | R0 只读 |
+| `invoice_query` | 按主体、期间、生命周期或文本查询本地票据池，稳定分页（每页 1–200） | R0 只读 |
+| `invoice_dedup` | 按发票号，或销售方 + 日期 + 价税合计对重复项分组 | R0 只读 |
+| `invoice_review_queue` | 将已解析发票排入本地人工复核队列；可选标记购买方税号不一致 | R1 本地写 |
+| `invoice_record_receipt` | 对本地回执算哈希、追加回执并推进生命周期；`verification_source=local_receipt`、`tax_verified=false` | R1 本地写 |
+| `invoice_redlink` | 把负数红字发票绑定到蓝字发票，保存分配额与差额 | R1 本地写 |
+| `invoice_archive` | 在本地归档目录生成清单 + 原件 + 回执的确定性 ZIP，并自校验 | R1 本地写 |
+| `invoice_check` | 校验清单 / 成员哈希、缺失文件及路径穿越；只读 | R0 只读 |
+| `invoice_restore` | 把已校验归档恢复到本地恢复根目录；校验不过则拒绝 | R1 本地写 |
+| `invoice_tax_id_check` | 校验 18 位统一社会信用代码（GB 32100-2015 mod-31） | R0 只读 |
+| `invoice_code_check` | 检查币种 / 国家 / 税类代码表（EN 16931） | R0 只读 |
 
-`invoice.verify` 与 `invoice.receipt` 保留为 `invoice.review_queue` / `invoice.record_receipt` 的弃用别名，仍可调用；新代码请用新名字。
+`invoice_verify` 与 `invoice_receipt` 保留为 `invoice_review_queue` / `invoice_record_receipt` 的弃用别名，仍可调用；新代码请用新名字。
 
 ### 输入与输出
 
@@ -185,18 +185,18 @@ PS1-QS01,quickstart 样例与金标一致,1/1,1,true,synthetic/quickstart,true
 | 变量 | 默认值 | 含义 |
 |---|---|---|
 | `DSH_EINVOICE_HOME` | `$DSH_HOME/storages/dsh-einvoice` | 原件（`originals/`）、归档（`archives/`）、恢复（`restore/`）与本地票据池的基目录；未设 `DSH_HOME` 时退回宿主进程 cwd 下的 `storages/dsh-einvoice` |
-| `DSH_EINVOICE_INPUT_ROOTS` | 启动进程的 cwd | `invoice.ingest` / `invoice.record_receipt` 的输入允许根目录，多个用 `path.delimiter` 分隔（Windows 为 `;`） |
+| `DSH_EINVOICE_INPUT_ROOTS` | 启动进程的 cwd | `invoice_ingest` / `invoice_record_receipt` 的输入允许根目录，多个用 `path.delimiter` 分隔（Windows 为 `;`） |
 
 最常用的工具参数：
 
 | 参数 | 默认值 | 作用于 | 含义 |
 |---|---|---|---|
-| `entity_id` | `default`（仅 `ingest`） | `invoice.ingest` / `query` / `review_queue` / `archive` | 法人主体 id；同一主体下发票号唯一 |
-| `page` | `50` | `invoice.query` | 每页条数，1–200 |
-| `profile` | `ofd-zip-xml` | `invoice.parse` | 解析器 profile；本包只有 `ofd-zip-xml` |
-| `ocr` | `off` | `invoice.parse` | 本包不运行 OCR，只接受 `off` |
-| `limit` | `100` | `invoice.review_queue` | 本次入队上限，1–200 |
-| `include_receipts` | `true` | `invoice.archive` | 是否把回执一起打进归档包 |
+| `entity_id` | `default`（仅 `ingest`） | `invoice_ingest` / `query` / `review_queue` / `archive` | 法人主体 id；同一主体下发票号唯一 |
+| `page` | `50` | `invoice_query` | 每页条数，1–200 |
+| `profile` | `ofd-zip-xml` | `invoice_parse` | 解析器 profile；本包只有 `ofd-zip-xml` |
+| `ocr` | `off` | `invoice_parse` | 本包不运行 OCR，只接受 `off` |
+| `limit` | `100` | `invoice_review_queue` | 本次入队上限，1–200 |
+| `include_receipts` | `true` | `invoice_archive` | 是否把回执一起打进归档包 |
 
 <details>
 <summary>错误码与故障排查</summary>
@@ -207,8 +207,8 @@ PS1-QS01,quickstart 样例与金标一致,1/1,1,true,synthetic/quickstart,true
 |---|---|---|
 | `E_INV_FILE_UNREADABLE` | 路径不存在、0 字节、超过 50 MB | 确认路径在输入根目录内，或先用自带样例 |
 | `E_INV_PATH_NOT_ALLOWED` | 文件不在 `DSH_EINVOICE_INPUT_ROOTS` 下 | 把文件放进输入根目录，或扩大该变量 |
-| `E_INV_DOC_NOT_FOUND` | `doc_id` 未入库 | 先 `invoice.ingest` |
-| `E_INV_DUP_CONFLICT` | 同一 `entity_id` 下发票号已存在 | 用 `invoice.query` 查已有记录，或换 `entity_id` |
+| `E_INV_DOC_NOT_FOUND` | `doc_id` 未入库 | 先 `invoice_ingest` |
+| `E_INV_DUP_CONFLICT` | 同一 `entity_id` 下发票号已存在 | 用 `invoice_query` 查已有记录，或换 `entity_id` |
 | `E_INV_OFD_UNSUPPORTED` | ZIP 不是 OFD，或票面 XML 不可识别 | 换开票方原始 `.ofd`；PDF / 图片不支持 |
 | `E_INV_XML_SCHEMA_DRIFT` | 价税合计 ≠ 金额 + 税额，或结构漂移 | 看 `field_evidence` 定位节点，先确认票面未被二次编辑 |
 
@@ -226,21 +226,21 @@ PS1-QS01,quickstart 样例与金标一致,1/1,1,true,synthetic/quickstart,true
 <details>
 <summary>能处理我的真实发票吗？能做税局验真吗？</summary>
 
-可以本地解析标准 OFD/XML 电子发票，但本包是 alpha、只用公开 / 合成数据验证，不构成审计、报销或付款结论；真实数据请先脱敏并保留复核人。**不做税局验真**：`invoice.record_receipt` 只记录本地回执（`verification_source=local_receipt`、`tax_verified=false`），不连接税局或发票查验平台。
+可以本地解析标准 OFD/XML 电子发票，但本包是 alpha、只用公开 / 合成数据验证，不构成审计、报销或付款结论；真实数据请先脱敏并保留复核人。**不做税局验真**：`invoice_record_receipt` 只记录本地回执（`verification_source=local_receipt`、`tax_verified=false`），不连接税局或发票查验平台。
 
 </details>
 
 <details>
 <summary>同一张发票为什么解析两次会报 `E_INV_DUP_CONFLICT`？</summary>
 
-同一 `entity_id` 下发票号唯一，这是防重复入池的保护，不是解析失败。先用 `invoice.query` 查已有记录；若确属两个主体各报一次，换一个 `entity_id` 再解析——自带样例演示的就是这种跨主体查重。
+同一 `entity_id` 下发票号唯一，这是防重复入池的保护，不是解析失败。先用 `invoice_query` 查已有记录；若确属两个主体各报一次，换一个 `entity_id` 再解析——自带样例演示的就是这种跨主体查重。
 
 </details>
 
 <details>
 <summary>解析结果对不上怎么办？</summary>
 
-先看 `field_evidence`（每个字段来自哪个 XML 节点或 `ObjectRef`）与 `unknown_fields`（票面里有、但本包不用的字段）；金额勾稽只校验「价税合计 = 金额 + 税额」。解析前必须先 `invoice.ingest`；结构漂移会报 `E_INV_XML_SCHEMA_DRIFT`，不会静默猜值。
+先看 `field_evidence`（每个字段来自哪个 XML 节点或 `ObjectRef`）与 `unknown_fields`（票面里有、但本包不用的字段）；金额勾稽只校验「价税合计 = 金额 + 税额」。解析前必须先 `invoice_ingest`；结构漂移会报 `E_INV_XML_SCHEMA_DRIFT`，不会静默猜值。
 
 </details>
 
@@ -257,7 +257,7 @@ PS1-QS01,quickstart 样例与金标一致,1/1,1,true,synthetic/quickstart,true
 - **原文件不被修改。** 写操作只落在 `$DSH_EINVOICE_HOME`（缺省 `$DSH_HOME/storages/dsh-einvoice`）下的 `originals/`、`archives/`、`restore/` 与本地存储域；原件以 `0600` 写入。
 - **输入路径白名单。** 路径先 `realpath` 解析，必须落在 `DSH_EINVOICE_INPUT_ROOTS` 内；符号链接逃逸、空文件、非普通文件与超过 50 MB 的文件都会被拒绝。
 - **OFD 解压有界。** 最多 1000 个条目、解压后最多 100 MB；XML 实体处理被禁用，避免解压炸弹与实体展开。
-- **归档防篡改与防穿越。** `invoice.check` 校验清单哈希、成员哈希、缺失文件与目录穿越；`pkg_id` 必须匹配 `^pkg_[0-9a-f]{16}$`，恢复目标必须落在恢复根目录下；校验不过 `invoice.restore` 直接拒绝。
+- **归档防篡改与防穿越。** `invoice_check` 校验清单哈希、成员哈希、缺失文件与目录穿越；`pkg_id` 必须匹配 `^pkg_[0-9a-f]{16}$`，恢复目标必须落在恢复根目录下；校验不过 `invoice_restore` 直接拒绝。
 - **重复保护。** 同一字节重复入库按 `source_sha256` 幂等；同一 `entity_id` 下发票号唯一；红字发票改绑到另一张蓝票会被拒绝（`E_INV_REDLINK_BOUND`）。
 - **错误格式统一、失败响亮。** 报错统一为 `<一句人话>（E_INV_…）｜下一步：<动作>`；无法处理的输入直接失败，不静默降级。
 - **没有隐藏面。** 不注册 R2/R3 工具、不做 MCP 暴露、没有客户端半；宿主只挂 `tools` 与 `storageDomain` 两个服务。
@@ -274,9 +274,9 @@ PS1-QS01,quickstart 样例与金标一致,1/1,1,true,synthetic/quickstart,true
 
 - **仅公开 / 合成验证。** 所有验收行都来自公开或合成 fixture（`ACCEPTANCE.csv` 中 SKU 行 `counted=false`，PS1-QS01 为随包样例本地复现 `counted=true`）；不含客户数据或客户证据。
 - **alpha / partial / not counted / 非 GA。** 不作生产可用声明，不构成审计、报销或付款结论。
-- **不做 OCR。** 扫描件、图片发票与 PDF 发票不支持；`invoice.parse` 的 `ocr` 只接受 `off`。
+- **不做 OCR。** 扫描件、图片发票与 PDF 发票不支持；`invoice_parse` 的 `ocr` 只接受 `off`。
 - **不做税局验真。** 回执只是本地记录，`tax_verified=false`；抵扣勾选、税局查验请走官方渠道。
-- **只处理单文件入库。** 一次一个 OFD/XML，单文件 ≤50 MB；批量请循环调用 `invoice.ingest`。
+- **只处理单文件入库。** 一次一个 OFD/XML，单文件 ≤50 MB；批量请循环调用 `invoice_ingest`。
 - **只支持人民币与内置解析器。** 币种固定 `CNY`，金额用整数分；解析器只有 `ofd-zip-xml`（版本 `ofd-zip-xml@1`），未知 profile 报 `E_INV_UNKNOWN_IMPL`。
 - **存储是 JSON KV。** `fin_invoice` 域没有外键、跨表事务或迁移；`(entity_id, invoice_no)` 唯一性在应用层检查。
 - **无客户端界面。** 本包是纯 host 形态，不注册 slot / 客户端包；所有操作走工具面。
@@ -284,7 +284,7 @@ PS1-QS01,quickstart 样例与金标一致,1/1,1,true,synthetic/quickstart,true
 
 ## 与其他 DSH 插件的互操作性
 
-- **工具名带命名空间。** 所有工具都在 `invoice.*` 下，不占用内置工具或其他插件的裸名。
+- **工具名带命名空间。** 所有工具都在 `invoice_*` 下，不占用内置工具或其他插件的裸名。
 - **不抢宿主表面。** 不注册命令、客户端 slot、`webServer` 路由或服务键；只注入 `tools` 与 `storageDomain` 两个宿主服务。
 - **存储域独立。** 使用 `fin_invoice`（version 1）这一个域；关闭走 Cordis effect，停止 / 热重载即可撤销。
 - **职责互补。** 台账级核对交给 [`dsh-invoice-ledger`](https://github.com/PerryLink/dsh-invoice-ledger)，两表对账交给 [`dsh-excel-reconcile`](https://github.com/PerryLink/dsh-excel-reconcile)；它们各自是独立包，按需安装。
@@ -328,7 +328,7 @@ node scripts/acceptance.mjs                             # 重跑公开 / 合成�
 node samples/quickstart/run.mjs                         # 合成样例，应输出 6 次工具调用、1 个重复组
 ```
 
-TypeScript 源码在 `src/`（`src/core/` 八字段与金额、`src/adapters/` OFD/XML 适配、`src/registry/` 解析器注册表、`src/plugin/` 宿主面），构建产物在 `lib/`；fixture 在 `fixtures/`，随包样例在 `samples/quickstart/`。当前版本 `0.2.1`（与 `package.json` 一致）。测试用 `node --test test/*.test.mjs`；公开样本缺失导致的 skip 属正常，不是失败（见 [`TROUBLESHOOTING.md`](TROUBLESHOOTING.md)）。开头横幅与结构图由 [`scripts/gen-readme-assets.py`](scripts/gen-readme-assets.py) 程序化生成（Python：Pillow 画 1440×576 横幅四张 webp，手写 SVG 画 1100×660 结构图深浅双版），可重复执行。
+TypeScript 源码在 `src/`（`src/core/` 八字段与金额、`src/adapters/` OFD/XML 适配、`src/registry/` 解析器注册表、`src/plugin/` 宿主面），构建产物在 `lib/`；fixture 在 `fixtures/`，随包样例在 `samples/quickstart/`。当前版本 `0.3.0`（与 `package.json` 一致）。测试用 `node --test test/*.test.mjs`；公开样本缺失导致的 skip 属正常，不是失败（见 [`TROUBLESHOOTING.md`](TROUBLESHOOTING.md)）。开头横幅与结构图由 [`scripts/gen-readme-assets.py`](scripts/gen-readme-assets.py) 程序化生成（Python：Pillow 画 1440×576 横幅四张 webp，手写 SVG 画 1100×660 结构图深浅双版），可重复执行。
 
 Topics：`deepseek-harness`, `dsh`, `dsh-plugin`, `einvoice`, `invoice`, `ofd`, `perrylink`, `finance`
 

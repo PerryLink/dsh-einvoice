@@ -30,10 +30,10 @@ async function setup(dir) {
   const tools = createTools({ table, baseDir: path.join(dir, 'store'), inputRoots: [dir] })
   const byName = Object.fromEntries(tools.map((tool) => [tool.name, tool]))
   const exec = { callId: 's2-call', agent: { id: 'agent-s2' } }
-  const ingestA = await byName['invoice.ingest'].execute({ source: { kind: 'file', path: path.join(dir, 'a.xml') }, entity_id: 'ENT-A' }, exec)
-  const ingestB = await byName['invoice.ingest'].execute({ source: { kind: 'file', path: path.join(dir, 'b.xml') }, entity_id: 'ENT-B' }, exec)
-  await byName['invoice.parse'].execute({ doc_id: ingestA.doc_id }, exec)
-  await byName['invoice.parse'].execute({ doc_id: ingestB.doc_id }, exec)
+  const ingestA = await byName['invoice_ingest'].execute({ source: { kind: 'file', path: path.join(dir, 'a.xml') }, entity_id: 'ENT-A' }, exec)
+  const ingestB = await byName['invoice_ingest'].execute({ source: { kind: 'file', path: path.join(dir, 'b.xml') }, entity_id: 'ENT-B' }, exec)
+  await byName['invoice_parse'].execute({ doc_id: ingestA.doc_id }, exec)
+  await byName['invoice_parse'].execute({ doc_id: ingestB.doc_id }, exec)
   return { table, byName, exec, docA: ingestA.doc_id, docB: ingestB.doc_id }
 }
 
@@ -44,16 +44,16 @@ test('dedup groups by seller+date+total and verify flags entity mismatch', async
     await writeFile(path.join(dir, 'b.xml'), xml('25512345000000000091', '测试买方乙有限公司'))
     const { table, byName, exec } = await setup(dir)
 
-    const groups = await byName['invoice.dedup'].execute({}, exec)
+    const groups = await byName['invoice_dedup'].execute({}, exec)
     assert.equal(groups.total, 1)
     assert.equal(groups.groups[0].kind, 'invoice_no')
     assert.equal(groups.groups[0].members.length, 2)
 
-    const good = await byName['invoice.verify'].execute({ entity_tax_id: '91310115MA1K2L3M4N' }, exec)
+    const good = await byName['invoice_verify'].execute({ entity_tax_id: '91310115MA1K2L3M4N' }, exec)
     assert.equal(good.total, 2)
     assert.ok(good.queue.every((item) => item.entity_match === true))
 
-    const bad = await byName['invoice.verify'].execute({ entity_tax_id: '000000000000000000' }, exec)
+    const bad = await byName['invoice_verify'].execute({ entity_tax_id: '000000000000000000' }, exec)
     assert.ok(bad.queue.every((item) => item.entity_match === false))
     assert.ok(bad.queue.every((item) => item.needs_review.includes('entity_mismatch')))
   } finally {
@@ -70,7 +70,7 @@ test('receipt records a hash, is idempotent by receipt bytes, and moves lifecycl
     await writeFile(receiptFile, '平台结果码=100; 验真\n')
     const { table, byName, exec, docA, docB } = await setup(dir)
 
-    const first = await byName['invoice.receipt'].execute({
+    const first = await byName['invoice_receipt'].execute({
       invoice_id: docA,
       receipt_file: receiptFile,
       result_code: '100',
@@ -83,7 +83,7 @@ test('receipt records a hash, is idempotent by receipt bytes, and moves lifecycl
     assert.match(first.receipt_sha256, /^[0-9a-f]{64}$/)
     assert.equal(table.get(docA).lifecycle, 'verified')
 
-    const duplicate = await byName['invoice.receipt'].execute({
+    const duplicate = await byName['invoice_receipt'].execute({
       invoice_id: docA,
       receipt_file: receiptFile,
       result_code: '100',
@@ -96,7 +96,7 @@ test('receipt records a hash, is idempotent by receipt bytes, and moves lifecycl
 
     const failFile = path.join(dir, 'fail.txt')
     await writeFile(failFile, '平台结果码=999; 验伪\n')
-    const failed = await byName['invoice.receipt'].execute({
+    const failed = await byName['invoice_receipt'].execute({
       invoice_id: docB,
       receipt_file: failFile,
       result_code: '999',
