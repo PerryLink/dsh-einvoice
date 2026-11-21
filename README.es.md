@@ -327,7 +327,7 @@ Cada checker es un paquete independiente con su propio paquete de reglas y versi
 
 ```sh
 pnpm install --frozen-lockfile
-pnpm build && pnpm lint && pnpm typecheck && pnpm test   # build tsc + node --test test/*.test.mjs (11 archivos de prueba)
+pnpm build && pnpm lint && pnpm typecheck && pnpm test   # build tsc + node --test test/*.test.mjs (12 archivos de prueba)
 pnpm gate:sku04                                         # puerta de aceptación (ACCEPTANCE.csv)
 node scripts/acceptance.mjs                             # repetir la aceptación pública/sintética
 node samples/quickstart/run.mjs                         # muestra sintética; espera 6 llamadas a herramientas y 1 grupo duplicado

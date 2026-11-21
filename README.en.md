@@ -327,7 +327,7 @@ Each checker is a separate package with its own rule pack and version; install o
 
 ```sh
 pnpm install --frozen-lockfile
-pnpm build && pnpm lint && pnpm typecheck && pnpm test   # tsc build + node --test test/*.test.mjs (11 test files)
+pnpm build && pnpm lint && pnpm typecheck && pnpm test   # tsc build + node --test test/*.test.mjs (12 test files)
 pnpm gate:sku04                                         # acceptance gate (ACCEPTANCE.csv)
 node scripts/acceptance.mjs                             # re-run public/synthetic acceptance
 node samples/quickstart/run.mjs                         # synthetic sample; expect 6 tool calls and 1 duplicate group

@@ -327,7 +327,7 @@ PS1-QS01,quickstart 样例与金标一致,1/1,1,true,synthetic/quickstart,true
 
 ```sh
 pnpm install --frozen-lockfile
-pnpm build && pnpm lint && pnpm typecheck && pnpm test   # tsc 构建 + node --test test/*.test.mjs（11 个测试文件）
+pnpm build && pnpm lint && pnpm typecheck && pnpm test   # tsc 构建 + node --test test/*.test.mjs（12 个测试文件）
 pnpm gate:sku04                                         # 验收门禁（ACCEPTANCE.csv）
 node scripts/acceptance.mjs                             # 重跑公开 / 合成验收
 node samples/quickstart/run.mjs                         # 合成样例，应输出 6 次工具调用、1 个重复组

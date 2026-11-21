@@ -327,7 +327,7 @@ PS1-QS01,quickstart 样例与金标一致,1/1,1,true,synthetic/quickstart,true
 
 ```sh
 pnpm install --frozen-lockfile
-pnpm build && pnpm lint && pnpm typecheck && pnpm test   # tsc बिल्ड + node --test test/*.test.mjs (11 टेस्ट फ़ाइलें)
+pnpm build && pnpm lint && pnpm typecheck && pnpm test   # tsc बिल्ड + node --test test/*.test.mjs (12 टेस्ट फ़ाइलें)
 pnpm gate:sku04                                         # स्वीकृति गेट (ACCEPTANCE.csv)
 node scripts/acceptance.mjs                             # सार्वजनिक/सिंथेटिक स्वीकृति दोबारा चलाएँ
 node samples/quickstart/run.mjs                         # सिंथेटिक सैंपल; 6 टूल कॉल और 1 डुप्लिकेट समूह अपेक्षित
