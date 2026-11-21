@@ -158,6 +158,11 @@ node samples/quickstart/run.mjs
 
 *सिंथेटिक नमूने → गोल्ड फ़ाइल `samples/quickstart/expected/result.json`; कमांड और आउटपुट हैश `screenshots.json` में दर्ज हैं (2026-11-02 का वास्तविक रन)।*
 
+![dsh-einvoice quickstart रन का वास्तविक आउटपुट](docs/assets/dsh-einvoice-demo.gif)
+
+*इस रिपॉज़िटरी में दर्ज असली रन का एनिमेटेड रीप्ले।*
+
+
 ## मापे गए आँकड़े
 
 सार्वजनिक/सिंथेटिक स्वीकृति `scripts/acceptance.mjs` से दोबारा चलाई जाती है; विवरण `ACCEPTANCE.csv` में है। ये उसकी 10 पंक्तियाँ हैं, यथामूल्य उदृत (पूरी फ़ाइल में `script` और `evidence_sha256` भी हैं):

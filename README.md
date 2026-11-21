@@ -158,6 +158,11 @@ node samples/quickstart/run.mjs
 
 *合成样例 → 金标 `samples/quickstart/expected/result.json`；命令与输出哈希见 `screenshots.json`（2026-11-02 真实运行）。*
 
+![dsh-einvoice quickstart 真实运行输出](docs/assets/dsh-einvoice-demo.gif)
+
+*本仓库一次真实运行的动图回放。*
+
+
 ## 实测数据
 
 公开 / 合成验收由 `scripts/acceptance.mjs` 重跑，明细落在 `ACCEPTANCE.csv`。以下为其中的 10 行（原样引用；完整列含 `script` 与 `evidence_sha256`）：

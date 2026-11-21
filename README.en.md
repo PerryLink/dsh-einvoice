@@ -158,6 +158,11 @@ node samples/quickstart/run.mjs
 
 *Synthetic samples → gold file `samples/quickstart/expected/result.json`; the command and output hashes are recorded in `screenshots.json` (real run on 2026-11-02).*
 
+![Real dsh-einvoice quickstart run output](docs/assets/dsh-einvoice-demo.gif)
+
+*Animated replay of a real run recorded in this repository.*
+
+
 ## Measured data
 
 The public/synthetic acceptance suite is reproduced with `scripts/acceptance.mjs`; details live in `ACCEPTANCE.csv`. These are its 10 rows, quoted verbatim (the full file also carries `script` and `evidence_sha256`):

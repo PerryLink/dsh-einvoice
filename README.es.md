@@ -158,6 +158,11 @@ node samples/quickstart/run.mjs
 
 *Muestras sintéticas → archivo de oro `samples/quickstart/expected/result.json`; el comando y los hashes de salida están en `screenshots.json` (ejecución real del 2026-11-02).*
 
+![Salida real de la ejecución del quickstart de dsh-einvoice](docs/assets/dsh-einvoice-demo.gif)
+
+*Repetición animada de una ejecución real registrada en este repositorio.*
+
+
 ## Datos medidos
 
 La aceptación pública/sintética se reproduce con `scripts/acceptance.mjs`; el detalle está en `ACCEPTANCE.csv`. Estas son sus 10 filas, citadas literalmente (el archivo completo también incluye `script` y `evidence_sha256`):
