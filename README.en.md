@@ -11,6 +11,8 @@
 
 A file-level Chinese e-invoice (OFD/XML) plugin for DeepSeek Harness: ingest, parse, deduplicate, record receipts, link red/blue invoices, archive and verify — all on your machine; no tax-bureau call, no model call.
 
+Last verified on DeepSeek Harness `dsh-v0.2.3-alpha.1` (2026-11-22).
+
 [Install](#three-step-setup) · [Configuration](#configuration) · [FAQ](#faq) · [简体中文](README.md) · [English](README.en.md) · [Español](README.es.md) · [Português](README.pt.md) · [हिन्दी](README.hi.md)
 
 [![License](https://img.shields.io/badge/license-Apache--2.0-3366CC?style=flat-square&labelColor=2B3245)](LICENSE)
@@ -161,7 +163,6 @@ node samples/quickstart/run.mjs
 ![Real dsh-einvoice quickstart run output](docs/assets/dsh-einvoice-demo.gif)
 
 *Animated replay of a real run recorded in this repository.*
-
 
 ## Measured data
 
@@ -333,7 +334,7 @@ node scripts/acceptance.mjs                             # re-run public/syntheti
 node samples/quickstart/run.mjs                         # synthetic sample; expect 6 tool calls and 1 duplicate group
 ```
 
-TypeScript sources live in `src/` (`src/core/` for the eight fields and money, `src/adapters/` for OFD/XML parsing, `src/registry/` for the parser registry, `src/plugin/` for the host face); build output goes to `lib/`; fixtures are in `fixtures/`, and the shipped sample in `samples/quickstart/`. Current version `0.3.0` (matches `package.json`). Tests run with `node --test test/*.test.mjs`; skips caused by missing public samples are normal, not failures (see [`TROUBLESHOOTING.md`](TROUBLESHOOTING.md)). The banner and the structure diagram are generated programmatically by [`scripts/gen-readme-assets.py`](scripts/gen-readme-assets.py) (Python: four 1440×576 webp banners via Pillow, plus a hand-written 1100×660 SVG pair for the structure diagram) and are safe to re-run.
+TypeScript sources live in `src/` (`src/core/` for the eight fields and money, `src/adapters/` for OFD/XML parsing, `src/registry/` for the parser registry, `src/plugin/` for the host face); build output goes to `lib/`; fixtures are in `fixtures/`, and the shipped sample in `samples/quickstart/`. Current version `0.3.1` (matches `package.json`). Tests run with `node --test test/*.test.mjs`; skips caused by missing public samples are normal, not failures (see [`TROUBLESHOOTING.md`](TROUBLESHOOTING.md)). The banner and the structure diagram are generated programmatically by [`scripts/gen-readme-assets.py`](scripts/gen-readme-assets.py) (Python: four 1440×576 webp banners via Pillow, plus a hand-written 1100×660 SVG pair for the structure diagram) and are safe to re-run.
 
 Topics: `deepseek-harness`, `dsh`, `dsh-plugin`, `einvoice`, `invoice`, `ofd`, `perrylink`, `finance`
 

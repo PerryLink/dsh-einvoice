@@ -11,6 +11,8 @@
 
 Un plugin de facturación electrónica china (OFD/XML) a nivel de archivo para DeepSeek Harness: ingesta, análisis, deduplicación, recibos, enlace rojo/azul, archivo y verificación, todo en tu máquina; sin llamadas a la autoridad fiscal ni al modelo.
 
+Última verificación: DeepSeek Harness `dsh-v0.2.3-alpha.1` (2026-11-22).
+
 [Instalar](#instalación-en-tres-pasos) · [Configuración](#configuración) · [FAQ](#faq) · [简体中文](README.md) · [English](README.en.md) · [Español](README.es.md) · [Português](README.pt.md) · [हिन्दी](README.hi.md)
 
 [![License](https://img.shields.io/badge/license-Apache--2.0-3366CC?style=flat-square&labelColor=2B3245)](LICENSE)
@@ -161,7 +163,6 @@ node samples/quickstart/run.mjs
 ![Salida real de la ejecución del quickstart de dsh-einvoice](docs/assets/dsh-einvoice-demo.gif)
 
 *Repetición animada de una ejecución real registrada en este repositorio.*
-
 
 ## Datos medidos
 
@@ -333,7 +334,7 @@ node scripts/acceptance.mjs                             # repetir la aceptación
 node samples/quickstart/run.mjs                         # muestra sintética; espera 6 llamadas a herramientas y 1 grupo duplicado
 ```
 
-El código TypeScript está en `src/` (`src/core/` para los ocho campos y el dinero, `src/adapters/` para OFD/XML, `src/registry/` para el registro de analizadores, `src/plugin/` para la cara de anfitrión); la compilación va a `lib/`; las fixtures están en `fixtures/` y la muestra incluida en `samples/quickstart/`. Versión actual `0.3.0` (coincide con `package.json`). Las pruebas se ejecutan con `node --test test/*.test.mjs`; los skips por muestras públicas ausentes son normales, no fallos (ver [`TROUBLESHOOTING.md`](TROUBLESHOOTING.md)). El banner y el diagrama de estructura se generan programáticamente con [`scripts/gen-readme-assets.py`](scripts/gen-readme-assets.py) (Python: cuatro banners webp de 1440×576 con Pillow y un par de SVG de 1100×660 escrito a mano para el diagrama de estructura) y se pueden repetir.
+El código TypeScript está en `src/` (`src/core/` para los ocho campos y el dinero, `src/adapters/` para OFD/XML, `src/registry/` para el registro de analizadores, `src/plugin/` para la cara de anfitrión); la compilación va a `lib/`; las fixtures están en `fixtures/` y la muestra incluida en `samples/quickstart/`. Versión actual `0.3.1` (coincide con `package.json`). Las pruebas se ejecutan con `node --test test/*.test.mjs`; los skips por muestras públicas ausentes son normales, no fallos (ver [`TROUBLESHOOTING.md`](TROUBLESHOOTING.md)). El banner y el diagrama de estructura se generan programáticamente con [`scripts/gen-readme-assets.py`](scripts/gen-readme-assets.py) (Python: cuatro banners webp de 1440×576 con Pillow y un par de SVG de 1100×660 escrito a mano para el diagrama de estructura) y se pueden repetir.
 
 Topics: `deepseek-harness`, `dsh`, `dsh-plugin`, `einvoice`, `invoice`, `ofd`, `perrylink`, `finance`
 

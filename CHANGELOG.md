@@ -38,6 +38,10 @@
 
 ## [Unreleased]
 
+## [0.3.1] - 2026-11-22
+
+- Compatibility: declare DeepSeek Harness 0.2.3-alpha.1 support (>=0.2.3-0 <0.3.0-0 in engines.dsh and every @deepseek-ai/dsh-* peer range) and refresh README verification stamps.
+
 ### Added
 
 - `invoice_code_check`: EN 16931 code-list validation for currency (ISO 4217), country (ISO 3166-1 alpha-2) and VAT category (BR-CL-17). Well-formed but unlisted values are reported as unknown, never as invalid. Verified by `node --test test/*.test.mjs` (31/31).

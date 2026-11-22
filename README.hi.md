@@ -11,6 +11,8 @@
 
 DeepSeek Harness के लिए फ़ाइल-स्तरीय चीनी ई-इनवॉइस (OFD/XML) प्लगइन: अंतर्ग्रहण, पार्सिंग, डुप्लिकेट पहचान, रसीद, लाल/नीली लिंकिंग, संग्रह और सत्यापन — सब आपकी मशीन पर; न कर कार्यालय कॉल, न मॉडल कॉल।
 
+अंतिम सत्यापन: DeepSeek Harness `dsh-v0.2.3-alpha.1` (2026-11-22).
+
 [इंस्टॉल](#तीन-चरणों-में-शुरुआत) · [कॉन्फ़िगरेशन](#कॉन्फ़िगरेशन) · [FAQ](#faq) · [简体中文](README.md) · [English](README.en.md) · [Español](README.es.md) · [Português](README.pt.md) · [हिन्दी](README.hi.md)
 
 [![License](https://img.shields.io/badge/license-Apache--2.0-3366CC?style=flat-square&labelColor=2B3245)](LICENSE)
@@ -161,7 +163,6 @@ node samples/quickstart/run.mjs
 ![dsh-einvoice quickstart रन का वास्तविक आउटपुट](docs/assets/dsh-einvoice-demo.gif)
 
 *इस रिपॉज़िटरी में दर्ज असली रन का एनिमेटेड रीप्ले।*
-
 
 ## मापे गए आँकड़े
 
@@ -333,7 +334,7 @@ node scripts/acceptance.mjs                             # सार्वजन�
 node samples/quickstart/run.mjs                         # सिंथेटिक सैंपल; 6 टूल कॉल और 1 डुप्लिकेट समूह अपेक्षित
 ```
 
-TypeScript स्रोत `src/` में हैं (`src/core/` आठ फ़ील्ड और राशि, `src/adapters/` OFD/XML पार्सिंग, `src/registry/` पार्सर रजिस्ट्री, `src/plugin/` होस्ट फ़ेस); बिल्ड आउटपुट `lib/` में जाता है; fixtures `fixtures/` में और शामिल नमूना `samples/quickstart/` में है। वर्तमान वर्ज़न `0.3.0` (`package.json` से मेल खाता है)। टेस्ट `node --test test/*.test.mjs` से चलते हैं; सार्वजनिक नमूनों के अभाव से होने वाले skip सामान्य हैं, विफलता नहीं (देखें [`TROUBLESHOOTING.md`](TROUBLESHOOTING.md))। हेडर बैनर और संरचना आरेख [`scripts/gen-readme-assets.py`](scripts/gen-readme-assets.py) से प्रोग्रामेटिक रूप से बनते हैं (Python: Pillow से 1440×576 के चार webp बैनर और संरचना आरेख के लिए हाथ से लिखा 1100×660 का SVG जोड़ा), और दोबारा चलाए जा सकते हैं।
+TypeScript स्रोत `src/` में हैं (`src/core/` आठ फ़ील्ड और राशि, `src/adapters/` OFD/XML पार्सिंग, `src/registry/` पार्सर रजिस्ट्री, `src/plugin/` होस्ट फ़ेस); बिल्ड आउटपुट `lib/` में जाता है; fixtures `fixtures/` में और शामिल नमूना `samples/quickstart/` में है। वर्तमान वर्ज़न `0.3.1` (`package.json` से मेल खाता है)। टेस्ट `node --test test/*.test.mjs` से चलते हैं; सार्वजनिक नमूनों के अभाव से होने वाले skip सामान्य हैं, विफलता नहीं (देखें [`TROUBLESHOOTING.md`](TROUBLESHOOTING.md))। हेडर बैनर और संरचना आरेख [`scripts/gen-readme-assets.py`](scripts/gen-readme-assets.py) से प्रोग्रामेटिक रूप से बनते हैं (Python: Pillow से 1440×576 के चार webp बैनर और संरचना आरेख के लिए हाथ से लिखा 1100×660 का SVG जोड़ा), और दोबारा चलाए जा सकते हैं।
 
 Topics: `deepseek-harness`, `dsh`, `dsh-plugin`, `einvoice`, `invoice`, `ofd`, `perrylink`, `finance`
 
