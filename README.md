@@ -334,7 +334,7 @@ node scripts/acceptance.mjs                             # 重跑公开 / 合成�
 node samples/quickstart/run.mjs                         # 合成样例，应输出 6 次工具调用、1 个重复组
 ```
 
-TypeScript 源码在 `src/`（`src/core/` 八字段与金额、`src/adapters/` OFD/XML 适配、`src/registry/` 解析器注册表、`src/plugin/` 宿主面），构建产物在 `lib/`；fixture 在 `fixtures/`，随包样例在 `samples/quickstart/`。当前版本 `0.3.1`（与 `package.json` 一致）。测试用 `node --test test/*.test.mjs`；公开样本缺失导致的 skip 属正常，不是失败（见 [`TROUBLESHOOTING.md`](TROUBLESHOOTING.md)）。开头横幅与结构图由 [`scripts/gen-readme-assets.py`](scripts/gen-readme-assets.py) 程序化生成（Python：Pillow 画 1440×576 横幅四张 webp，手写 SVG 画 1100×660 结构图深浅双版），可重复执行。
+TypeScript 源码在 `src/`（`src/core/` 八字段与金额、`src/adapters/` OFD/XML 适配、`src/registry/` 解析器注册表、`src/plugin/` 宿主面），构建产物在 `lib/`；fixture 在 `fixtures/`，随包样例在 `samples/quickstart/`。当前版本 `0.3.2`（与 `package.json` 一致）。测试用 `node --test test/*.test.mjs`；公开样本缺失导致的 skip 属正常，不是失败（见 [`TROUBLESHOOTING.md`](TROUBLESHOOTING.md)）。开头横幅与结构图由 [`scripts/gen-readme-assets.py`](scripts/gen-readme-assets.py) 程序化生成（Python：Pillow 画 1440×576 横幅四张 webp，手写 SVG 画 1100×660 结构图深浅双版），可重复执行。
 
 Topics：`deepseek-harness`, `dsh`, `dsh-plugin`, `einvoice`, `invoice`, `ofd`, `perrylink`, `finance`
 
